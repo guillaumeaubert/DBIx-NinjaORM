@@ -42,6 +42,7 @@ my $tests =
 		},
 		expected => undef,
 	},
+	
 	# Operator "NULL".
 	{
 		name     => 'Test operator="NULL" with correct input.',
@@ -71,6 +72,7 @@ my $tests =
 			values => [],
 		},
 	},
+	
 	# Operator "=".
 	{
 		name     => 'Test operator="=" with values=scalar.',
@@ -100,6 +102,7 @@ my $tests =
 			values => [ 1, 'a' ],
 		},
 	},
+	
 	# Operator "not".
 	{
 		name     => 'Test operator="not" with values=scalar.',
@@ -129,6 +132,7 @@ my $tests =
 			values => [ 1, 'a' ],
 		},
 	},
+	
 	# Operator ">".
 	{
 		name     => 'Test operator=">" with values=scalar.',
@@ -158,6 +162,7 @@ my $tests =
 			values => [ 3 ],
 		},
 	},
+	
 	# Operator ">=".
 	{
 		name     => 'Test operator=">" with values=scalar.',
@@ -187,6 +192,7 @@ my $tests =
 			values => [ 3 ],
 		},
 	},
+	
 	# Operator "<".
 	{
 		name     => 'Test operator="<" with values=scalar.',
@@ -216,6 +222,7 @@ my $tests =
 			values => [ 1 ],
 		},
 	},
+	
 	# Operator "<=".
 	{
 		name     => 'Test operator="<=" with values=scalar.',
