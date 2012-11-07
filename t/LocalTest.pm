@@ -31,6 +31,32 @@ our $VERSION = '1.0.0';
 
 =head1 FUNCTIONS
 
+=head2 get_database_handle()
+
+Create a database handle.
+
+	my $dbh = LocalTest::get_database_handle();
+
+=cut
+
+sub get_database_handle
+{
+	$ENV{'NINJAORM_DATABASE'} ||= 'dbi:SQLite:dbname=t/test_database||';
+	
+	my ( $database_dsn, $database_user, $database_password ) = split( /\|/, $ENV{'NINJAORM_DATABASE'} );
+	
+	my $database_handle = DBI->connect(
+		$database_dsn,
+		$database_user,
+		$database_password,
+		{
+			RaiseError => 1,
+		}
+	);
+	
+	return $database_handle
+}
+
 =head2 ok_database_handle()
 
 Verify that a database handle can be created, and return it.
@@ -41,18 +67,9 @@ Verify that a database handle can be created, and return it.
 
 sub ok_database_handle
 {
-	$ENV{'NINJAORM_DATABASE'} ||= 'dbi:SQLite:dbname=t/test_database||';
-	
-	my ( $database_dsn, $database_user, $database_password ) = split( /\|/, $ENV{'NINJAORM_DATABASE'} );
-	
 	ok(
-		my $database_handle = DBI->connect(
-			$database_dsn,
-			$database_user,
-			$database_password,
-			{
-				RaiseError => 1,
-			}
+		defined(
+			my $database_handle = get_database_handle()
 		),
 		'Create connection to a database.',
 	);
