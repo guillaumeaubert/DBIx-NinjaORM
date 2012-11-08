@@ -57,6 +57,7 @@ sub get_database_handle
 	return $database_handle
 }
 
+
 =head2 ok_database_handle()
 
 Verify that a database handle can be created, and return it.
@@ -78,6 +79,30 @@ sub ok_database_handle
 	note( "Testing $database_type database." );
 	
 	return $database_handle;
+}
+
+
+=head2 ok_database_type()
+
+Verify that the database type is supported, and return it.
+
+	my $database_type = LocalTest::ok_database_type( $database_handle );
+
+=cut
+
+sub ok_database_type
+{
+	my ( $dbh ) = @_;
+	
+	my $type = $dbh->{'Driver'}->{'Name'} || '';
+	
+	like(
+		$type,
+		qr/^(?:mysql|SQLite)$/,
+		"Database type '$type' is supported.",
+	);
+	
+	return $type;
 }
 
 
