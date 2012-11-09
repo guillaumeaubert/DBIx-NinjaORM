@@ -5,7 +5,7 @@ use warnings;
 
 use DBIx::NinjaORM;
 use Test::Exception;
-use Test::More tests => 6;
+use Test::More tests => 8;
 use Test::Type;
 
 
@@ -83,12 +83,13 @@ subtest(
 	}
 );
 
+my $object;
 subtest(
 	'Insert with correct information.',
 	sub
 	{
 		ok(
-			my $object = DBIx::NinjaORM::Test->new(),
+			$object = DBIx::NinjaORM::Test->new(),
 			'Create new object.',
 		);
 		
@@ -106,6 +107,16 @@ subtest(
 	}
 );
 
+ok(
+	$object->{'created'} > 0,
+	"The 'created' field was auto-populated.",
+) || diag( explain( $object ) );
+
+ok(
+	$object->{'modified'} > 0,
+	"The 'modified' field was auto-populated.",
+) || diag( explain( $object ) );
+
 
 package DBIx::NinjaORM::Test;
 
@@ -120,12 +131,15 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'default_dbh'      => LocalTest::get_database_handle(),
-		'table_name'       => 'tests',
-		'primary_key_name' => 'test_id',
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->{'default_dbh'} = LocalTest::get_database_handle();
+	$info->{'table_name'} = 'tests';
+	$info->{'primary_key_name'} = 'test_id';
+	
+	return $info;
 }
 
 1;
