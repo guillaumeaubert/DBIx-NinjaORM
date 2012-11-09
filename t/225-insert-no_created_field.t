@@ -1,0 +1,81 @@
+#!perl -T
+
+use strict;
+use warnings;
+
+use DBIx::NinjaORM;
+use Test::Exception;
+use Test::More tests => 4;
+use Test::Type;
+
+
+ok(
+	my $object = DBIx::NinjaORM::Test->new(),
+	'Create new object.',
+);
+
+my $name = 'test_insert_nocreated_' . time();
+lives_ok(
+	sub
+	{
+		$object->insert(
+			{
+				name => $name,
+			}
+		)
+	},
+	'Insert succeeds.',
+);
+
+my $row;
+lives_ok(
+	sub
+	{
+		my $dbh = $object->assert_dbh();
+		
+		$row = $dbh->selectrow_hashref(
+			q|
+				SELECT *
+				FROM no_created_tests
+				WHERE name = ?
+			|,
+			{},
+			$name,
+		);
+		
+		die 'No row'
+			if !defined( $row );
+	},
+	'Retrieve the inserted row',
+);
+
+ok(
+	!exists( $row->{'created'} ),
+	'The row does not have a created field.',
+);
+
+
+package DBIx::NinjaORM::Test;
+
+use strict;
+use warnings;
+
+use lib 't';
+use LocalTest;
+
+use base 'DBIx::NinjaORM';
+
+
+sub static_class_info
+{
+	return
+	{
+		'default_dbh'       => LocalTest::get_database_handle(),
+		'table_name'        => 'no_created_tests',
+		'primary_key_name'  => 'test_id',
+		'has_created_field' => 0,
+	};
+}
+
+1;
+
