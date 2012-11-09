@@ -97,7 +97,7 @@ subtest(
 			{
 				$object->insert(
 					{
-						name => 'test_insert_1',
+						name => 'test_insert_' . time(),
 					}
 				)
 			},
