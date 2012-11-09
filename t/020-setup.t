@@ -7,55 +7,61 @@ use lib 't';
 use LocalTest;
 
 use Test::Exception;
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 
 my $dbh = LocalTest::ok_database_handle();
 
 my $database_type = LocalTest::ok_database_type( $dbh );
 
-my $table_definitions =
-{
-	SQLite =>
-	q|
-		CREATE TABLE tests
-		(
-			test_id INTEGER PRIMARY KEY AUTOINCREMENT,
-			name VARCHAR(32) NOT NULL,
-			value VARCHAR(128) DEFAULT NULL,
-			created BIGINT(20) NOT NULL DEFAULT '0',
-			modified BIGINT(20) NOT NULL DEFAULT '0',
-			UNIQUE (name)
-		)
-	|,
-	mysql  =>
-	q|
-		CREATE TABLE tests
-		(
-			test_id bigint(20) unsigned NOT NULL auto_increment,
-			name varchar(32) NOT NULL,
-			value varchar(128) DEFAULT NULL,
-			created bigint(20) unsigned NOT NULL default '0',
-			modified bigint(20) unsigned NOT NULL default '0',
-			PRIMARY KEY (test_id),
-			UNIQUE KEY idx_unique_name (name)
-		)
-	|,
-};
-
+my $schema_file = "t/SQL/setup_$database_type.sql";
 ok(
-	defined(
-		my $table_definition = $table_definitions->{ $database_type }
-	),
-	'Retrieve table definition for the table type.',
+	-e $schema_file,
+	"The SQL configuration file for '$database_type' exists.",
 );
 
+my $schema;
 lives_ok(
 	sub
 	{
-		$dbh->do(
-			$table_definition
-		);
+		open( my $fh, '<', $schema_file )
+			|| die "Failed to open $schema_file: $!";
+		
+		$schema = do { local $/ = undef; <$fh> };
+		
+		close( $fh );
 	},
-	'Create test table.',
+	'Retrieve the SQL schema.',
 );
+
+my $statements =
+[
+	map { s/(^\s+|\s+$)//g; $_ }
+	grep { /\w/ }
+	split( /;$/m, $schema )
+];
+
+subtest(
+	'Run SQL statements.',
+	sub
+	{
+		plan( tests => scalar( @$statements ) );
+		
+		foreach my $statement ( @$statements )
+		{
+			my ( $name, $sql ) = $statement =~ /^--\s+(.*?)\s+--\s*(.*)$/s;
+			$name ||= 'Run statement.';
+			$sql ||= $statement;
+			
+			diag( $sql );
+			lives_ok(
+				sub
+				{
+					$dbh->do( $sql );
+				},
+				$name,
+			);
+		}
+	}
+);
+
