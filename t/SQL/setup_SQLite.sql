@@ -26,6 +26,5 @@ CREATE TABLE no_modified_tests
 	name VARCHAR(32) NOT NULL,
 	value VARCHAR(128) DEFAULT NULL,
 	created BIGINT(20) NOT NULL DEFAULT '0',
-	modified BIGINT(20) NOT NULL DEFAULT '0',
 	UNIQUE (name)
 );
