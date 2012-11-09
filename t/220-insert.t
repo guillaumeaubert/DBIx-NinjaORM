@@ -5,7 +5,7 @@ use warnings;
 
 use DBIx::NinjaORM;
 use Test::Exception;
-use Test::More tests => 8;
+use Test::More tests => 9;
 use Test::Type;
 
 
@@ -116,6 +116,12 @@ ok(
 	$object->{'modified'} > 0,
 	"The 'modified' field was auto-populated.",
 ) || diag( explain( $object ) );
+
+isnt(
+	$object->id(),
+	undef,
+	'The auto-increment field was populated.',
+);
 
 
 package DBIx::NinjaORM::Test;
