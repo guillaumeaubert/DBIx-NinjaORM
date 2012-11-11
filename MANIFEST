@@ -37,6 +37,7 @@ t/225-insert-no_created_field.t
 t/226-insert-no_modified_field.t
 t/300-build_filtering_clause.t
 t/305-parse_filtering_criteria.t
+t/310-reorganize_non_native_fields.t
 t/320-retrieve_list_nocache.t
 t/321-retrieve_list_nocache-objects.t
 t/322-retrieve_list_nocache-join.t
