@@ -1,11 +1,23 @@
+-- Accounts table for use in JOIN tests --
+CREATE TABLE accounts
+(
+	account_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	email VARCHAR(128) NOT NULL,
+	created BIGINT(20) NOT NULL DEFAULT '0',
+	modified BIGINT(20) NOT NULL DEFAULT '0',
+	UNIQUE (email)
+);
+
 -- Standard table. --
 CREATE TABLE tests
 (
 	test_id INTEGER PRIMARY KEY AUTOINCREMENT,
 	name VARCHAR(32) NOT NULL,
 	value VARCHAR(128) DEFAULT NULL,
+	account_id INTEGER DEFAULT NULL,
 	created BIGINT(20) NOT NULL DEFAULT '0',
 	modified BIGINT(20) NOT NULL DEFAULT '0',
+	FOREIGN KEY (account_id) REFERENCES accounts(account_id),
 	UNIQUE (name)
 );
 
@@ -28,3 +40,4 @@ CREATE TABLE no_modified_tests
 	created BIGINT(20) NOT NULL DEFAULT '0',
 	UNIQUE (name)
 );
+
