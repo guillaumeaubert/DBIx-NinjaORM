@@ -16,7 +16,7 @@ my $dbh = LocalTest::ok_database_handle();
 
 ok(
 	defined(
-		my $name = "test_" . time()
+		my $name = "test_overwrite_created_" . time()
 	),
 	'Create test field name.',
 );
