@@ -63,7 +63,7 @@ my $tests =
 		{
 			clauses     =>
 			[
-				'"tests.field1" IN (?)',
+				'"tests"."field1" IN (?)',
 			],
 			values      =>
 			[
@@ -90,8 +90,8 @@ my $tests =
 		{
 			clauses     =>
 			[
-				'"tests.field1" IN (?)',
-				'"tests.field2" IN (?)',
+				'"tests"."field1" IN (?)',
+				'"tests"."field2" IN (?)',
 			],
 			values      =>
 			[
@@ -117,7 +117,7 @@ my $tests =
 		{
 			clauses     =>
 			[
-				'"tests.field1" IN (?, ?)',
+				'"tests"."field1" IN (?, ?)',
 			],
 			values      =>
 			[
@@ -146,7 +146,7 @@ my $tests =
 		{
 			clauses     =>
 			[
-				'"tests.field1" > ?',
+				'"tests"."field1" > ?',
 			],
 			values      =>
 			[
@@ -173,7 +173,7 @@ my $tests =
 		{
 			clauses     =>
 			[
-				'"tests.field1" NOT IN (?, ?, ?)',
+				'"tests"."field1" NOT IN (?, ?, ?)',
 			],
 			values      =>
 			[
