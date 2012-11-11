@@ -132,6 +132,38 @@ sub ok_database_type
 }
 
 
+=head2 ok_memcache()
+
+Verify that memcache is running, and skip all tests if it isn't.
+
+	my $memcache = LocalTest::ok_memcache();
+
+=cut
+
+sub ok_memcache
+{
+	# Verify if Cache::Memcached::Fast is installed.
+	eval 'use Cache::Memcached::Fast';
+	plan( skip_all => 'Cache::Memcached::Fast required to test rate limiting.' )
+		if $@;
+	
+	# Verify that memcache is configured and running.
+	my $memcache = Cache::Memcached::Fast->new(
+		{
+			servers =>
+			[
+				'localhost:11211',
+			],
+		}
+	);
+	
+	plan( skip_all => 'Memcache is not running or configured on this machine, cannot test rate limiting' )
+		if !defined( $memcache) || !$memcache->set( 'test_ninja_orm', 1, time() + 10 );
+	
+	return $memcache;
+}
+
+
 =head1 AUTHOR
 
 Guillaume Aubert, C<< <aubertg at cpan.org> >>.
