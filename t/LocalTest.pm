@@ -54,6 +54,16 @@ sub get_database_handle
 		}
 	);
 	
+	# If it's SQLite, we need to turn on foreign keys support.
+	if ( defined( $database_handle ) )
+	{
+		my $database_type = get_database_type( $database_handle );
+		if ( defined( $database_type ) && ( $database_type eq 'SQLite' ) )
+		{
+			$database_handle->do( 'PRAGMA foreign_keys = ON' );
+		}
+	}
+	
 	return $database_handle
 }
 
@@ -82,6 +92,22 @@ sub ok_database_handle
 }
 
 
+=head2 get_database_type()
+
+Return the name of the driver used by the database handle.
+
+	my $database_type = LocalTest::get_database_type( $database_handle );
+
+=cut
+
+sub get_database_type
+{
+	my ( $dbh ) = @_;
+	
+	return $dbh->{'Driver'}->{'Name'};
+}
+
+
 =head2 ok_database_type()
 
 Verify that the database type is supported, and return it.
@@ -94,7 +120,7 @@ sub ok_database_type
 {
 	my ( $dbh ) = @_;
 	
-	my $type = $dbh->{'Driver'}->{'Name'} || '';
+	my $type = get_database_type( $dbh ) || '';
 	
 	like(
 		$type,
