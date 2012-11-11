@@ -35,6 +35,7 @@ t/223-insert-generated_primary_key_value.t
 t/224-insert-dbh.t
 t/225-insert-no_created_field.t
 t/226-insert-no_modified_field.t
+t/290-get.t
 t/300-build_filtering_clause.t
 t/305-parse_filtering_criteria.t
 t/310-reorganize_non_native_fields.t
