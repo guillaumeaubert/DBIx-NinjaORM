@@ -13,265 +13,130 @@ use Test::More;
 
 LocalTest::ok_memcache();
 
-plan( tests => 3 );
-
-subtest(
-	'Test with skip_cache=undef.',
-	sub
+my $tests =
+[
 	{
-		plan( tests => 11 );
-		
-		ok(
-			defined(
-				my $insert_test = DBIx::NinjaORM::Test->new()
-			),
-			'Create DBIx::NinjaORM::Test object.',
-		);
-		
-		ok(
-			$insert_test->insert(
-				{
-					name => 'skip_cache_1_' . time(),
-				}
-			),
-			'Insert new row.',
-		);
-		
-		isnt(
-			$insert_test->id(),
-			undef,
-			'The inserted row has a valid ID.',
-		);
-		
-		ok(
-			my $tests1 = DBIx::NinjaORM::Test->retrieve_list(
-				id         => $insert_test->id(),
-				skip_cache => undef,
-			),
-			'Retrieve rows by ID.',
-		);
-		
-		is(
-			scalar( @$tests1 ),
-			1,
-			'Found one row.',
-		);
-		
-		my $test1 = $tests1->[0];
-		
-		is(
-			$test1->{'_debug'}->{'list_cache_used'},
-			0,
-			'The list cache is not used.',
-		);
-		
-		is(
-			$test1->{'_debug'}->{'object_cache_used'},
-			0,
-			'The object cache is not used.',
-		);
-		
-		ok(
-			my $tests2 = DBIx::NinjaORM::Test->retrieve_list(
-				id         => $insert_test->id(),
-				skip_cache => undef,
-			),
-			'Retrieve rows by ID.',
-		);
-		
-		is(
-			scalar( @$tests2 ),
-			1,
-			'Found one row.',
-		);
-		
-		my $test2 = $tests2->[0];
-		
-		is(
-			$test2->{'_debug'}->{'list_cache_used'},
-			0,
-			'The list cache is not used.',
-		) || diag( explain( $test2->{'_debug'} ) );
-		
-		is(
-			$test2->{'_debug'}->{'object_cache_used'},
-			1,
-			'The object cache is used.',
-		) || diag( explain( $test2->{'_debug'} ) );
-	}
-);
-
-subtest(
-	'Test with skip_cache=0.',
-	sub
+		skip_cache           => undef,
+		second_retrieve_list =>
+		{
+			list_cache_used   => 0,
+			object_cache_used => 1,
+		},
+	},
 	{
-		plan( tests => 11 );
-		
-		ok(
-			defined(
-				my $insert_test = DBIx::NinjaORM::Test->new()
-			),
-			'Create DBIx::NinjaORM::Test object.',
-		);
-		
-		ok(
-			$insert_test->insert(
-				{
-					name => 'skip_cache_2_' . time(),
-				}
-			),
-			'Insert new row.',
-		);
-		
-		isnt(
-			$insert_test->id(),
-			undef,
-			'The inserted row has a valid ID.',
-		);
-		
-		ok(
-			my $tests1 = DBIx::NinjaORM::Test->retrieve_list(
-				id         => $insert_test->id(),
-				skip_cache => 0,
-			),
-			'Retrieve rows by ID.',
-		);
-		
-		is(
-			scalar( @$tests1 ),
-			1,
-			'Found one row.',
-		);
-		
-		my $test1 = $tests1->[0];
-		
-		is(
-			$test1->{'_debug'}->{'list_cache_used'},
-			0,
-			'The list cache is not used.',
-		);
-		
-		is(
-			$test1->{'_debug'}->{'object_cache_used'},
-			0,
-			'The object cache is used.',
-		);
-		
-		ok(
-			my $tests2 = DBIx::NinjaORM::Test->retrieve_list(
-				id         => $insert_test->id(),
-				skip_cache => 0,
-			),
-			'Retrieve rows by ID.',
-		);
-		
-		is(
-			scalar( @$tests2 ),
-			1,
-			'Found one row.',
-		);
-		
-		my $test2 = $tests2->[0];
-		
-		is(
-			$test2->{'_debug'}->{'list_cache_used'},
-			0,
-			'The list cache is not used.',
-		);
-		
-		is(
-			$test2->{'_debug'}->{'object_cache_used'},
-			1,
-			'The object cache is used.',
-		);
-	}
-);
-
-subtest(
-	'Test with skip_cache=1.',
-	sub
+		skip_cache           => 0,
+		second_retrieve_list =>
+		{
+			list_cache_used   => 0,
+			object_cache_used => 1,
+		},
+	},
 	{
-		plan( tests => 11 );
-		
-		ok(
-			defined(
-				my $insert_test = DBIx::NinjaORM::Test->new()
-			),
-			'Create DBIx::NinjaORM::Test object.',
-		);
-		
-		ok(
-			$insert_test->insert(
-				{
-					name => 'skip_cache_3_' . time(),
-				}
-			),
-			'Insert new row.',
-		);
-		
-		isnt(
-			$insert_test->id(),
-			undef,
-			'The inserted row has a valid ID.',
-		);
-		
-		ok(
-			my $tests1 = DBIx::NinjaORM::Test->retrieve_list(
-				id         => $insert_test->id(),
-				skip_cache => 1,
-			),
-			'Retrieve rows by ID.',
-		);
-		
-		is(
-			scalar( @$tests1 ),
-			1,
-			'Found one row.',
-		);
-		
-		my $test1 = $tests1->[0];
-		
-		is(
-			$test1->{'_debug'}->{'list_cache_used'},
-			0,
-			'The list cache is not used.',
-		);
-		
-		is(
-			$test1->{'_debug'}->{'object_cache_used'},
-			0,
-			'The object cache is not used.',
-		);
-		
-		ok(
-			my $tests2 = DBIx::NinjaORM::Test->retrieve_list(
-				id         => $insert_test->id(),
-				skip_cache => 1,
-			),
-			'Retrieve rows by ID.',
-		);
-		
-		is(
-			scalar( @$tests2 ),
-			1,
-			'Found one row.',
-		);
-		
-		my $test2 = $tests2->[0];
-		
-		is(
-			$test2->{'_debug'}->{'list_cache_used'},
-			0,
-			'The list cache is not used.',
-		);
-		
-		is(
-			$test2->{'_debug'}->{'object_cache_used'},
-			0,
-			'The object cache is not used.',
-		);
-	}
-);
+		skip_cache           => 1,
+		second_retrieve_list =>
+		{
+			list_cache_used   => 0,
+			object_cache_used => 0,
+		},
+	},
+];
+
+plan( tests => scalar( @$tests ) );
+
+my $count = 0;
+foreach my $test ( @$tests )
+{
+	$count++;
+	my $skip_cache = $test->{'skip_cache'};
+	
+	subtest(
+		'Test with skip_cache=' . ( $skip_cache // 'undef' ). '.',
+		sub
+		{
+			plan( tests => 11 );
+			
+			ok(
+				defined(
+					my $insert_test = DBIx::NinjaORM::Test->new()
+				),
+				'Create DBIx::NinjaORM::Test object.',
+			);
+			
+			ok(
+				$insert_test->insert(
+					{
+						name => 'skip_cache_' . $count . '_' . time(),
+					}
+				),
+				'Insert new row.',
+			);
+			
+			isnt(
+				$insert_test->id(),
+				undef,
+				'The inserted row has a valid ID.',
+			);
+			
+			ok(
+				my $tests1 = DBIx::NinjaORM::Test->retrieve_list(
+					id         => $insert_test->id(),
+					skip_cache => $skip_cache,
+				),
+				'Retrieve rows by ID.',
+			);
+			
+			is(
+				scalar( @$tests1 ),
+				1,
+				'Found one row.',
+			);
+			
+			my $test1 = $tests1->[0];
+			
+			is(
+				$test1->{'_debug'}->{'list_cache_used'},
+				0,
+				'The list cache is not used.',
+			) || diag( explain( $test1->{'_debug'} ) );
+			
+			is(
+				$test1->{'_debug'}->{'object_cache_used'},
+				0,
+				'The object cache is not used.',
+			) || diag( explain( $test1->{'_debug'} ) );
+			
+			ok(
+				my $tests2 = DBIx::NinjaORM::Test->retrieve_list(
+					id         => $insert_test->id(),
+					skip_cache => $skip_cache,
+				),
+				'Retrieve rows by ID.',
+			);
+			
+			is(
+				scalar( @$tests2 ),
+				1,
+				'Found one row.',
+			);
+			
+			my $test2 = $tests2->[0];
+			
+			my $expected_list_cache = $test->{'second_retrieve_list'}->{'list_cache_used'};
+			is(
+				$test2->{'_debug'}->{'list_cache_used'},
+				$expected_list_cache,
+				'The list cache is ' . ( $expected_list_cache ? 'used' : 'not used' ) . '.',
+			) || diag( explain( $test2->{'_debug'} ) );
+			
+			my $expected_object_cache = $test->{'second_retrieve_list'}->{'object_cache_used'};
+			is(
+				$test2->{'_debug'}->{'object_cache_used'},
+				$expected_object_cache,
+				'The object cache is ' . ( $expected_object_cache ? 'used' : 'not used' ) . '.',
+			) || diag( explain( $test2->{'_debug'} ) );
+		}
+	);
+}
 
 
 package DBIx::NinjaORM::Test;
