@@ -25,6 +25,7 @@ t/118-get_private_fields.t
 t/119-has_created_field.t
 t/120-has_modified_field.t
 t/121-get_cache_key_field.t
+t/150-set_cache.t
 t/200-new.t
 t/210-validate_data.t
 t/215-set.t
