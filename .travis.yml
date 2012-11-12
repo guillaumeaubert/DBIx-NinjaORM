@@ -1,0 +1,16 @@
+language: perl
+perl:
+  - "5.16"
+  - "5.14"
+before_script:
+  - mysql -e 'CREATE DATABASE ninja_orm;'
+  - psql -c 'CREATE DATABASE ninja_orm;' -U postgres
+  - cpanm --notest DBI
+  - cpanm --notest DBD::Pg
+  - cpanm --notest DBD::mysql
+services:
+  - memcache
+env:
+  - QUEUE_DBI_DATABASE=''
+  - QUEUE_DBI_DATABASE='DBI:mysql:database=ninja_orm;host=127.0.0.1|root|'
+  - QUEUE_DBI_DATABASE='DBI:Pg:dbname=ninja_orm;host=127.0.0.1|postgres|'
