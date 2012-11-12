@@ -1,5 +1,12 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test that retrieve_list() correctly dispatches to either retrieve_list_cache()
+or retrieve_list_nocache(), depending on what cache options are set.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -11,21 +18,21 @@ use Test::Exception;
 use Test::More tests => 7;
 
 
+# Verify that the main class supports the method.
 can_ok(
 	'DBIx::NinjaORM',
 	'retrieve_list',
 );
 
+# Verify inheritance.
 can_ok(
 	'DBIx::NinjaORM::ListCache',
 	'retrieve_list',
 );
-
 can_ok(
 	'DBIx::NinjaORM::ObjectCache',
 	'retrieve_list',
 );
-
 can_ok(
 	'DBIx::NinjaORM::NoCache',
 	'retrieve_list',
@@ -158,6 +165,7 @@ subtest(
 );
 
 
+# Test subclass with 'list_cache_time' set.
 package DBIx::NinjaORM::ListCache;
 
 use strict;
@@ -176,11 +184,15 @@ sub static_class_info
 	return $static_class_info;
 }
 
+# Return a known value to make it easy to determine if retrieve_list_cache()
+# was called by retrieve_list().
 sub retrieve_list_cache
 {
 	return 'retrieve_list_cache';
 }
 
+# Return a known value to make it easy to determine if retrieve_list_nocache()
+# was called by retrieve_list().
 sub retrieve_list_nocache
 {
 	return 'retrieve_list_nocache';
@@ -189,6 +201,7 @@ sub retrieve_list_nocache
 1;
 
 
+# Test subclass with 'object_cache_time' set.
 package DBIx::NinjaORM::ObjectCache;
 
 use strict;
@@ -207,11 +220,15 @@ sub static_class_info
 	return $static_class_info;
 }
 
+# Return a known value to make it easy to determine if retrieve_list_cache()
+# was called by retrieve_list().
 sub retrieve_list_cache
 {
 	return 'retrieve_list_cache';
 }
 
+# Return a known value to make it easy to determine if retrieve_list_nocache()
+# was called by retrieve_list().
 sub retrieve_list_nocache
 {
 	return 'retrieve_list_nocache';
@@ -220,6 +237,7 @@ sub retrieve_list_nocache
 1;
 
 
+# Test subclass with neither 'list_cache_time' and 'object_cache_time' set.
 package DBIx::NinjaORM::NoCache;
 
 use strict;
@@ -238,11 +256,15 @@ sub static_class_info
 	return $static_class_info;
 }
 
+# Return a known value to make it easy to determine if retrieve_list_cache()
+# was called by retrieve_list().
 sub retrieve_list_cache
 {
 	return 'retrieve_list_cache';
 }
 
+# Return a known value to make it easy to determine if retrieve_list_nocache()
+# was called by retrieve_list().
 sub retrieve_list_nocache
 {
 	return 'retrieve_list_nocache';

@@ -1,5 +1,11 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test setting fields and corresponding values with set().
+
+=cut
+
 use strict;
 use warnings;
 
@@ -9,6 +15,7 @@ use Test::Exception;
 use Test::More tests => 7;
 
 
+# Verify that the main class supports the method.
 can_ok(
 	'DBIx::NinjaORM',
 	'set',
@@ -35,6 +42,7 @@ dies_ok(
 	'The first argument must be a hashref.',
 );
 
+# Make sure that private fields cannot be set via set() by default.
 subtest(
 	'Set a private field without the "force" argument.',
 	sub
@@ -65,6 +73,7 @@ subtest(
 	}
 );
 
+# Make sure that private fields cannot be set via set() without 'force'.
 subtest(
 	'Set a private field with force=0.',
 	sub
@@ -96,6 +105,8 @@ subtest(
 	}
 );
 
+# Make sure that private fields can be set via set() when the 'force' argument
+# is specified and set to 1.
 subtest(
 	'Set a private field with force=1.',
 	sub
@@ -129,6 +140,7 @@ subtest(
 );
 
 
+# Test subclass with private fields and a primary key name set.
 package DBIx::NinjaORM::Test;
 
 use strict;

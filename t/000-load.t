@@ -1,6 +1,13 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test that DBIx::NinjaORM loads.
+
+=cut
+
 use Test::More tests => 2;
+
 
 BEGIN
 {

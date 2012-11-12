@@ -1,5 +1,11 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test inserting rows when the table doesn't have a 'created' field.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -55,6 +61,8 @@ ok(
 );
 
 
+# Test subclass with enough information to successfully insert rows, and
+# 'has_created_field' set to 0.
 package DBIx::NinjaORM::Test;
 
 use strict;

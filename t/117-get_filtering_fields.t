@@ -1,5 +1,12 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Make sure that get_filtering_fields() returns the arrayref of filtering fields
+specified in the static class information.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -9,6 +16,7 @@ use Test::Exception;
 use Test::More tests => 5;
 
 
+# Verify that the main class supports the method.
 can_ok(
 	'DBIx::NinjaORM',
 	'get_filtering_fields',
@@ -20,6 +28,7 @@ can_ok(
 	'get_filtering_fields',
 );
 
+# Tests.
 my $tests =
 [
 	{
@@ -39,6 +48,7 @@ my $tests =
 	},
 ];
 
+# Run tests.
 foreach my $test ( @$tests )
 {
 	subtest(
@@ -66,6 +76,7 @@ foreach my $test ( @$tests )
 }
 
 
+# Test subclass with 'filtering_fields' set.
 package DBIx::NinjaORM::Test;
 
 use strict;

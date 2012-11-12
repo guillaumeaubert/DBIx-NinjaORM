@@ -1,5 +1,12 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test inserting rows without an object, by using the insert() method directly on
+a class.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -9,7 +16,6 @@ use LocalTest;
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::More tests => 5;
-use Test::Type;
 
 
 my $dbh = LocalTest::ok_database_handle();
@@ -21,6 +27,8 @@ ok(
 	'Create test field name.',
 );
 
+# Insert directly from the class, with $class->insert() instead
+# of $object->insert().
 lives_ok(
 	sub
 	{
@@ -34,6 +42,7 @@ lives_ok(
 	'Insert a test record using the class name.',
 );
 
+# Verify that the insert worked.
 my $row;
 lives_ok(
 	sub
@@ -61,6 +70,7 @@ is(
 );
 
 
+# Test subclass with enough information to successfully insert rows.
 package DBIx::NinjaORM::Test;
 
 use strict;

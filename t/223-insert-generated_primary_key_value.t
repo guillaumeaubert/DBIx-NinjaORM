@@ -1,5 +1,12 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test that insert() allows setting a pre-generated primary key value via the
+'generated_primary_key_value' argument.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -28,6 +35,7 @@ ok(
 	'Create a new object.',
 );
 
+# Make sure that there's no existing row with our custom ID.
 dies_ok(
 	sub
 	{
@@ -47,6 +55,7 @@ dies_ok(
 	'No row with the custom ID.',
 );
 
+# Insert row with a custom primary key value.
 lives_ok(
 	sub
 	{
@@ -61,6 +70,8 @@ lives_ok(
 	'Insert a test record with a custom ID.',
 );
 
+# Make sure the row was inserted with the custom primary key value, not with an
+# automatically generated one.
 lives_ok(
 	sub
 	{
@@ -81,6 +92,7 @@ lives_ok(
 );
 
 
+# Test subclass with enough information to successfully insert rows.
 package DBIx::NinjaORM::Test;
 
 use strict;
@@ -105,3 +117,4 @@ sub static_class_info
 }
 
 1;
+

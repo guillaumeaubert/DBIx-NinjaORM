@@ -1,5 +1,11 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test inserting rows via the objects.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -9,6 +15,7 @@ use Test::More tests => 9;
 use Test::Type;
 
 
+# Verify that the main class supports the method.
 can_ok(
 	'DBIx::NinjaORM',
 	'insert',
@@ -124,6 +131,7 @@ isnt(
 );
 
 
+# Test subclass with enough information to insert rows.
 package DBIx::NinjaORM::Test;
 
 use strict;
@@ -151,6 +159,8 @@ sub static_class_info
 1;
 
 
+# Test subclass without a table name defined, which should not allow inserting
+# rows.
 package DBIx::NinjaORM::TestNoTableName;
 
 use strict;
@@ -170,6 +180,8 @@ sub static_class_info
 1;
 
 
+# Test subclass without a primary key name defined, which should not allow
+# inserting rows.
 package DBIx::NinjaORM::TestNoPK;
 
 use strict;

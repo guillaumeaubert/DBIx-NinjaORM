@@ -1,5 +1,12 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test parsing arguments that are normally passed via retrieve_list(), and make sure
+that it turns them into proper SQL clauses with their corresponding values.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -15,6 +22,7 @@ my $dbh = LocalTest::ok_database_handle();
 
 my $quoted_field = $dbh->quote_identifier( 'test_field' );
 
+# Tests.
 my $tests =
 [
 	# The argument "fields" must be an arrayref.
@@ -223,11 +231,13 @@ my $tests =
 
 # TODO: test all the custom operators to make sure they're supported.
 
+# Verify that the main class supports the method.
 can_ok(
 	'DBIx::NinjaORM',
 	'parse_filtering_criteria',
 );
 
+# Run tests.
 foreach my $test ( @$tests )
 {
 	my $input = $test->{'input'};
@@ -235,6 +245,7 @@ foreach my $test ( @$tests )
 	
 	if ( defined( $expected ) )
 	{
+		# If we're expected a return, test the returned values.
 		subtest(
 			$test->{'name'},
 			sub
@@ -277,6 +288,8 @@ foreach my $test ( @$tests )
 	}
 	else
 	{
+		# If we're not expecting a return, make sure the method dies to indicate
+		# that there's a problem.
 		dies_ok(
 			sub
 			{
@@ -290,27 +303,7 @@ foreach my $test ( @$tests )
 }
 
 
-package DBIx::NinjaORM::Test;
-
-use strict;
-use warnings;
-
-use lib 't';
-use LocalTest;
-
-use base 'DBIx::NinjaORM';
-
-
-sub static_class_info
-{
-	return
-	{
-		'table_name'       => 'tests',
-		'primary_key_name' => 'test_id',
-		'default_dbh'      => LocalTest::get_database_handle(),
-	};
-}
-
+# Test subclass.
 package DBIx::NinjaORM::Test;
 
 use strict;

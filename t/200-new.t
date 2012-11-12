@@ -1,5 +1,11 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Make sure that new() returns an empty blessed object.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -9,6 +15,7 @@ use Test::More tests => 5;
 use Test::Type;
 
 
+# Verify that the main class supports the method.
 can_ok(
 	'DBIx::NinjaORM',
 	'new',
@@ -20,6 +27,7 @@ can_ok(
 	'new',
 );
 
+# Make sure that new() returns an empty object.
 my $object;
 lives_ok(
 	sub
@@ -41,6 +49,7 @@ is(
 );
 
 
+# Test subclass with the bare minimum needed by new().
 package DBIx::NinjaORM::Test;
 
 use strict;

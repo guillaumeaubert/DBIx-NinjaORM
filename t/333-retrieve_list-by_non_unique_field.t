@@ -1,5 +1,12 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test retrieving objects by non-unique field via retrieve_list(), with different
+cache options.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -13,6 +20,7 @@ use Test::More;
 
 LocalTest::ok_memcache();
 
+# Tests.
 my $tests =
 [
 	{
@@ -43,6 +51,7 @@ my $tests =
 
 plan( tests => scalar( @$tests ) );
 
+# Run tests.
 my $count = 0;
 foreach my $test ( @$tests )
 {
@@ -55,6 +64,7 @@ foreach my $test ( @$tests )
 		{
 			plan( tests => 10 );
 			
+			# Insert row.
 			ok(
 				defined(
 					my $insert_test = DBIx::NinjaORM::Test->new()
@@ -73,6 +83,9 @@ foreach my $test ( @$tests )
 				'Insert new row.',
 			);
 			
+			# Retrieve the corresponding object for the first time. It obviously
+			# can't/shouldn't be in the cache at this stage, since it was just
+			# inserted.
 			ok(
 				my $tests1 = DBIx::NinjaORM::Test->retrieve_list(
 					value      => $value,
@@ -101,6 +114,9 @@ foreach my $test ( @$tests )
 				'The object cache is not used.',
 			) || diag( explain( $test1->{'_debug'} ) );
 			
+			# Retrieve the corresponding object a second time. If cache options are
+			# set accordingly and we're not explicitely skipping the cache, we should
+			# have it in the cache.
 			ok(
 				my $tests2 = DBIx::NinjaORM::Test->retrieve_list(
 					value      => $value,
@@ -135,6 +151,8 @@ foreach my $test ( @$tests )
 }
 
 
+# Test subclass with enough information to insert rows properly, and with both
+# 'object_cache_time' and 'list_cache_time' set.
 package DBIx::NinjaORM::Test;
 
 use strict;

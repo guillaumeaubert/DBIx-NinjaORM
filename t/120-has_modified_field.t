@@ -1,5 +1,12 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Make sure that has_modified_field() returns the value specified in the static
+class information.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -8,6 +15,7 @@ use Test::Exception;
 use Test::More tests => 8;
 
 
+# Verify that the main class supports the method.
 can_ok(
 	'DBIx::NinjaORM',
 	'has_modified_field',
@@ -23,6 +31,7 @@ can_ok(
 	'has_modified_field',
 );
 
+# Tests.
 my $tests =
 [
 	{
@@ -31,27 +40,28 @@ my $tests =
 		expected => 1,
 	},
 	{
-		name     => 'Test calling has_modified_field() on DBIx::NinjaORM::TestCreated.',
-		ref      => 'DBIx::NinjaORM::TestCreated',
+		name     => 'Test calling has_modified_field() on DBIx::NinjaORM::TestModified.',
+		ref      => 'DBIx::NinjaORM::TestModified',
 		expected => 1,
 	},
 	{
-		name     => 'Test calling has_modified_field() on a DBIx::NinjaORM::TestCreated object.',
-		ref      => bless( {}, 'DBIx::NinjaORM::TestCreated' ),
+		name     => 'Test calling has_modified_field() on a DBIx::NinjaORM::TestModified object.',
+		ref      => bless( {}, 'DBIx::NinjaORM::TestModified' ),
 		expected => 1,
 	},
 	{
-		name     => 'Test calling has_modified_field() on DBIx::NinjaORM::TestNoCreated.',
-		ref      => 'DBIx::NinjaORM::TestNoCreated',
+		name     => 'Test calling has_modified_field() on DBIx::NinjaORM::TestNoModified.',
+		ref      => 'DBIx::NinjaORM::TestNoModified',
 		expected => 0,
 	},
 	{
-		name     => 'Test calling has_modified_field() on a DBIx::NinjaORM::TestNoCreated object.',
-		ref      => bless( {}, 'DBIx::NinjaORM::TestNoCreated' ),
+		name     => 'Test calling has_modified_field() on a DBIx::NinjaORM::TestNoModified object.',
+		ref      => bless( {}, 'DBIx::NinjaORM::TestNoModified' ),
 		expected => 0,
 	},
 ];
 
+# Run tests.
 foreach my $test ( @$tests )
 {
 	subtest(
@@ -79,7 +89,8 @@ foreach my $test ( @$tests )
 }
 
 
-package DBIx::NinjaORM::TestCreated;
+# Test subclass with a 'modified' field.
+package DBIx::NinjaORM::TestModified;
 
 use strict;
 use warnings;
@@ -98,7 +109,8 @@ sub static_class_info
 1;
 
 
-package DBIx::NinjaORM::TestNoCreated;
+# Test subclass without a 'modified' field.
+package DBIx::NinjaORM::TestNoModified;
 
 use strict;
 use warnings;

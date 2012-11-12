@@ -1,5 +1,12 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test retrieve_list_nocache(), which is how we turn SELECTs into objects without
+any caching involved.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -9,6 +16,7 @@ use Test::More tests => 6;
 use Test::Type;
 
 
+# Verify that the main class supports the method.
 can_ok(
 	'DBIx::NinjaORM',
 	'retrieve_list_nocache',
@@ -61,6 +69,7 @@ lives_ok(
 );
 
 
+# Test subclass.
 package DBIx::NinjaORM::Test;
 
 use strict;

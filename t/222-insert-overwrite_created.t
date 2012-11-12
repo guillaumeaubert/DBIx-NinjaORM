@@ -1,5 +1,12 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test that insert() accepts a specific 'created' timestamp, via the
+'overwrite_created' parameter.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -35,6 +42,7 @@ ok(
 	'Create a new object.',
 );
 
+# Insert row.
 lives_ok(
 	sub
 	{
@@ -49,6 +57,7 @@ lives_ok(
 	'Insert a test record with "overwrite_created" set.',
 );
 
+# Verify that the row was inserted with the custom 'created' time.
 my $row;
 lives_ok(
 	sub
@@ -76,6 +85,7 @@ is(
 );
 
 
+# Test subclass with enough information to successfully insert rows.
 package DBIx::NinjaORM::Test;
 
 use strict;

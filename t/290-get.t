@@ -1,5 +1,13 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test retrieving field values on objects using get().
+
+Some fields are protected and should not be retrieved directly.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -9,6 +17,7 @@ use Test::Exception;
 use Test::More tests => 10;
 
 
+# Verify that the main class supports the method.
 can_ok(
 	'DBIx::NinjaORM',
 	'get',
@@ -27,6 +36,7 @@ ok(
 	'Create a new Test object.',
 );
 
+# Make sure we require a field name.
 dies_ok(
 	sub
 	{
@@ -43,6 +53,8 @@ dies_ok(
 	'An empty field name is not valid.',
 );
 
+# Make sure that fields names starting with an underscore are not directly
+# accessible.
 ok(
 	defined( $test->{'_field'} = 1 ),
 	'Set up field starting with an underscore.',
@@ -56,6 +68,7 @@ dies_ok(
 	'Fields starting with an underscore cannot be retrieved via get().',
 );
 
+# Make sure that normal fields are accessible.
 ok(
 	defined( $test->{'field'} = 10 ),
 	'Set up a normal field.',
@@ -77,6 +90,9 @@ is(
 );
 
 
+# Test subclass.
+# We don't actually need to interact with the database to test get(), so we
+# just need the barebones here.
 package DBIx::NinjaORM::Test;
 
 use strict;
@@ -86,24 +102,6 @@ use lib 't';
 use LocalTest;
 
 use base 'DBIx::NinjaORM';
-
-1;
-
-__DATA__
-
-sub static_class_info
-{
-	my ( $class ) = @_;
-	
-	my $info = $class->SUPER::static_class_info();
-	
-	$info->{'default_dbh'} = LocalTest::get_database_handle();
-	$info->{'table_name'} = 'tests';
-	$info->{'primary_key_name'} = 'test_id';
-	$info->{'filtering_fields'} = [ 'name' ];
-	
-	return $info;
-}
 
 1;
 

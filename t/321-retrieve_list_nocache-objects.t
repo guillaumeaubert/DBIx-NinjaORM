@@ -1,5 +1,11 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Verify that retrieve_list_nocache() returns proper objects.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -11,6 +17,7 @@ use Test::Type;
 
 my $test_name = 'test_nocache_' . time() . '_';
 
+# Insert objects we'll use next for testing.
 foreach my $count ( 1..3 )
 {
 	subtest(
@@ -37,6 +44,7 @@ foreach my $count ( 1..3 )
 	);
 }
 
+# Retrieve the objects we just inserted.
 my $objects;
 lives_ok(
 	sub
@@ -54,6 +62,7 @@ is(
 	'Retrieved three objects.',
 ) || diag( explain( $objects ) );
 
+# Make sure the objects are blessed correctly.
 subtest(
 	'Verify class of objects.',
 	sub
@@ -71,6 +80,7 @@ subtest(
 );
 
 
+# Test subclass.
 package DBIx::NinjaORM::Test;
 
 use strict;

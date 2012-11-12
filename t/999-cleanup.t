@@ -1,5 +1,11 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Delete the SQLite database if it exists.
+
+=cut
+
 use strict;
 use warnings;
 

@@ -1,5 +1,12 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Make sure that has_created_field() returns the value specified in the static
+class information.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -8,6 +15,7 @@ use Test::Exception;
 use Test::More tests => 8;
 
 
+# Verify that the main class supports the method.
 can_ok(
 	'DBIx::NinjaORM',
 	'has_created_field',
@@ -23,6 +31,7 @@ can_ok(
 	'has_created_field',
 );
 
+# Tests.
 my $tests =
 [
 	{
@@ -52,6 +61,7 @@ my $tests =
 	},
 ];
 
+# Run tests.
 foreach my $test ( @$tests )
 {
 	subtest(
@@ -79,6 +89,7 @@ foreach my $test ( @$tests )
 }
 
 
+# Test subclass with a 'created' field.
 package DBIx::NinjaORM::TestCreated;
 
 use strict;
@@ -98,6 +109,7 @@ sub static_class_info
 1;
 
 
+# Test subclass without a 'created' field.
 package DBIx::NinjaORM::TestNoCreated;
 
 use strict;

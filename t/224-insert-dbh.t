@@ -1,5 +1,14 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test that insert() can insert rows on a database handle that is different
+from the default database handle specified in static_class_info().
+
+This helps support classes that have different reader/writer databases.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -45,6 +54,8 @@ lives_ok(
 );
 
 
+# Test subclass with an invalid 'default_dbh'. This will allow detecting
+# inserts using the default class database handle, as they will fail.
 package DBIx::NinjaORM::Test;
 
 use strict;

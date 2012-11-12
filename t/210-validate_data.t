@@ -1,5 +1,11 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test that validate_data() rejects incorrect/protected fields.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -9,6 +15,7 @@ use Test::Exception;
 use Test::More tests => 7;
 
 
+# Verify that the main class supports the method.
 can_ok(
 	'DBIx::NinjaORM',
 	'validate_data',
@@ -25,6 +32,7 @@ ok(
 	'Create new object.',
 );
 
+# Test setting the primary key value when it's not set on the object.
 subtest(
 	'Set primary key value.',
 	sub
@@ -57,6 +65,7 @@ subtest(
 	}                 
 );
 
+# Test setting the primary key value when it's already set on the object.
 subtest(
 	'Fail to override primary key value.',
 	sub
@@ -83,6 +92,9 @@ subtest(
 	}
 );
 
+# Make sure that the code using this module cannot set fields starting with
+# an underscore, as those are reserved for fields non-native to the underlying
+# table.
 subtest(
 	'Fields starting with an underscore are ignored.',
 	sub
@@ -116,6 +128,7 @@ subtest(
 	}
 );
 
+# Make sure that private fields are protected.
 subtest(
 	'Private fields are ignored.',
 	sub
@@ -150,6 +163,7 @@ subtest(
 );
 
 
+# Test subclass with private fields and a primary key name set.
 package DBIx::NinjaORM::Test;
 
 use strict;

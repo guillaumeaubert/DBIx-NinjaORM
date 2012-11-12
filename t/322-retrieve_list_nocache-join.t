@@ -1,5 +1,11 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test SQL JOINs in subclassed retrieve_list_nocache() methods.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -9,6 +15,7 @@ use Test::More tests => 7;
 use Test::Type;
 
 
+# Create account.
 ok(
 	defined(
 		my $account = DBIx::NinjaORM::Account->new()
@@ -28,6 +35,7 @@ lives_ok(
 	'Insert the account.',
 );
 
+# Create a test object tied to the account we just inserted.
 ok(
 	my $object = DBIx::NinjaORM::Test->new(),
 	'Create new test object.',
@@ -47,6 +55,7 @@ lives_ok(
 	'Insert the test object.',
 );
 
+# Retrieve the object corresponding to the row we just inserted.
 my $objects;
 lives_ok(
 	sub
@@ -64,6 +73,7 @@ is(
 	'Retrieved one object.',
 ) || diag( explain( $objects ) );
 
+# Make sure that the field that comes from a SQL JOIN is correct.
 is(
 	$objects->[0]->{'_account'}->{'email'},
 	'aubertg@cpan.org',
@@ -71,6 +81,7 @@ is(
 );
 
 
+# Test subclass.
 package DBIx::NinjaORM::Test;
 
 use strict;
@@ -96,6 +107,7 @@ sub static_class_info
 	return $info;
 }
 
+# Subclass 'retrieve_list_nocache' to add the information about the JOIN.
 sub retrieve_list_nocache
 {
 	my ( $class, %args ) = @_;
@@ -119,6 +131,7 @@ sub retrieve_list_nocache
 1;
 
 
+# Test subclass for accounts.
 package DBIx::NinjaORM::Account;
 
 use strict;

@@ -1,5 +1,12 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test building SQL clauses from arguments that will be normally passed to
+retrieve_list().
+
+=cut
+
 use strict;
 use warnings;
 
@@ -15,6 +22,7 @@ my $dbh = LocalTest::ok_database_handle();
 
 my $quoted_field = $dbh->quote_identifier( 'test_field' );
 
+# Tests.
 my $tests = 
 [
 	# Operator "between".
@@ -254,11 +262,13 @@ my $tests =
 	},
 ];
 
+# Verify that the main class supports the method.
 can_ok(
 	'DBIx::NinjaORM',
 	'build_filtering_clause',
 );
 
+# Run tests.
 foreach my $test ( @$tests )
 {
 	my $input = $test->{'input'};
@@ -312,6 +322,8 @@ foreach my $test ( @$tests )
 }
 
 
+# Test subclass. We just need 'default_dbh' to be set up, as testing this
+# method requires it to quote fields.
 package DBIx::NinjaORM::Test;
 
 use strict;

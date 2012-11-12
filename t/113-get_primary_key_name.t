@@ -1,5 +1,12 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Make sure that get_primary_key_name() returns the name of the primary key
+specified in the static class information.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -9,6 +16,7 @@ use Test::More tests => 4;
 use Test::Type;
 
 
+# Verify that the main class supports the method.
 can_ok(
 	'DBIx::NinjaORM',
 	'get_primary_key_name',
@@ -20,6 +28,7 @@ can_ok(
 	'get_primary_key_name',
 );
 
+# Tests.
 my $tests =
 [
 	{
@@ -32,6 +41,7 @@ my $tests =
 	},
 ];
 
+# Run tests.
 foreach my $test ( @$tests )
 {
 	subtest(
@@ -59,6 +69,7 @@ foreach my $test ( @$tests )
 }
 
 
+# Test subclass with a primary key name.
 package DBIx::NinjaORM::Test;
 
 use strict;

@@ -1,5 +1,11 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Test the default values of static_class_info().
+
+=cut
+
 use strict;
 use warnings;
 
@@ -9,11 +15,13 @@ use Test::More tests => 5;
 use Test::Type;
 
 
+# Make sure that static_class_info() is supported by DBIx::NinjaORM.
 can_ok(
 	'DBIx::NinjaORM',
 	'static_class_info',
 );
 
+# Retrieve the static class information.
 my $info;
 lives_ok(
 	sub
@@ -28,6 +36,7 @@ ok_hashref(
 	name => 'Static class info',
 );
 
+# List of mandatory static class info keys.
 my $mandatory_keys =
 [
 	qw(
@@ -46,6 +55,7 @@ my $mandatory_keys =
 	)
 ];
 
+# Make sure we have all the mandatory keys.
 subtest(
 	'Verify the mandatory information.',
 	sub
@@ -58,11 +68,14 @@ subtest(
 				exists( $info->{ $key } ),
 				"The mandatory key '$key' exists.",
 			);
+			# Delete the valid key, so that we can make sure at
+			# the end that we don't have unknown keys.
 			delete( $info->{ $key } );
 		}
 	}
 );
 
+# Make sure we don't have unknown keys left.
 is(
 	scalar( keys %$info ),
 	0,

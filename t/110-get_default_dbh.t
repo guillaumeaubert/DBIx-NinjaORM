@@ -1,14 +1,21 @@
 #!perl -T
 
+=head1 PURPOSE
+
+Make sure that get_default_dbh() returns the database handle
+specified in the static class information.
+
+=cut
+
 use strict;
 use warnings;
 
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::More tests => 4;
-use Test::Type;
 
 
+# Make sure that get_default_dbh() is supported by DBIx::NinjaORM.
 can_ok(
 	'DBIx::NinjaORM',
 	'get_default_dbh',
@@ -22,16 +29,19 @@ can_ok(
 
 my $tests =
 [
+	# We need to support $class->get_default_dbh() calls.
 	{
 		name => 'Test calling get_default_dbh() on the class',
 		ref  => 'DBIx::NinjaORM::Test',
 	},
+	# We need to support $object->get_default_dbh() calls.
 	{
 		name => 'Test calling get_default_dbh() on an object',
 		ref  => bless( {}, 'DBIx::NinjaORM::Test' ),
 	},
 ];
 
+# Run tests.
 foreach my $test ( @$tests )
 {
 	subtest(
@@ -59,6 +69,7 @@ foreach my $test ( @$tests )
 }
 
 
+# Test subclass with a custom 'default_dbh' key.
 package DBIx::NinjaORM::Test;
 
 use strict;
@@ -71,8 +82,12 @@ sub static_class_info
 {
 	return
 	{
+		# We're not going to use the database handle, we just need to
+		# be able to compare the value, so it's easier here to set it
+		# to a known value.
 		'default_dbh' => "TESTDBH",
 	};
 }
 
 1;
+
