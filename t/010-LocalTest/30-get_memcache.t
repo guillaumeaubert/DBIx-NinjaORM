@@ -6,6 +6,7 @@ use warnings;
 use lib 't/lib';
 use LocalTest;
 
+use Test::Exception;
 use Test::More tests => 2;
 
 
