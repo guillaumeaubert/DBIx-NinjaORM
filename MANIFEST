@@ -11,6 +11,7 @@ t/000-load.t
 t/010-LocalTest/00-load.t
 t/010-LocalTest/10-get_database_handle.t
 t/010-LocalTest/20-get_database_type.t
+t/010-LocalTest/30-get_memcache.t
 t/020-setup.t
 t/100-static_class_info.t
 t/101-cached_static_class_info.t
