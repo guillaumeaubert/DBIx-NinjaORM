@@ -179,13 +179,13 @@ sub ok_memcache
 {
 	# Verify if Cache::Memcached::Fast is installed.
 	eval 'use Cache::Memcached::Fast';
-	plan( skip_all => 'Cache::Memcached::Fast required to test rate limiting.' )
+	plan( skip_all => 'Cache::Memcached::Fast required to test cache-related features.' )
 		if $@;
 	
 	my $memcache = LocalTest::get_memcache();
 	
 	# Verify that memcache is configured and running.
-	plan( skip_all => 'Memcache is not running or configured on this machine, cannot test rate limiting' )
+	plan( skip_all => 'Memcache is not running or configured on this machine, cannot test.' )
 		if !defined( $memcache) || !$memcache->set( 'test_ninja_orm', 1, time() + 10 );
 	
 	return $memcache;
