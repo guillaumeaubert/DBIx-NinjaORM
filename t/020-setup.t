@@ -9,7 +9,7 @@ Setup database schema for the following tests.
 use strict;
 use warnings;
 
-use lib 't';
+use lib 't/lib';
 use LocalTest;
 
 use Test::Exception;

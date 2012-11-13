@@ -10,7 +10,7 @@ Test that insert() allows setting a pre-generated primary key value via the
 use strict;
 use warnings;
 
-use lib 't';
+use lib 't/lib';
 use LocalTest;
 
 use DBIx::NinjaORM;
@@ -98,7 +98,7 @@ package DBIx::NinjaORM::Test;
 use strict;
 use warnings;
 
-use lib 't';
+use lib 't/lib';
 use LocalTest;
 
 use base 'DBIx::NinjaORM';

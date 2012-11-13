@@ -267,7 +267,7 @@ package DBIx::NinjaORM::Test;
 use strict;
 use warnings;
 
-use lib 't';
+use lib 't/lib';
 use LocalTest;
 
 use base 'DBIx::NinjaORM';

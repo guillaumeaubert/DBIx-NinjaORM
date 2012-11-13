@@ -10,7 +10,7 @@ or retrieve_list_nocache(), depending on what cache options are set.
 use strict;
 use warnings;
 
-use lib 't';
+use lib 't/lib';
 use LocalTest;
 
 use DBIx::NinjaORM;
