@@ -23,11 +23,11 @@ can_ok(
 
 # Verify inheritance.
 can_ok(
-	'DBIx::NinjaORM::TestCreated',
+	'DBIx::NinjaORM::TestModified',
 	'has_modified_field',
 );
 can_ok(
-	'DBIx::NinjaORM::TestNoCreated',
+	'DBIx::NinjaORM::TestNoModified',
 	'has_modified_field',
 );
 
