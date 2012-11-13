@@ -64,4 +64,11 @@ sub static_class_info
 	return $info;
 }
 
+# Subclass retrieve_list(), to make sure it triggers an error.
+sub retrieve_list
+{
+	my ( $class, @args ) = @_;
+	return $class->SUPER::retrieve_list( @args );
+}
+
 1;
