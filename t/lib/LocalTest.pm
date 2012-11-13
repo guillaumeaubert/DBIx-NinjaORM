@@ -23,7 +23,7 @@ our $VERSION = '1.0.0';
 
 =head1 SYNOPSIS
 
-	use lib 't/';
+	use lib 't/lib';
 	use LocalTest;
 	
 	my $dbh = LocalTest::ok_database_handle();
