@@ -44,6 +44,17 @@ dies_ok(
 dies_ok(
 	sub
 	{
+		DBIx::NinjaORM::Test->set_cache(
+			key         => 'test_get_cache',
+			expire_time => time() + 100,
+		);
+	},
+	'The "value" argument cannot be undefined.',
+);
+
+dies_ok(
+	sub
+	{
 		DBIx::NinjaORM::Test->set_cache( invalid_argument => 1 );
 	},
 	'Invalid argument names are detected properly.'
@@ -70,17 +81,6 @@ lives_ok(
 		);
 	},
 	'Set a test cache key without expire time.',
-);
-
-lives_ok(
-	sub
-	{
-		DBIx::NinjaORM::Test->set_cache(
-			key         => 'test_get_cache',
-			expire_time => time() + 100,
-		);
-	},
-	'Set a test cache key without value.',
 );
 
 
