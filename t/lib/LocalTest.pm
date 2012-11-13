@@ -3,6 +3,8 @@ package LocalTest;
 use strict;
 use warnings;
 
+use Carp;
+use Data::Validate::Type;
 use DBI;
 use Test::More;
 
@@ -103,6 +105,9 @@ Return the name of the driver used by the database handle.
 sub get_database_type
 {
 	my ( $dbh ) = @_;
+	
+	croak 'The first argument of get_database_type() must be a database handle'
+		if ! Data::Validate::Type::is_instance( $dbh, class => 'DBI::db' );
 	
 	return $dbh->{'Driver'}->{'Name'};
 }
