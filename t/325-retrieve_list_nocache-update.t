@@ -66,7 +66,7 @@ subtest(
 		
 		ok(
 			defined(
-				my $test = DBIx::NinjaORM::Test->new(
+				$test = DBIx::NinjaORM::Test->new(
 					name => $test_name,
 				)
 			),
