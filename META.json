@@ -1,0 +1,61 @@
+{
+   "abstract" : "Flexible Perl ORM for easy transitions from inline SQL to objects.",
+   "author" : [
+      "Guillaume Aubert <aubertg@cpan.org>"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921",
+   "license" : [
+      "open_source"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "DBIx-NinjaORM",
+   "no_index" : {
+      "file" : [
+         "t/lib/LocalTest.pm"
+      ]
+   },
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Test::Deep" : "0",
+            "Test::Exception" : "0",
+            "Test::More" : "0.94",
+            "Test::Type" : "0"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "perl" : "5.006"
+         }
+      }
+   },
+   "provides" : {
+      "DBIx::NinjaORM" : {
+         "file" : "lib/DBIx/NinjaORM.pm",
+         "version" : "v1.0.0"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "http://rt.cpan.org/NoAuth/ReportBug.html?Queue=dbix-ninjaorm"
+      },
+      "homepage" : "https://metacpan.org/release/DBIx-NinjaORM",
+      "license" : [
+         "http://www.gnu.org/licenses/gpl-3.0.txt"
+      ],
+      "repository" : {
+         "url" : "https://github.com/guillaumeaubert/DBIx-NinjaORM"
+      }
+   },
+   "version" : "v1.0.0"
+}
