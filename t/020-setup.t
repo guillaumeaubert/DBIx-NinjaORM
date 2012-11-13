@@ -68,7 +68,7 @@ subtest(
 			$name ||= 'Run statement.';
 			$sql ||= $statement;
 			
-			diag( $sql );
+			note( $sql );
 			lives_ok(
 				sub
 				{
