@@ -12,7 +12,7 @@ use warnings;
 use DBIx::NinjaORM;
 use Test::Deep;
 use Test::Exception;
-use Test::More tests => 8;
+use Test::More tests => 10;
 use Test::Type;
 
 
@@ -46,6 +46,11 @@ lives_ok(
 	},
 	'Insert succeeds.',
 );
+is(
+	$object->{'_populated_by_retrieve_list'},
+	undef,
+	'The object was not populated via retrieve_list().',
+);
 
 # Set a test field which should go away upon reload.
 ok(
@@ -74,6 +79,14 @@ is(
 	$object->{'_test_key'},
 	undef,
 	'The object was reloaded (the test property is gone)'
+);
+
+# If the object was populated correctly, we should see here that it was
+# populated by retrieve_list() called during reload().
+is(
+	$object->{'_populated_by_retrieve_list'},
+	1,
+	'The object was populated via retrieve_list().',
 );
 
 
