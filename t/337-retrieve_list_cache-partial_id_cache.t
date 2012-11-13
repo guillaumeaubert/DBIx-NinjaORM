@@ -11,14 +11,20 @@ the database).
 
 =cut
 
-
 use strict;
 use warnings;
 
+use lib 't/lib';
+use LocalTest;
+
 use DBIx::NinjaORM;
 use Test::Exception;
-use Test::More tests => 13;
+use Test::More;
 
+
+# These tests require memcache to be running.
+LocalTest::ok_memcache();
+plan( tests => 13 );
 
 # Insert test records.
 my $time = time();
