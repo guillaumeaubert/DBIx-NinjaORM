@@ -36,6 +36,13 @@ my $builder = Module::Build->new(
 			homepage    => 'https://metacpan.org/release/DBIx-NinjaORM',
 			bugtracker  => 'http://rt.cpan.org/NoAuth/ReportBug.html?Queue=dbix-ninjaorm',
 		},
+		no_index               =>
+		{
+			file        =>
+			[
+				't/lib/LocalTest.pm',
+			],
+		},
 	},
 	recursive_test_files => 1,
 );
