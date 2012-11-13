@@ -47,7 +47,7 @@ note( 'Set up fields inside the object.' );
 $test->{'_account_account_id'} = 1;
 $test->{'_table_field'} = 'value';
 $test->{'name'} = 'Guillaume';
-diag( explain( $test ) );
+note( explain( $test ) );
 
 # Reorganize fields.
 lives_ok(
