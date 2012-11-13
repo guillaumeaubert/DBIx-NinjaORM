@@ -53,6 +53,7 @@ t/333-retrieve_list-by_non_unique_field.t
 t/500-flatten_object.t
 t/510-dump.t
 t/520-clone.t
+t/530-reload.t
 t/999-cleanup.t
 t/LocalTest.pm
 t/SQL/setup_SQLite.sql
