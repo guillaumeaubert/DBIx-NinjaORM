@@ -5,6 +5,9 @@ Changes
 LICENSE
 MANIFEST
 MANIFEST.SKIP
+META.json
+META.yml
+Makefile.PL
 README
 ignore.txt
 lib/DBIx/NinjaORM.pm
