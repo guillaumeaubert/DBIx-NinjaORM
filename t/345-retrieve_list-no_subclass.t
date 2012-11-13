@@ -1,0 +1,67 @@
+#!/usr/local/bin/perl
+
+=head1 PURPOSE
+
+Make sure that retrieve_list() cannot be subclassed.
+
+Subclassing retrieve_list() could result in infinite recursion, so
+retrieve_list() should detect this and die early.
+
+=cut
+
+use strict;
+use warnings;
+
+use Test::Exception;
+use Test::More tests => 3;
+
+
+# Verify that the main class supports the method.
+can_ok(
+	'DBIx::NinjaORM',
+	'retrieve_list',
+);
+
+# The subclass inherits the method, so can() should detect it.
+can_ok(
+	'DBIx::NinjaORM::Test',
+	'retrieve_list',
+);
+
+throws_ok(
+	sub
+	{
+		my $tests = DBIx::NinjaORM::Test->retrieve_list(
+			allow_all => 1,
+		);
+	},
+	qr/\QYou have subclassed retrieve_list(), which is not allowed to prevent infinite recursions\E/,
+	'A direct retrieve_list() call in a subclass is forbidden.',
+);
+
+
+# Test subclass.
+package DBIx::NinjaORM::Test;
+
+use strict;
+use warnings;
+
+use lib 't';
+use LocalTest;
+
+use base 'DBIx::NinjaORM';
+
+
+sub static_class_info
+{
+	my ( $class ) = @_;
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->{'default_dbh'} = LocalTest::get_database_handle();
+	$info->{'table_name'} = 'tests';
+	$info->{'primary_key_name'} = 'test_id';
+	
+	return $info;
+}
+
+1;
