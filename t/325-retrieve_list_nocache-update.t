@@ -137,6 +137,7 @@ sub static_class_info
 	$info->{'default_dbh'} = LocalTest::get_database_handle();
 	$info->{'table_name'} = 'tests';
 	$info->{'primary_key_name'} = 'test_id';
+	$info->{'unique_fields'} = [ 'name' ];
 	$info->{'list_cache_time'} = undef;
 	$info->{'object_cache_time'} = undef;
 	
