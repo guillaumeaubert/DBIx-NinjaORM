@@ -100,8 +100,10 @@ subtest(
 		plan( tests => 2 );
 		
 		ok(
-			my $test = DBIx::NinjaORM::Test->new(
-				name => $test_name,
+			defined(
+				my $test = DBIx::NinjaORM::Test->new(
+					name => $test_name,
+				)
 			),
 			'Retrieve the object.',
 		);
