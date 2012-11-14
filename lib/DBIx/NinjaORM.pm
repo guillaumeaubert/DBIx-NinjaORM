@@ -1765,6 +1765,26 @@ sub get_private_fields
 }
 
 
+=head2 get_unique_fields()
+
+Return an arrayref of fields that are unique for the underlying table.
+
+Important: this doesn't include the primary key name. To retrieve the name
+of the primary key, use C<$class->primary_key_name()>
+
+	my $unique_fields = $class->get_unique_fields();
+	my $unique_fields = $object->get_unique_fields();
+
+=cut
+
+sub get_unique_fields
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'unique_fields'} || [];
+}
+
+
 =head1 CACHE RELATED METHODS
 
 
