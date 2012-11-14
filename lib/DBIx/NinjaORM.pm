@@ -1748,6 +1748,23 @@ sub has_modified_field
 }
 
 
+=head2 get_private_fields()
+
+Return an arrayref of fields that cannot be modified via C<set()>.
+
+	my $private_fields = $class->get_private_fields();
+	my $private_fields = $object->get_private_fields();
+
+=cut
+
+sub get_private_fields
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'private_fields'} || [];
+}
+
+
 =head1 CACHE RELATED METHODS
 
 
