@@ -1366,6 +1366,180 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 
 =head1 UTILITY METHODS
 
+=head2 retrieve_list()
+
+Return an arrayref of objects matching all the criteria passed.
+
+This method supports the following filtering criteria:
+
+=over 4
+
+=item * id
+
+An ID or an arrayref of IDs corresponding to the primary key.
+
+	# Retrieve books with ID 1.
+	my $books = My::Model::Book->retrieve_list(
+		id => 1,
+	);
+	
+	# Retrieve books with IDs 1, 2 or 3.
+	my $books = My::Model::Book->retrieve_list(
+		id => [ 1, 2, 3 ]
+	);
+
+=item * Field names
+
+A scalar value or an arrayref of values corresponding to a field listed in
+C<static_class_info()> under either C<filtering_fields> or C<unique_fields>.
+
+	# Retrieve books for an author.
+	my $books = My::Model::Book->retrieve_list(
+		author_id => 12,
+	);
+	
+	# Retrieve books by ISBN.
+	my $books = My::Model::Book->retrieve_list(
+		isbn =>
+		[
+			'9781449313142',
+			'9781449393090',
+		]
+	);
+
+=back
+
+This method also supports the following optional arguments:
+
+=over 4
+
+=item * dbh
+
+Retrieve the data against a different database than the default one specified
+in C<static_class_info>.
+
+=item * order_by
+
+Specify an ORDER BY clause to sort the objects returned.
+
+	my $books = My::Model::Book->retrieve_list(
+		author_id => 12,
+		order_by  => 'books.name ASC',
+	);
+
+=item * limit
+
+Limit the number of objects to return.
+
+	# Get 10 books from author #12.
+	my $books = My::Model::Book->retrieve_list(
+		author_id => 12,
+		limit     => 10,
+	);
+
+=item * query_extensions
+
+Add joins and support different filtering criteria:
+
+=over 8
+
+=item * where_clauses
+
+An arrayref of clauses to add to WHERE.
+
+=item * where_values
+
+An arrayref of values corresponding to the clauses.
+
+=item * joins
+
+A string specifying JOIN statements.
+
+=item * joined_fields
+
+A string of extra fields to add to the SELECT.
+
+=back
+
+	my $books = My::Model::Book->retrieve_list(
+		id               => [ 1, 2, 3 ],
+		query_extensions =>
+		{
+			where_clauses => [ 'authors.name = ?' ],
+			where_values  => [ [ 'Randal L. Schwartz' ] ],
+			joins         => 'INNER JOIN authors USING (author_id)',
+			joined_fields => 'authors.name AS _author_name',
+		}
+	);
+
+=item * pagination
+
+Off by default. Paginate the results. You can control the pagination options
+by setting it to the following hashref:
+
+	{
+		total_count => $total_count,
+		page        => $page,
+		page_max    => $page_max,
+		per_page    => $per_page,
+	}
+
+Additionally, pagination can be set to '1' instead of {} and then the default
+options will be used.
+
+=item * lock (default 0)
+
+Add a lock to the rows retrieved.
+
+	my $books = My::Model::Book->retrieve_list(
+		id   => [ 1, 2, 3 ],
+		lock => 1,
+	);
+
+=item * allow_all (default 0)
+
+Retrieve all the rows in the table if no criteria is passed. Off by
+default to prevent retrieving large tables at once.
+
+	# All the books!
+	my $books = My::Model::Book->retrieve_list(
+		allow_all => 1,
+	);
+
+=item * show_queries (default 0)
+
+Set to '1' to see in the logs the queries being performed.
+
+	my $books = My::Model::Book->retrieve_list(
+		id           => [ 1, 2, 3 ],
+		show_queries => 1,
+	);
+
+=back
+
+=cut
+
+sub retrieve_list
+{
+	my ( $class, %args ) = @_;
+	
+	# Check caller and prevent calls from a subclass' retrieve_list().
+	my $subroutine = (caller(1))[3];
+	if ( defined( $subroutine ) )
+	{
+		$subroutine =~ s/^.*:://;
+		croak(
+			'You have subclassed retrieve_list(), which is not allowed to prevent infinite recursions. ' .
+			'You most likely want to subclass retrieve_list_nocache() instead.'
+		) if $subroutine eq 'retrieve_list';
+	}
+	
+	my $any_cache_time = $class->get_list_cache_time() || $class->get_object_cache_time();
+	return defined( $any_cache_time ) && !$args{'skip_cache'} && !$args{'lock'}
+		? $class->retrieve_list_cache( %args )
+		: $class->retrieve_list_nocache( %args );
+}
+
 
 =head1 ACCESSORS
 
