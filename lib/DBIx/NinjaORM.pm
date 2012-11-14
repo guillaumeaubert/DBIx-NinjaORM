@@ -1641,6 +1641,22 @@ sub flatten_object
 }
 
 
+=head2 dump()
+
+Return a Dumper( ) of the current object.
+
+	my $string = $book->dump();
+
+=cut
+
+sub dump ## no critic (Subroutines::ProhibitBuiltinHomonyms)
+{
+	my ( $self ) = @_;
+	
+	return Dumper( $self );
+}
+
+
 =head1 ACCESSORS
 
 
