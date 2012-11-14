@@ -1730,6 +1730,24 @@ sub has_created_field
 }
 
 
+=head2 has_modified_field()
+
+Return a boolean to indicate whether the underlying table has a 'modified'
+field.
+
+	my $has_modified_field = $class->has_modified_field();
+	my $has_modified_field = $object->has_modified_field();
+
+=cut
+
+sub has_modified_field
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'has_modified_field'};
+}
+
+
 =head1 CACHE RELATED METHODS
 
 
