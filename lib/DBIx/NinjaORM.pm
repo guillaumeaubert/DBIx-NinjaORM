@@ -1678,6 +1678,23 @@ sub id
 }
 
 
+=head2 get_default_dbh()
+
+Return the default database handle to use with this class.
+
+	my $default_dbh = $class->get_default_dbh();
+	my $default_dbh = $object->get_default_dbh();
+
+=cut
+
+sub get_default_dbh
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'default_dbh'};
+}
+
+
 =head1 CACHE RELATED METHODS
 
 
