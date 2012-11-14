@@ -1584,7 +1584,7 @@ sub reload
 	# Keep the memory location intact.
 	%{ $self } = %{ $fresh_object };
 	
-	return 1;
+	return;
 }
 
 
