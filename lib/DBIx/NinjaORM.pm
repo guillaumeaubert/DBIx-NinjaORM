@@ -1854,6 +1854,29 @@ sub get_list_cache_time
 }
 
 
+=head2 get_cache_key_field()
+
+Return the name of the field that should be used in the cache key.
+
+	my $cache_time = $class->cache_key_field();
+	my $cache_time = $object->cache_key_field();
+
+=cut
+
+sub get_cache_key_field
+{
+	my ( $self ) = @_;
+	
+	my $cache_key_field = $self->cached_static_class_info()->{'cache_key_field'};
+	
+	# If the subclass specifies a field to use for the cache key name, use it.
+	# Otherwise, we fall back on the primary key if it exists.
+	return defined( $cache_key_field )
+		? $cache_key_field
+		: $self->get_primary_key_name();
+}
+
+
 =head1 CACHE RELATED METHODS
 
 
