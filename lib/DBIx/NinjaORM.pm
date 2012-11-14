@@ -23,7 +23,121 @@ our $VERSION = '1.0.0';
 
 =head1 SYNOPSIS
 
-#TODO Write synopsis.
+=head2 Simple example
+
+Let's take the example of a C<My::Model::Book> class that represents a book. You
+would start C<My::Model::Book> with the following code:
+
+	package My::Model::Book;
+	
+	use strict;
+	use warnings;
+	
+	use base 'DBIx::NinjaORM';
+	
+	use DBI;
+	
+	sub static_class_info
+	{
+		my ( $class ) = @_;
+		
+		# Retrieve defaults from DBIx::Ninja->static_class_info().
+		my $info = $class->SUPER::static_class_info();
+		
+		# Set mandatory defaults.
+		$info->{'table_name'} = 'books';
+		$info->{'primary_key_name'} = 'book_id';
+		$info->{'default_dbh'} = DBI->connect(
+			"dbi:mysql:[database_name]:localhost:3306",
+			"[user]",
+			"[password]",
+		);
+		
+		# Add optional information.
+		# Allow filtering SELECTs on books.name.
+		$info->{'filtering_fields'} = [ 'name' ];
+		
+		return $info;
+	}
+	
+	1;
+
+
+=head2 A more complex model
+
+If you have more than one Model class to create, for example C<My::Model::Book>
+and C<My::Model::Library>, you probably want to create a single class
+C<My::Model> to hold the defaults and then inherits from that main class.
+
+	package My::Model;
+	
+	use strict;
+	use warnings;
+	
+	use base 'DBIx::NinjaORM';
+	
+	use DBI;
+	use Cache::Memcached::Fast;
+	
+	sub static_class_info
+	{
+		my ( $class ) = @_;
+		
+		# Retrieve defaults from DBIx::Ninja->static_class_info().
+		my $info = $class->SUPER::static_class_info();
+		
+		# Set defaults common to all your objects.
+		$info->{'default_dbh'} = DBI->connect(
+			"dbi:mysql:[database_name]:localhost:3306",
+			"[user]",
+			"[password]",
+		);
+		$info->{'memcache'} = Cache::Memcached::Fast->new(
+			{
+				servers =>
+				[
+					'localhost:11211',
+				],
+			}
+		);
+		
+		return $info;
+	}
+	
+	1;
+
+The various classes will then inherit from C<My::Model>, and the inherited
+defaults will make C<static_class_info()> shorter in the other classes:
+
+	package My::Model::Book;
+	
+	use strict;
+	use warnings;
+	
+	# Inherit from your base model class, not from DBIx::NinjaORM.
+	use base 'My::Model';
+	
+	sub static_class_info
+	{
+		my ( $class ) = @_;
+		
+		# Retrieve defaults from My::Model.
+		my $info = $class->SUPER::static_class_info();
+		
+		# Set mandatory defaults for this class.
+		$info->{'table_name'} = 'books';
+		$info->{'primary_key_name'} = 'book_id';
+		
+		# Add optional information.
+		# Allow filtering SELECTs on books.name.
+		$info->{'filtering_fields'} = [ 'name' ];
+		
+		return $info;
+	}
+	
+	1;
+
+=cut
 
 
 =head1 SUPPORTED DATABASES
