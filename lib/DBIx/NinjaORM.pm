@@ -1695,6 +1695,23 @@ sub get_default_dbh
 }
 
 
+=head2 get_memcache()
+
+Return the memcache object to use with this class.
+
+	my $memcache = $class->get_memcache();
+	my $memcache = $object->get_memcache();
+
+=cut
+
+sub get_memcache
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'memcache'};
+}
+
+
 =head1 CACHE RELATED METHODS
 
 
