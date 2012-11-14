@@ -1659,6 +1659,24 @@ sub dump ## no critic (Subroutines::ProhibitBuiltinHomonyms)
 
 =head1 ACCESSORS
 
+=head2 id()
+
+Return the value associated with the primary key for the current object.
+
+	my $id = $object->id();
+
+=cut
+
+sub id
+{
+	my ( $self ) = @_;
+	
+	my $primary_key_name = $self->get_primary_key_name();
+	return defined( $primary_key_name )
+		? $self->{ $primary_key_name }
+		: undef;
+}
+
 
 =head1 CACHE RELATED METHODS
 
