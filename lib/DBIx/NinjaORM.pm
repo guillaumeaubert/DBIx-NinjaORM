@@ -399,6 +399,135 @@ sub static_class_info
 }
 
 
+=head2 new()
+
+C<new()> has two possible uses:
+
+=over 4
+
+=item * Creating a new empty object
+
+	my $object = My::Model::Book->new();
+
+=item * Retrieving a single object from the database.
+
+	# Retrieve by ID.
+	my $object = My::Model::Book->new( id => 3 )
+		// die 'Book #3 does not exist';
+	
+	# Retrieve by unique field.
+	my $object = My::Model::Book->new( isbn => '9781449303587' )
+		// die 'Book with ISBN 9781449303587 does not exist';
+
+=back
+
+As a result, C<new()> accepts the following arguments:
+
+=over 4
+
+=item * id
+
+The ID for the primary key on the underlying table. C<id> is an alias for the
+primary key field name.
+
+	my $object = My::Model::Book->new( id => 3 )
+		// die 'Book #3 does not exist';
+
+=item * A unique field
+
+Allows passing a unique field and its value, in order to load the
+corresponding object from the database.
+
+	my $object = My::Model::Book->new( isbn => '9781449303587' )
+		// die 'Book with ISBN 9781449303587 does not exist';
+
+=item * skip_cache (default: 0)
+
+By default, if cache is enabled with C<object_cache_time()> in
+C<static_class_info()>, then C<new> attempts to load the object from the cache
+first. Setting C<skip_cache> to 1 forces the ORM to load the values from the
+database.
+
+	my $object = My::Model::Book->new(
+		isbn       => '9781449303587',
+		skip_cache => 1,
+	) // die 'Book with ISBN 9781449303587 does not exist';
+
+=item * lock (default: 0)
+
+By default, the underlying row is not locked when retrieving an object via
+C<new()>. Setting C<lock> to 1 forces the ORM to bypass the cache if any, and
+to lock the rows in the database as it retrieves them.
+
+	my $object = My::Model::Book->new(
+		isbn => '9781449303587',
+		lock => 1,
+	) // die 'Book with ISBN 9781449303587 does not exist';
+
+=back
+
+=cut
+
+sub new
+{
+	my ( $class, %args ) = @_;
+	
+	# Check if we have a unique identifier passed.
+	# Note: passing an ID is a subcase of passing field defined as unique, but
+	# unique_fields() doesn't include the primary key name.
+	my $unique_field;
+	foreach my $field ( 'id', @{ $class->get_unique_fields() } )
+	{
+		next
+			if ! exists( $args{ $field } );
+		
+		# If the field exists in the list of arguments passed, it needs to be
+		# defined. Being undefined probably indicates a problem in the calling code.
+		croak "Called new() with '$field' declared but not defined"
+			if ! defined( $args{ $field } );
+		
+		# Detect if we're passing two unique fields to retrieve the object. This is
+		# obviously bad.
+		croak "Called new() with the unique argument '$field', but already found another unique argument '$unique_field'"
+			if defined( $unique_field );
+		
+		$unique_field = $field;
+	}
+	
+	# Retrieve the object.
+	my $self;
+	if ( defined( $unique_field ) )
+	{
+		my $objects = $class->retrieve_list(
+			$unique_field => $args{ $unique_field },
+			skip_cache    => $args{'skip_cache'},
+			lock          => $args{'lock'} ? 1 : 0,
+		);
+		
+		my $objects_count = scalar( @$objects );
+		if ( $objects_count == 0 )
+		{
+			# No row found.
+			$self = undef;
+		}
+		elsif ( $objects_count == 1 )
+		{
+			$self = $objects->[0];
+		}
+		else
+		{
+			croak "Called new() with a set of non-unique arguments that returned $objects_count objects: " . Dumper( \%args );
+		}
+	}
+	else
+	{
+		$self = bless( {}, $class );
+	}
+	
+	return $self;
+}
+
+
 =head2 commit()
 
 Convenience function to insert or update the object.
