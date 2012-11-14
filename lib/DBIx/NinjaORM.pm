@@ -622,6 +622,58 @@ sub remove
 }
 
 
+=head2 validate_data()
+
+Validate the hashref of data passed as first argument.
+
+If there is invalid data, the method will croak with a detail of the error.
+
+	my $validated_data = $object->validate_data(
+		\%data,
+	);
+
+=cut
+
+sub validate_data
+{
+	my ( $self, $original_data ) = @_;
+	
+	my $data = Storable::dclone( $original_data );
+	
+	# Don't allow setting timestamps.
+	delete( $data->{'modified'} );
+	delete( $data->{'created'} );
+	
+	# Allow inserting the primary key, but not updating it.
+	my $primary_key_name = $self->get_primary_key_name();
+	if ( defined( $primary_key_name ) && defined( $self->{ $primary_key_name } ) && exists( $data->{ $primary_key_name } ) )
+	{
+		croak "'$primary_key_name' with a value of '" . ( $data->{ $primary_key_name } || 'undef' ) . "' ",
+			"was passed to set(), but primary keys cannot be set manually";
+	}
+	
+	# Fields starting with an underscore are hidden data that shouldn't be
+	# modified via a public interface.
+	foreach my $field ( keys %$data )
+	{
+		delete( $data->{ $field } )
+			if substr( $field, 0, 1 ) eq '_';
+	}
+	
+	# Remove private fields.
+	foreach my $field ( @{ $self->get_private_fields() } )
+	{
+		next
+			unless defined( $data->{ $field } );
+		
+		carp "Field >$field< is private and should not be set manually.";
+		delete( $data->{ $field } );
+	}
+	
+	return $data;
+}
+
+
 =head1 UTILITY METHODS
 
 
