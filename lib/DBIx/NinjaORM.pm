@@ -5,6 +5,7 @@ use strict;
 
 use Carp;
 use Data::Dumper;
+use Data::Validate::Type;
 use Storable;
 
 
@@ -169,6 +170,22 @@ defaults will make C<static_class_info()> shorter in the other classes:
 	1;
 
 =cut
+
+our $RESERVED_RETRIEVE_LIST_ARGS_NAME =
+{
+	map { $_ => 1 }
+	qw(
+		allow_all
+		dbh
+		limit
+		lock
+		order_by
+		pagination
+		query_extensions
+		show_queries
+		skip_cache
+	)
+};
 
 
 =head1 SUPPORTED DATABASES
@@ -1103,6 +1120,247 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 	);
 	
 	return $rows_updated_count;
+}
+
+
+=head2 retrieve_list_nocache()
+
+Dispatch of retrieve_list() when objects should not be retrieved from the cache.
+
+See C<retrieve_list()> for the parameters this method accepts.
+
+=cut
+
+sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
+{
+	my ( $class, %args ) = @_;
+	
+	# Handle a different database handle, if requested.
+	my $dbh = $class->assert_dbh( $args{'dbh'} );
+	
+	# TODO: If we're asked to lock the rows, we check that we're in a transaction.
+	
+	# Build the list of filtering fields we allow.
+	my $filtering_fields =
+	{
+		map { $_ => 1 }
+		@{ $class->get_filtering_fields() || [] }
+	};
+	
+	my $primary_key_name = $class->get_primary_key_name();
+	if ( defined( $primary_key_name ) )
+	{
+		# If there's a primary key name, allow 'id' as an alias.
+		$filtering_fields->{'id'} = 1;
+	}
+	
+	# Check if we were passed parameters we won't know how to handle. This will
+	# help the calling code to detect typos, missing filtering fields in the
+	# static class declaration or obsolete argument names.
+	foreach my $arg ( keys %args )
+	{
+		next if defined( $filtering_fields->{ $arg } )
+			|| defined( $RESERVED_RETRIEVE_LIST_ARGS_NAME->{ $arg } );
+		
+		croak(
+			"The parameter '$arg' passed to DBIx::NinjaORM->retrieve_list() via ",
+			"${class}->retrieve_list() is not handled by the superclass. ",
+			"It could mean that you have a typo in the name, that the parameter is now ",
+			" obsolete or that you need to add it to the list of filtering fields in ",
+			"${class}->static_class_info().",
+		);
+	}
+	
+	# Check the parameters and prepare the corresponding where clauses.
+	my $where_clauses = $args{'query_extensions'}->{'where_clauses'} || [];
+	my $where_values = $args{'query_extensions'}->{'where_values'} || [];
+	my $filtering_field_keys_passed = 0;
+	my $filtering_criteria = $class->parse_filtering_criteria(
+		values => \%args,
+		fields => [ keys %$filtering_fields ],
+	);
+	if ( defined( $filtering_criteria ) )
+	{
+		push( @$where_clauses, @{ $filtering_criteria->[0] || [] } );
+		push( @$where_values, @{ $filtering_criteria->[1] || [] } );
+		$filtering_field_keys_passed = $filtering_criteria->[2];
+	}
+	
+	# Make sure there's at least one argument.
+	if ( !$args{'allow_all'} && ( scalar( @$where_clauses ) == 0 ) )
+	{
+		croak 'At least one argument must be passed'
+			if !$filtering_field_keys_passed;
+	}
+	
+	# Prepare the ORDER BY.
+	my $table_name = $class->get_table_name();
+	my $order_by = defined( $args{'order_by'} ) && ( $args{'order_by'} ne '' )
+		? "ORDER BY $args{'order_by'}"
+		: "ORDER BY " . $dbh->quote_identifier( $table_name ) ".created ASC";
+	
+	# Prepare the SQL request elements.
+	my $where = scalar( @$where_clauses ) != 0
+		? 'WHERE ( ' . join( ' ) AND ( ', @$where_clauses ) . ' )'
+		: '';
+	my $joins = $args{'query_extensions'}->{'joins'} || '';
+	my $fields = $dbh->quote_identifier( $table_name ) . '.*';
+	$fields .= defined( $args{'query_extensions'}->{'joined_fields'} )
+		? ', ' . $args{'query_extensions'}->{'joined_fields'}
+		: '';
+	my $lock = $args{'lock'} ? 'FOR UPDATE' : '';
+	my $limit = defined( $args{'limit'} ) && ( $args{'limit'} =~ m/^\d+$/ )
+		? 'LIMIT ' . $args{'limit'}
+		: '';
+	
+	# Prepare quoted identifiers.
+	my $quoted_primary_key_name = $dbh->quote_identifier( $primary_key_name );
+	my $quoted_table_name = $dbh->quote_identifier( $table_name );
+	
+	# Check if we need to paginate.
+	my $pagination_info = {};
+	if ( defined( $args{'pagination'} ) )
+	{
+		# Allow for pagination => 1 as a shortcut to get all the defaults.
+		$args{'pagination'} = {}
+			if !Data::Validate::Type::is_hashref( $args{'pagination'} ) && ( $args{'pagination'} eq '1' );
+		
+		# Set defaults.
+		$pagination_info->{'per_page'} = ( $args{'pagination'}->{'per_page'} || '' ) =~ m/^\d+$/
+			? $args{'pagination'}->{'per_page'}
+			: 20;
+		
+		# Count the total number of results.
+		my $count_data = $dbh->selectrow_arrayref(
+			sprintf(
+				q|
+					SELECT COUNT(*)
+					FROM %s
+					$joins
+					$where
+				|,
+				$quoted_table_name,
+			),
+			{},
+			map { @$_ } @$where_values,
+		);
+		$pagination_info->{'total_count'} = defined( $count_data ) && scalar( @$count_data ) != 0
+			? $count_data->[0]
+			: undef;
+		
+		# Calculate what the max page can be.
+		$pagination_info->{'page_max'} = int( ( $pagination_info->{'total_count'} - 1 ) / $pagination_info->{'per_page'} ) + 1;
+		
+		# Determine what the current page is.
+		$pagination_info->{'page'} = ( ( $args{'pagination'}->{'page'} || '' ) =~ m/^\d+$/ ) && ( $args{'pagination'}->{'page'} > 0 )
+			? $pagination_info->{'page_max'} < $args{'pagination'}->{'page'}
+				? $pagination_info->{'page_max'}
+				: $args{'pagination'}->{'page'}
+			: 1;
+		
+		# Set LIMIT and OFFSET.
+		$limit = 'LIMIT ' . ( ( $pagination_info->{'page'} - 1 ) * $pagination_info->{'per_page'} )
+			. ', ' . $pagination_info->{'per_page'};
+	}
+	
+	# If we need to lock the rows and there's joins, let's do this in two steps:
+	# 1) Lock the rows without join.
+	# 2) Using the IDs found, do another select to retrieve the data with the joins.
+	if ( ( $lock ne '' ) && ( $joins ne '' ) )
+	{
+		my $query = sprintf(
+			q|
+				SELECT %s
+				FROM %s
+				%s
+				ORDER BY ASC
+				%s
+				%s
+			|,
+			$quoted_primary_key_name,
+			$quoted_table_name,
+			$where,
+			$quoted_primary_key_name,
+			$limit,
+			$lock,
+		);
+		
+		my @query_values = map { @$_ } @$where_values;
+		carp "Performing query:\n$query\nValues:\n" . Dumper( @query_values )
+			if $args{'show_queries'};
+		
+		my $locked_ids = $dbh->selectall_arrayref(
+			$query,
+			@query_values
+		);
+		
+		return []
+			if !defined( $locked_ids ) || ( scalar( @$locked_ids ) == 0 );
+		
+		$where = sprintf(
+			'WHERE %s.%s IN ( %s )',
+			$quoted_table_name,
+			$quoted_primary_key_name,
+			join( ', ', ( ('?') x scalar( @$locked_ids ) ) ),
+		);
+		$where_values = [ map { $_->[0] } @$locked_ids ];
+		$lock = '';
+	}
+	
+	# Retrieve the objects.
+	my $query = sprintf(
+		q|
+			SELECT %s
+			FROM %s
+			%s %s %s %s %s
+		|,
+		$fields
+		$quoted_table_name,
+		$joins,
+		$where,
+		$order_by,
+		$limit,
+		$lock,
+	);
+	@query_values = map { @$_ } @$where_values;
+	carp "Performing query: \n$query\nValues:\n" . Dumper( @query_values )
+		if $args{'show_queries'};
+	
+	local $dbh->{'RaiseError'} = 1;
+	my $sth = $dbh->prepare(
+		$query
+	);
+	$sth->execute( @query_values );
+	
+	my $object_list = [];
+	while ( my $ref = $sth->fetchrow_hashref() ) 
+	{
+		my $object = Storable::dclone( $ref );
+		bless( $object, $class );
+		
+		$object->reorganize_non_native_fields();
+		
+		# Add a flag to distinguish objects that were populated via
+		# retrieve_list_nocache(), as those objects are known for sure to contain
+		# all the keys for columns that exist in the database. We also won't have to
+		# worry about missing defaults, like insert() would have to.
+		$object->{'_populated_by_retrieve_list'} = 1;
+		
+		# Add cache debugging information.
+		$object->{'_debug'}->{'list_cache_used'} = 0;
+		$object->{'_debug'}->{'object_cache_used'} = 0;
+		
+		push( @$object_list, $object );
+	}
+	
+	if ( wantarray && defined( $args{'pagination'} ) )
+	{
+		return ( $object_list, $pagination_info );
+	}
+	else
+	{
+		return $object_list;
+	}
 }
 
 
