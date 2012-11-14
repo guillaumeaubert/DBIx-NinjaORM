@@ -1802,6 +1802,23 @@ sub get_table_name
 }
 
 
+=head2 get_primary_key_name()
+
+Return the underlying primary key name for the current class or object.
+
+	my $primary_key_name = $class->get_primary_key_name();
+	my $primary_key_name = $object->get_primary_key_name();
+
+=cut
+
+sub get_primary_key_name
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'primary_key_name'};
+}
+
+
 =head1 CACHE RELATED METHODS
 
 
