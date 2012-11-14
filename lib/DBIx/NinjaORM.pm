@@ -931,6 +931,181 @@ sub insert ## no critic (Subroutines::RequireArgUnpacking)
 }
 
 
+=head2 update()
+
+Update the row in the database corresponding to the current object, using the
+primary key and its value on the object.
+
+	$book->update(
+		{
+			name => 'Learning Perl',
+		}
+	);
+
+This method supports the following optional arguments:
+
+=over 4
+
+=item * skip_modified_update (default 0)
+
+Do not update the 'modified' field. This is useful if you're using 'modified' to
+record when was the last time a human changed the row, but you want to exclude
+automated changes.
+
+=item * dbh
+
+A different database handle than the default one specified in
+C<static_class_info()>, but it has to be writable.
+
+=item * restrictions
+
+The update statement is limited using the primary key. This parameter however
+allows adding extra restrictions on the update. Additional clauses passed here
+are joined with AND.
+
+	$book->update(
+		{
+			author_id => 1234,
+		},
+		restrictions =>
+		{
+			where_clauses => [ 'status != ?' ],
+			where_values  => [ 'protected' ],
+		},
+	);
+
+=item * set
+
+\%data contains the data to update the row with "SET field = value". It is
+however sometimes necessary to use more complex SETs, such as
+"SET field = field + value", which is what this parameter allows.
+
+Important: you will need to subclass C<update()> in your model classes and
+update manually the values upon success (or reload the object), as
+C<DBIx::NinjaORM cannot determine the end result of those complex sets on the
+database side.
+
+	$book->update(
+		{
+			name => 'Learning Perl',
+		},
+		set =>
+		{
+			placeholders => [ 'edits = edits + ?' ],
+			values       => [ 1 ],
+		}
+	);
+
+=back
+
+=cut
+
+sub update ## no critic (Subroutines::RequireArgUnpacking)
+{
+	croak 'The first argument passed must be a hashref'
+		if !Data::Validate::Type::is_hashref( $_[1] );
+	
+	my ( $self, $data, %args ) = @_;
+	
+	# Allow using a different DB handle.
+	my $dbh = $self->assert_dbh( $args{'dbh'} );
+	
+	# Clean input
+	my $clean_data = $self->validate_data( $data, %args );
+	return 0
+		if !defined( $clean_data );
+	
+	# Set defaults
+	$clean_data->{'modified'} = time()
+		if !$args{'skip_modified_update'} && $self->has_modified_field();
+	
+	# If there's nothing to update, bail out.
+	if ( scalar( keys %$clean_data ) == 0 )
+	{
+		carp 'No data left to update after validation, skipping SQL update';
+		return;
+	}
+	
+	# Retrieve the meta-data for that table.
+	my $class = ref( $self );
+	
+	my $table_name = $self->get_table_name();
+	croak "The table name for class '$class' is not defined"
+		if ! defined( $table_name );
+	
+	my $primary_key_name = $self->get_primary_key_name();
+	croak "Missing primary key name for class '$class', cannot force primary key value"
+		if !defined( $primary_key_name ) && defined( $args{'generated_primary_key_value'} );
+	
+	croak "The object of class '$class' does not have a primary key value, cannot update"
+		if ! defined( $self->id() );
+	
+	# Prepare the SQL request elements.
+	my $where_clauses = $args{'restrictions'}->{'where_clauses'} || [];
+	my $where_values = $args{'restrictions'}->{'where_values'} || [];
+	push( @$where_clauses, $primary_key_name . ' = ?' );
+	push( @$where_values, [ $self->id() ] );
+	my $where = '( ' . join( ' ) AND ( ', @$where_clauses ) . ' )';
+	
+	# Prepare the values to set.
+	my @set_placeholders = ();
+	my @set_values = ();
+	foreach my $key ( keys %$clean_data )
+	{
+		push( @set_placeholders, $dbh->quote_identifier( $key ) . ' = ?' );
+		push( @set_values, $clean_data->{ $key } );
+	}
+	if ( defined( $args{'set'} ) )
+	{
+		push( @set_placeholders, @{ $args{'set'}->{'placeholders'} // [] } );
+		push( @set_values, @{ $args{'set'}->{'values'} // [] } );
+	}
+	my $set_placeholders = join( ', ', @set_placeholders );
+	
+	# Update the row.
+	local $dbh->{'RaiseError'} = 1;
+	my $sth = $dbh->prepare(
+		sprintf(
+			qq|
+				UPDATE %s
+				SET $set_placeholders
+				WHERE $where
+			|,
+			$dbh->quote_identifier( $table_name ),
+		)
+	);
+	$sth->execute(
+		@set_values,
+		map { @$_ } @$where_values,
+	);
+	
+	my $rows_updated_count = $sth->rows();
+	
+	# Also, if rows() returns -1, it's an error.
+	croak 'Could not execute update: ' . $dbh->errstr()
+		if $rows_updated_count < 0;
+	
+	my $object_cache_time = $self->get_object_cache_time();
+	# This needs to be before the set() below, so we invalidate the cache based on the
+	# old object. We don't need to do it twice, because you can't change primary IDs, and
+	# you can't change unique fields to ones that are taken, and that's all that we set
+	# the object cache keys for.
+	if ( defined( $object_cache_time ) )
+	{
+		carp "An update on '$table_name' is forcing to clear the cache for '$primary_key_name=" . $self->id() . "'";
+		$self->invalidate_cached_object();
+	}
+	
+	# Make sure that the object reflects $clean_data.
+	$self->set(
+		$clean_data,
+		force => 1,
+	);
+	
+	return $rows_updated_count;
+}
+
+
 =head1 UTILITY METHODS
 
 
