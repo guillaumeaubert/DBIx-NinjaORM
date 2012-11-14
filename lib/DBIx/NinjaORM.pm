@@ -624,13 +624,15 @@ sub remove
 
 =head2 validate_data()
 
-Validate the hashref of data passed as first argument.
-
-If there is invalid data, the method will croak with a detail of the error.
+Validate the hashref of data passed as first argument. This is used both by
+C<insert()> and C<update> to check the data before performing databse
+operations.
 
 	my $validated_data = $object->validate_data(
 		\%data,
 	);
+
+	If there is invalid data, the method will croak with a detail of the error.
 
 =cut
 
@@ -666,7 +668,7 @@ sub validate_data
 		next
 			unless defined( $data->{ $field } );
 		
-		carp "Field >$field< is private and should not be set manually.";
+		carp "The field '$field' is private and should not be set manually";
 		delete( $data->{ $field } );
 	}
 	
