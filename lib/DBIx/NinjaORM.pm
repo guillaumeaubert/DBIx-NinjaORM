@@ -399,6 +399,41 @@ sub static_class_info
 }
 
 
+=head2 commit()
+
+Convenience function to insert or update the object.
+
+If the object has a primary key set, C<update()> is called, otherwise
+C<insert()> is called. If there's an error, the method with croak with
+relevant error information.
+
+	$book->commit();
+
+Arguments: (none).
+
+=cut
+
+sub commit
+{
+	my ( $self ) = @_;
+	my $data = Storable::dclone( $self );
+	
+	if ( defined( $self->id() ) )
+	{
+		
+		my $primary_key_name = $self->get_primary_key_name();
+		delete( $data->{ $primary_key_name } )
+			if exists( $data->{ $primary_key_name } );
+		
+		return $self->update( $data );
+	}
+	else
+	{
+		return $self->insert( $data );
+	}
+}
+
+
 =head1 UTILITY METHODS
 
 
