@@ -782,6 +782,155 @@ sub clone
 }
 
 
+=head2 insert()
+
+Insert a row corresponding to the data passed as first parameter, and fill the
+object accordingly upon success.
+
+	my $book = My::Model::Book->new();
+	$book->insert(
+		{
+			name => 'Learning Perl',
+		}
+	);
+
+If you don't need the object afterwards, you can simply do:
+
+	My::Model::Book->insert(
+		{
+			name => 'Learning Perl',
+		}
+	);
+
+This method supports the following optional arguments:
+
+=over 4
+
+=item * overwrite_created
+
+A UNIX timestamp to be used instead of the current time for the value of
+'created'.
+
+=item * generated_primary_key_value
+
+A primary key value, in case the underlying table doesn't have an
+autoincremented primary key.
+
+=item * dbh
+
+A different database handle than the default one specified in
+C<static_class_info()>, but it has to be writable.
+
+=item * ignore
+
+INSERT IGNORE instead of plain INSERT.
+
+=back
+
+	$book->insert(
+		\%data,
+		overwrite_created           => $unixtime,
+		generated_primary_key_value => $value,
+		dbh                         => $dbh,
+		ignore                      => $boolean,
+	);
+
+=cut
+
+sub insert ## no critic (Subroutines::RequireArgUnpacking)
+{
+	croak 'The first argument passed must be a hashref'
+		if !Data::Validate::Type::is_hashref( $_[1] );
+	
+	my ( $self, $data, %args ) = @_;
+	
+	# Allows calling Module->insert() if we don't need the object afterwards.
+	# In this case, we turn $self from a class into an object.
+	$self = $self->new()
+		if !ref( $self );
+	
+	# Allow using a different database handle.
+	my $dbh = $self->assert_dbh( $args{'dbh'} );
+	
+	# Clean input.
+	my $clean_data = $self->validate_data( $data, %args );
+	return 0
+		if !defined( $clean_data );
+	
+	# Retrieve the metadata for that table.
+	my $class = ref( $self );
+	my $table_name = $self->get_table_name();
+	croak "The table name for class '$class' is not defined"
+		if !defined( $table_name );
+	
+	my $primary_key_name = $self->get_primary_key_name();
+	croak "Missing primary key name for class '$class', cannot force primary key value"
+		if !defined( $primary_key_name ) && defined( $args{'generated_primary_key_value'} );
+	
+	# Set defaults.
+	if ( $self->has_created_field() )
+	{
+		$clean_data->{'created'} = defined( $args{'overwrite_created'} ) && $args{'overwrite_created'} =~ m/^\d+$/
+			? $args{'overwrite_created'}
+			: time();
+	}
+	$clean_data->{'modified'} = time()
+		if $self->has_modified_field();
+	$clean_data->{ $primary_key_name } = $args{'generated_primary_key_value'}
+		if defined( $args{'generated_primary_key_value'} );
+	
+	# Insert.
+	my $ignore = defined( $args{'ignore'} ) && $args{'ignore'} ? 1 : 0;
+	my @insert_fields = ();
+	my @insert_values = ();
+	foreach my $key ( keys %$clean_data )
+	{
+		push( @insert_fields, $key );
+		push( @insert_values, $clean_data->{ $key } );
+	}
+	
+	local $dbh->{'RaiseError'} = 1;
+	my $query = sprintf(
+		q|
+			INSERT %s INTO %s( %s )
+			VALUES ( %s )
+		|,
+		$ignore ? 'IGNORE' : '',
+		$dbh->quote_identifier( $table_name ),
+		join( ', ', @insert_fields ),
+		join( ', ', ( ( '?' ) x scalar( @insert_fields ) ) ),
+	);
+	my $insert = $dbh->do(
+		$query,
+		{},
+		@insert_values,
+	);
+	
+	# TODO: improve error detection here.
+	croak "Could not execute insert: " . $dbh->errstr()
+		if !$insert;
+	
+	if ( defined( $primary_key_name ) )
+	{
+		$clean_data->{ $primary_key_name } = defined( $args{'generated_primary_key_value'} )
+			? $args{'generated_primary_key_value'}
+			: $dbh->last_insert_id( undef, undef, undef, undef );
+	}
+	
+	# Check that the object was correctly inserted.
+	croak "Could not insert into table '$table_name': " . Dumper( $data )
+		if defined( $primary_key_name ) && !defined( $clean_data->{ $primary_key_name } );
+	
+	# Make sure that the object reflects the changes in the database.
+	$self->set(
+		$clean_data,
+		force => 1,
+	);
+	
+	return;
+}
+
+
 =head1 UTILITY METHODS
 
 
