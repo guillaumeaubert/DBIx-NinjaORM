@@ -1588,6 +1588,59 @@ sub reload
 }
 
 
+=head2 flatten_object()
+
+Return a hash with the requested key/value pairs based on the list of fields
+provided.
+
+Note that non-native fields (starting with an underscore) are not allowed. It
+also protects sensitive fields.
+
+#TODO: allow defining sensitive fields.
+
+	my $book_data = $book->flatten_object(
+		[ 'name', 'isbn' ]
+	);
+
+=cut
+
+sub flatten_object
+{
+	my ( $self, $fields ) = @_;
+	my @protected_fields = qw( password );
+	
+	my %data = ();
+	foreach my $field ( @$fields )
+	{
+		if ( scalar( grep { $_ eq $field } @protected_fields ) != 0 )
+		{
+			croak "The fields '$field' is protected and cannot be added to the flattened copy";
+		}
+		elsif ( substr( $field, 0, 1 ) eq '_' )
+		{
+			croak "The field '$field' is hidden and cannot be added to the flattened copy";
+		}
+		elsif ( $field eq 'id' )
+		{
+			if ( defined( $self->get_primary_key_name() ) )
+			{
+				$data{'id'} = $self->id();
+			}
+			else
+			{
+				croak "Requested adding ID to the list of fields, but the class doesn't define a primary key name";
+			}
+		}
+		else
+		{
+			$data{ $field } = $self->{ $field };
+		}
+	}
+	
+	return \%data;
+}
+
+
 =head1 ACCESSORS
 
 
