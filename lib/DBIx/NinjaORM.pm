@@ -713,6 +713,58 @@ sub get
 }
 
 
+=head2 set()
+
+Set fields and values on an object.
+
+	$book->set(
+		{
+			name => 'Learning Perl',
+			isbn => '9781449303587',
+		},
+	);
+
+This method supports the following arguments:
+
+=over 4
+
+=item * force
+
+Set the properties on the object without going through C<validate_data()>.
+
+	$book->set(
+		{
+			name => 'Learning Perl',
+			isbn => '9781449303587',
+		},
+		force => 1,
+	);
+
+=back
+
+=cut
+
+sub set ## no critic (NamingConventions::ProhibitAmbiguousNames, Subroutines::RequireArgUnpacking)
+{
+	croak 'The first argument passed must be a hashref'
+		if !Data::Validate::Type::is_hashref( $_[1] );
+	
+	my ( $self, $data, %args ) = @_;
+	
+	# Validate the data first, unless force=1.
+	$data = $self->validate_data( $data )
+		if !$args{'force'};
+	
+	# Update the object.
+	foreach ( keys %$data )
+	{
+		$self->{ $_ } = $data->{ $_ };
+	}
+	
+	return;
+}
+
+
 =head1 UTILITY METHODS
 
 
