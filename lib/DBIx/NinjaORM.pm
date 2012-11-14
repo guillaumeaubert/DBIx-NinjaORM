@@ -5,6 +5,7 @@ use strict;
 
 use Carp;
 use Data::Dumper;
+use Storable;
 
 
 =head1 NAME
@@ -762,6 +763,22 @@ sub set ## no critic (NamingConventions::ProhibitAmbiguousNames, Subroutines::Re
 	}
 	
 	return;
+}
+
+
+=head2 clone()
+
+Clone the current object and return the clone.
+
+	my $cloned_book = $book->clone();
+
+=cut
+
+sub clone
+{
+	my ( $self ) = @_;
+	
+	return Storable::dclone( $self );
 }
 
 
