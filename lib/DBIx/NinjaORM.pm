@@ -563,6 +563,65 @@ sub commit
 }
 
 
+=head2 remove()
+
+Delete in the database the row corresponding to the current object.
+
+	$book->remove();
+
+This method accepts the following arguments:
+
+=over 4
+
+=item * dbh
+
+A different database handle from the default specified in C<static_class_info()>.
+This is particularly useful if you have separate reader/writer databases.
+
+=back
+
+=cut
+
+sub remove
+{
+	my ( $self, %args ) = @_;
+	
+	# Retrieve the metadata for that table.
+	my $class = ref( $self );
+	my $table_name = $self->get_table_name();
+	croak "The table name for class '$class' is not defined"
+		if ! defined( $table_name );
+	
+	my $primary_key_name = $self->get_primary_key_name();
+	croak "Missing primary key name for class '$class', cannot delete safely"
+		if !defined( $primary_key_name );
+	
+	croak "The object of class '$class' does not have a primary key value, cannot update"
+		if ! defined( $self->id() );
+	
+	# Allow using a different DB handle.
+	my $dbh = $self->assert_dbh( $args{'dbh'} );
+	
+	# Delete the row.
+	local $dbh->{'RaiseError'} = 1;
+	my $deleted = $dbh->do(
+		sprintf(
+			q|
+				DELETE
+				FROM %s
+				WHERE %s = ?
+			|,
+			$dbh->quote_identifier( $table_name ),
+			$dbh->quote_identifier( $primary_key_name ),
+		),
+		{},
+		$self->id(),
+	);
+	
+	return;
+}
+
+
 =head1 UTILITY METHODS
 
 
