@@ -88,6 +88,10 @@ would start C<My::Model::Book> with the following code:
 	
 	1;
 
+Inheriting with C<use base 'DBIx::NinjaORM'> and creating
+C<sub static_class_info> (with a default database handle and a table name)
+are the only two requirements to have a working model.
+
 
 =head2 A more complex model
 
