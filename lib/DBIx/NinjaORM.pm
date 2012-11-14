@@ -1836,6 +1836,24 @@ sub get_object_cache_time
 }
 
 
+=head2 get_list_cache_time()
+
+Return the duration for which a list of objects of the current class can be
+cached.
+
+	my $list_cache_time = $class->list_cache_time();
+	my $list_cache_time = $object->list_cache_time();
+
+=cut
+
+sub get_list_cache_time
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'list_cache_time'};
+}
+
+
 =head1 CACHE RELATED METHODS
 
 
