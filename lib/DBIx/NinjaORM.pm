@@ -1712,6 +1712,24 @@ sub get_memcache
 }
 
 
+=head2 has_created_field()
+
+Return a boolean to indicate whether the underlying table has a 'created'
+field.
+
+	my $has_created_field = $class->has_created_field();
+	my $has_created_field = $object->has_created_field();
+
+=cut
+
+sub has_created_field
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'has_created_field'};
+}
+
+
 =head1 CACHE RELATED METHODS
 
 
