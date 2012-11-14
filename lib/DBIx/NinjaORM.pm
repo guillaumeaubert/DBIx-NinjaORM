@@ -1785,6 +1785,23 @@ sub get_unique_fields
 }
 
 
+=head2 get_table_name()
+
+Returns the underlying table name for the current class or object.
+
+	my $table_name = $class->get_table_name();
+	my $table_name = $object->get_table_name();
+
+=cut
+
+sub get_table_name
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'table_name'};
+}
+
+
 =head1 CACHE RELATED METHODS
 
 
