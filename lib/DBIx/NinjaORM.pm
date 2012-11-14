@@ -1819,6 +1819,23 @@ sub get_primary_key_name
 }
 
 
+=head2 get_object_cache_time()
+
+Return the duration for which an object of the current class can be cached.
+
+	my $object_cache_time = $class->get_object_cache_time();
+	my $object_cache_time = $object->get_object_cache_time();
+
+=cut
+
+sub get_object_cache_time
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'object_cache_time'}
+}
+
+
 =head1 CACHE RELATED METHODS
 
 
