@@ -676,6 +676,43 @@ sub validate_data
 }
 
 
+=head2 get()
+
+Get the value corresponding to an object's field.
+
+	my $book_name = $book->get('name');
+
+This method will croak if you attempt to retrieve a private field. It also
+detects if the object was retrieved from the database, in which case it
+has an exhaustive list of the fields that actually exist in the database and
+it will croak if you attempt to retrieve a field that doesn't exist in the
+database.
+
+=cut
+
+sub get
+{
+	my ( $self, $field_name ) = @_;
+	
+	croak "The name of the field to retrieve must be defined"
+		if !defined( $field_name ) || ( $field_name eq '' );
+	
+	# Create your own accessor for private properties.
+	croak 'Cannot retrieve the value of a private object property, create an accessor on the class if you need this value'
+		if substr( $field_name, 0, 1 ) eq '_';
+	
+	# If the object was not populated by retrieve_list(), we know that the keys
+	# on the object correspond to all the columns in the database and we can then
+	# actively show errors in the log if the caller is requesting a field for
+	# which the key doesn't exist.
+	my $populated_by_retrieve_list = $self->{'_populated_by_retrieve_list'} // 0;
+	croak "The property '$field_name' does not exist on the object"
+		if $populated_by_retrieve_list && !exists( $self->{ $field_name } );
+	
+	return $self->{ $field_name };
+}
+
+
 =head1 UTILITY METHODS
 
 
