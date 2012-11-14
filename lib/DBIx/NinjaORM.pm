@@ -1541,6 +1541,53 @@ sub retrieve_list
 }
 
 
+=head2 reload()
+
+Reload the content of the current object. This always skips the cache.
+
+	$book->reload();
+
+=cut
+
+sub reload
+{
+	my ( $self ) = @_;
+	
+	# Make sure we were passed an object.
+	croak 'This method can only be called on an object'
+		if !Data::Validate::Type::is_hashref( $self );
+	
+	my $class = ref( $self );
+	
+	croak 'The object is not blessed with a class name'
+		if !defined( $class ) || ( $class eq '' );
+	
+	croak "The class '$class' doesn't allow calling \$class->new()"
+		if ! $class->can('new');
+	
+	# Verify that we can reload the object.
+	croak 'Cannot reload an object for which a primary key name has not been defined at the class level.'
+		if ! defined( $self->get_primary_key_name() );
+	croak 'Cannot reload an object with no ID value for its primary key'
+		if ! defined( $self->id() );
+	
+	# Retrieve a fresh version using the object ID.
+	my $id = $self->id();
+	my $fresh_object = $class->new(
+		id         => $self->id(),
+		skip_cache => 1,
+	);
+	
+	croak "Could not retrieve the row in the database corresponding to the current object using ID '$id'"
+		if ! defined( $fresh_object );
+	
+	# Keep the memory location intact.
+	%{ $self } = %{ $fresh_object };
+	
+	return 1;
+}
+
+
 =head1 ACCESSORS
 
 
