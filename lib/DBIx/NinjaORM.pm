@@ -1877,6 +1877,40 @@ sub get_cache_key_field
 }
 
 
+=head2 get_filtering_fields()
+
+Returns the fields that can be used as filtering criteria in retrieve_list().
+
+Notes:
+
+=over 4
+
+=item * Does not include the primary key.
+
+=item * Includes unique fields.
+
+	my $filtering_fields = $class->get_filtering_fields();
+	my $filtering_fields = $object->get_filtering_fields();
+
+=back
+
+=cut
+
+sub get_filtering_fields
+{
+	my ( $self ) = @_;
+	
+	my %fields = (
+		map { $_ => undef }
+		(
+			@{ $self->cached_static_class_info()->{'filtering_fields'} },
+			@{ $self->cached_static_class_info()->{'unique_fields'} },
+		)
+	);
+	return [ keys %fields ];
+}
+
+
 =head1 CACHE RELATED METHODS
 
 
