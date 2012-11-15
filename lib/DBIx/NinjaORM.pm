@@ -2647,6 +2647,33 @@ sub set_cache
 }
 
 
+=head2 delete_cache()
+
+Delete a key from the cache.
+
+	my $value = $class->delete_cache( key => $key );
+
+=cut
+
+sub delete_cache
+{
+	my ( $self, %args ) = @_;
+	my $key = delete( $args{'key'} );
+	croak 'Invalid argument(s): ' . join( ', ', keys %args )
+		if scalar( keys %args ) != 0;
+	
+	# Check parameters.
+	croak 'The parameter "key" is mandatory'
+		if !defined( $key ) || $key !~ /\w/;
+	
+	my $memcache = $self->get_memcache();
+	return undef
+		if !defined( $memcache );
+	
+	return $memcache->delete( $key );
+}
+
+
 =head1 INTERNAL METHODS
 
 Those methods are used internally by L<DBIx::NinjaORM>, you should not subclass
