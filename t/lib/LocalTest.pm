@@ -151,6 +151,9 @@ sub get_memcache
 		try
 		{
 			eval 'use Cache::Memcached::Fast';
+			die 'Cache::Memcached::Fast is not installed on this system'
+				if $@;
+			
 			return Cache::Memcached::Fast->new(
 				{
 					servers =>
@@ -162,7 +165,7 @@ sub get_memcache
 		}
 		catch
 		{
-			return $_;
+			return undef;
 		};
 }
 
