@@ -20,7 +20,10 @@ use Test::More tests => 12;
 
 my $dbh = LocalTest::ok_database_handle();
 
-my $quoted_field = $dbh->quote_identifier( 'test_field' );
+# Quoted field names.
+my $table = $dbh->quote_identifier( 'tests' );
+my $field1 = $dbh->quote_identifier( 'field1' );
+my $field2 = $dbh->quote_identifier( 'field2' );
 
 # Tests.
 my $tests =
@@ -71,7 +74,7 @@ my $tests =
 		{
 			clauses     =>
 			[
-				'"tests"."field1" IN (?)',
+				"$table.$field1 IN (?)",
 			],
 			values      =>
 			[
@@ -98,8 +101,8 @@ my $tests =
 		{
 			clauses     =>
 			[
-				'"tests"."field1" IN (?)',
-				'"tests"."field2" IN (?)',
+				"$table.$field1 IN (?)",
+				"$table.$field2 IN (?)",
 			],
 			values      =>
 			[
@@ -125,7 +128,7 @@ my $tests =
 		{
 			clauses     =>
 			[
-				'"tests"."field1" IN (?, ?)',
+				"$table.$field1 IN (?, ?)",
 			],
 			values      =>
 			[
@@ -154,7 +157,7 @@ my $tests =
 		{
 			clauses     =>
 			[
-				'"tests"."field1" > ?',
+				"$table.$field1 > ?",
 			],
 			values      =>
 			[
@@ -181,7 +184,7 @@ my $tests =
 		{
 			clauses     =>
 			[
-				'"tests"."field1" NOT IN (?, ?, ?)',
+				"$table.$field1 NOT IN (?, ?, ?)",
 			],
 			values      =>
 			[
