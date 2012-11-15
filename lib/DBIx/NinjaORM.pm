@@ -6,6 +6,8 @@ use strict;
 use Carp;
 use Data::Dumper;
 use Data::Validate::Type;
+use Digest::SHA1 qw();
+use MIME::Base64 qw();
 use Storable;
 
 
@@ -2058,6 +2060,256 @@ sub get_object_cache_key
 	}
 	
 	return lc( 'object|' . $table_name . '|' . $cache_key_field . '|' . $cache_key_value );
+}
+
+
+=head2 retrieve_list_cache()
+
+Dispatch of retrieve_list() when objects should be retrieved from the cache.
+
+See C<retrieve_list()> for the parameters this method accepts.
+
+=cut
+
+sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
+{
+	my ( $class, %args ) = @_;
+	my $list_cache_time = $class->get_list_cache_time();
+	my $object_cache_time = $class->get_object_cache_time();
+	my $primary_key_name = $class->get_primary_key_name();
+	
+	# Create a unique cache key.
+	my $list_cache_keys = [];
+	foreach my $arg ( sort keys %args )
+	{
+		# Force all arguments into lower case for purposes of cacheing.
+		$arg = lc($arg);
+		
+		next if $arg =~ /^(?:dbh|lock|show_queries|skip_cache)$/x;
+		
+		push( @$list_cache_keys, [ $arg, $args{ $arg } ] );
+	}
+	my $list_cache_key = MIME::Base64::encode_base64( Storable::freeze( $list_cache_keys ) );
+	chomp( $list_cache_key );
+	my $list_cache_key_sha1 = Digest::SHA1::sha1_base64( $list_cache_key );
+	
+	# Find out if the parameters are searching by ID or using a unique field.
+	my $search_field;
+	my $list_of_search_values;
+	foreach my $field ( 'id', @{ $class->get_unique_fields() } )
+	{
+		next
+			unless exists( $args{ $field } );
+		
+		$search_field = $field;
+		
+		$list_of_search_values = Data::Validate::Type::filter_arrayref( $args{ $field } ) // [ $args{ $field } ];
+	}
+	
+	# If we're searcing by ID or unique field, those are how the objects are
+	# cached so we already know how to retrieve them from the object cache.
+	# If we're searching by anything else, then we maintain a "list cache",
+	# which associates retrieve_list() args with the resulting IDs.
+	my $pagination;
+	my $list_cache_used = 0;
+	if ( !defined( $search_field ) )
+	{
+		# Test if we have a corresponding list of IDs in the cache.
+		my $cache = $class->get_cache( key => $list_cache_key_sha1 );
+		
+		if ( defined( $cache ) )
+		{
+			my $cache_content = Storable::thaw( MIME::Base64::decode_base64( $cache ) );
+			my ( $original_list_cache_key, $original_pagination, $original_search_field, $original_list_of_ids ) = @{ Data::Validate::Type::filter_arrayref( $cache_content ) // [] };
+			
+			# We need to use SHA1 due to the limitation on the length of memcache keys
+			# (we can't just cache $cache_key).
+			# However, there is a very small risk of collision so we check here that
+			# the cache key stored inside the cache entry is the same.
+			if ( $original_list_cache_key eq $list_cache_key )
+			{
+				$list_of_search_values = $original_list_of_ids;
+				$pagination = $original_pagination;
+				$search_field = $original_search_field;
+				$list_cache_used = 1;
+			}
+		}
+	}
+	
+	my $cached_objects = {};
+	my $objects;
+	if ( !$args{'lock'} && defined( $list_of_search_values ) )
+	{
+		carp "Using values (unique/IDs) from the list cache"
+			if $class->is_verbose('cache_operations');
+		
+		# If we're not trying to lock the underlying rows, and we have a list of
+		# IDs from the cache, we try to get the objects from the object cache.
+		my $objects_to_retrieve_from_database = {};
+		foreach my $search_value ( @$list_of_search_values )
+		{
+			my $object_cache_key = $class->get_object_cache_key(
+				unique_field => $search_field eq 'id'
+					? $primary_key_name
+					: $search_field,
+				value        => $search_value,
+			);
+			
+			my $object = defined( $object_cache_key )
+				? $class->get_cache( key => $object_cache_key )
+				: undef;
+			
+			if ( defined( $object ) )
+			{
+				carp "Retrieved >$object_cache_key< from cache"
+					if $class->is_verbose('cache_operations');
+				
+				$object->{'_debug'}->{'object_cache_used'} = 1;
+				
+				my $hash_key = lc(
+					$search_field eq 'id'
+						? $object->id()
+						: $object->get( $search_field )
+				);
+				
+				$cached_objects->{ $hash_key } = $object;
+			}
+			else
+			{
+				carp ">$object_cache_key< not found in the cache"
+					if $class->is_verbose('cache_operations');
+				
+				$objects_to_retrieve_from_database->{ lc( $search_value ) } = $object_cache_key;
+			}
+		}
+		
+		# If we have any ID we couldn't get an object for from the cache, we now
+		# go to the database.
+		if ( scalar( keys %$objects_to_retrieve_from_database ) != 0 )
+		{
+			carp "The following objects are not cached and need to be retrieved from the database: "
+				. join( ', ', keys %$objects_to_retrieve_from_database )
+				if $class->is_verbose('cache_operations');
+			
+			$objects = $class->retrieve_list_nocache(
+				$search_field => [ keys %$objects_to_retrieve_from_database ],
+			);
+		}
+		
+		# Indicate that we've used the list cache to retrieve the list of object
+		# IDs.
+		if ( $list_cache_used )
+		{
+			foreach my $object ( values %$cached_objects, @{ $objects // [] } )
+			{
+				$object->{'_debug'}->{'list_cache_used'} = 1;
+			}
+		}
+	}
+	else
+	{
+		# If we don't have a list of IDs, we need to go to the database via
+		# retrieve_list_nocache() to get the objects.
+		( $objects, $pagination ) = $class->retrieve_list_nocache(
+			%args
+		);
+		
+		# Set the list cache.
+		my $list_cache_ids = [ map { $_->id() } @$objects ];
+		
+		carp "Adding key >$list_cache_key< to the list cache, with the following IDs: "
+			. join( ',', @$list_cache_ids )
+			if $class->is_verbose('cache_operations');
+		
+		$class->set_cache(
+			key         => $list_cache_key_sha1,
+			value       => MIME::Base64::encode_base64(
+				Storable::freeze(
+					[
+						$list_cache_key,
+						$pagination,
+						'id',
+						$list_cache_ids,
+					]
+				)
+			),
+			expire_time => $list_cache_time,
+		);
+	}
+	
+	# For cache purposes, we use the search field if it is available (as it's
+	# either the primary key or a unique field), and we fall back on 'id'
+	# which exists on all objects as a primary key shortcut.
+	my $cache_field = $search_field // 'id';
+	
+	# Cache the objects.
+	my $database_objects = {};
+	foreach my $object ( @$objects )
+	{
+		my $hash_key = lc(
+			$cache_field eq 'id'
+				? $object->id()
+				: $object->get( $cache_field )
+		);
+		
+		$database_objects->{ $hash_key } = $object;
+		
+		my $object_cache_key = $cache_field eq 'id'
+			? $object->get_object_cache_key()
+			: $object->get_object_cache_key(
+				unique_field => $cache_field,
+				value        => $object->get( $cache_field ),
+			);
+		
+		next if !defined( $object_cache_key );
+		
+		$object->{'_debug'}->{'cache_expires'} = time() + $object_cache_time;
+		
+		carp "Set object cache for key '$object_cache_key'"
+			if $class->is_verbose('cache_operations');
+		
+		$class->set_cache(
+			key         => $object_cache_key,
+			value       => $object,
+			expire_time => $object_cache_time,
+		);
+	}
+	
+	# Make sure the objects are sorted.
+	my $sorted_objects;
+	if ( defined( $list_of_search_values ) )
+	{
+		# If we've been using a list of IDs from the cache, we need to merge
+		# the objects and sort them.
+		$sorted_objects = [];
+		foreach my $search_value ( @$list_of_search_values )
+		{
+			if ( exists( $cached_objects->{ lc( $search_value ) } ) )
+			{
+				push( @$sorted_objects, $cached_objects->{ lc( $search_value ) } );
+			}
+			else
+			{
+				push( @$sorted_objects, $database_objects->{ lc( $search_value ) } );
+			}
+		}
+	}
+	else
+	{
+		# Otherwise, $object comes from the database and is already sorted by
+		# retrieve_list_nocache().
+		$sorted_objects = $objects;
+	}
+	
+	# Return the objects, taking into account whether pagination is requested.
+	if ( wantarray && defined( $args{'pagination'} ) )
+	{
+		return ( $sorted_objects, $pagination );
+	}
+	else
+	{
+		return $sorted_objects;
+	}
 }
 
 
