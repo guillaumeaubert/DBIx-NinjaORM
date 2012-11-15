@@ -7,6 +7,7 @@ use Carp;
 use Data::Validate::Type;
 use DBI;
 use Test::More;
+use Try::Tiny;
 
 
 =head1 NAME
