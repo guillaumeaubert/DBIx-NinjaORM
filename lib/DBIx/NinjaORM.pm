@@ -2498,11 +2498,11 @@ sub parse_filtering_criteria
 				{
 					croak 'The operator is missing or not defined';
 				}
-				elsif ( $block->{'operator'} !~ m/^(?:=|not|<=|>=|<|>|between|NULL)$/x )
+				elsif ( $block->{'operator'} !~ m/^(?:=|not|<=|>=|<|>|between|null)$/x )
 				{
 					croak "The operator '$block->{'operator'}' is not a valid one. Try (=|not|<=|>=|<|>)";
 				}
-				elsif ( !exists( $block->{'value'} ) && $block->{'operator'} ne 'NULL' )
+				elsif ( !exists( $block->{'value'} ) && $block->{'operator'} ne 'null' )
 				{
 					croak "The value key is missing for operator >$block->{'operator'}<";
 				}
@@ -2577,8 +2577,8 @@ sub build_filtering_clause
 		$clause = "$quoted_field BETWEEN ? AND ?";
 		$clause_values = $values;
 	}
-	# NULL is also a special case with no values.
-	elsif ( $operator eq 'NULL' )
+	# 'null' is also a special case with no values.
+	elsif ( $operator eq 'null' )
 	{
 		$clause = "$quoted_field IS NULL";
 		$clause_values = [];

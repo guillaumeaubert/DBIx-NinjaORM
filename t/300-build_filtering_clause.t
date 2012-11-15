@@ -51,13 +51,13 @@ my $tests =
 		expected => undef,
 	},
 	
-	# Operator "NULL".
+	# Operator "null".
 	{
-		name     => 'Test operator="NULL" with correct input.',
+		name     => 'Test operator="null" with correct input.',
 		input    =>
 		{
 			field    => 'test_field',
-			operator => 'NULL',
+			operator => 'null',
 			values   => [],
 		},
 		expected =>
@@ -67,11 +67,11 @@ my $tests =
 		},
 	},
 	{
-		name     => 'Test operator="NULL" with values that should be ignored.',
+		name     => 'Test operator="null" with values that should be ignored.',
 		input    =>
 		{
 			field    => 'test_field',
-			operator => 'NULL',
+			operator => 'null',
 			values   => [ 1, 2, 3 ],
 		},
 		expected =>
