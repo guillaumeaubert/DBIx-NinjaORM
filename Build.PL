@@ -10,6 +10,8 @@ my $builder = Module::Build->new(
 	dist_version_from    => 'lib/DBIx/NinjaORM.pm',
 	build_requires       =>
 	{
+		'DBD::SQLite'          => 0,
+		'DBI'                  => 0,
 		'Test::Deep'           => 0,
 		'Test::Exception'      => 0,
 		'Test::More'           => 0.94, # subtest()

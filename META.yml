@@ -3,6 +3,8 @@ abstract: 'Flexible Perl ORM for easy transitions from inline SQL to objects.'
 author:
   - 'Guillaume Aubert <aubertg@cpan.org>'
 build_requires:
+  DBD::SQLite: 0
+  DBI: 0
   Test::Deep: 0
   Test::Exception: 0
   Test::More: 0.94
