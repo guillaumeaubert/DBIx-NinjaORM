@@ -46,7 +46,7 @@ subtest(
 			{
 				$object->insert(
 					{
-						name => 'test_insert_' . time(),
+						name => 'test_id_' . time(),
 					}
 				)
 			},
@@ -79,7 +79,7 @@ subtest(
 		);
 		
 		is(
-			scalar( @$objects),
+			scalar( @$objects ),
 			1,
 			'Found object.',
 		);
