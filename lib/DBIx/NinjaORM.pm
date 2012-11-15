@@ -2609,6 +2609,44 @@ sub get_cache
 }
 
 
+=head2 set_cache()
+
+Set a value into the cache.
+
+	$class->set_cache(
+		key         => $key,
+		value       => $value,
+		expire_time => $expire_time,
+	);
+
+=cut
+
+sub set_cache
+{
+	my ( $self, %args ) = @_;
+	my $key = delete( $args{'key'} );
+	my $value = delete( $args{'value'} );
+	my $expire_time = delete( $args{'expire_time'} );
+	croak 'Invalid argument(s): ' . join( ', ', keys %args )
+		if scalar( keys %args ) != 0;
+	
+	# Check parameters.
+	croak 'The argument "key" is mandatory'
+		if !defined( $key ) || $key !~ /\w/;
+	croak 'The argument "value" is mandatory'
+		if !defined( $value );
+	
+	my $memcache = $self->get_memcache();
+	return
+		if !defined( $memcache );
+	
+	$memcache->set( $key, $value, $expire_time )
+		|| carp 'Failed to set cache with key >' . $key . '<';
+	
+	return;
+}
+
+
 =head1 INTERNAL METHODS
 
 Those methods are used internally by L<DBIx::NinjaORM>, you should not subclass
