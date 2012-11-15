@@ -13,7 +13,7 @@ CREATE TABLE accounts
 CREATE TABLE tests
 (
 	test_id bigint(20) unsigned NOT NULL auto_increment,
-	name varchar(32) NOT NULL,
+	name varchar(64) NOT NULL,
 	value varchar(128) DEFAULT NULL,
 	account_id bigint(20) unsigned DEFAULT NULL REFERENCES accounts(account_id),
 	created bigint(20) unsigned NOT NULL default '0',
@@ -26,7 +26,7 @@ CREATE TABLE tests
 CREATE TABLE no_created_tests
 (
 	test_id bigint(20) unsigned NOT NULL auto_increment,
-	name varchar(32) NOT NULL,
+	name varchar(64) NOT NULL,
 	value varchar(128) DEFAULT NULL,
 	modified bigint(20) unsigned NOT NULL default '0',
 	PRIMARY KEY (test_id),
@@ -37,7 +37,7 @@ CREATE TABLE no_created_tests
 CREATE TABLE no_modified_tests
 (
 	test_id bigint(20) unsigned NOT NULL auto_increment,
-	name varchar(32) NOT NULL,
+	name varchar(64) NOT NULL,
 	value varchar(128) DEFAULT NULL,
 	created bigint(20) unsigned NOT NULL default '0',
 	PRIMARY KEY (test_id),
