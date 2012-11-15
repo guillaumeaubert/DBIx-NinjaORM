@@ -198,6 +198,8 @@ This distribution currently supports:
 
 =item * SQLite
 
+=item * MySQL
+
 =back
 
 Please contact me if you need support for another database type, I'm always
