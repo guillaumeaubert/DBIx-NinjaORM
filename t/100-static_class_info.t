@@ -52,6 +52,8 @@ my $mandatory_keys =
 		has_created_field
 		has_modified_field
 		cache_key_field
+		verbose
+		verbose_cache_operations
 	)
 ];
 
