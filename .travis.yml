@@ -8,6 +8,7 @@ before_script:
   - cpanm --notest DBI
   - cpanm --notest DBD::Pg
   - cpanm --notest DBD::mysql
+  - cpanm --notest Cache::Memcached::Fast
 services:
   - memcache
 env:
