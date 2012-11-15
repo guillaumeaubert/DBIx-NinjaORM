@@ -1316,7 +1316,7 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 			FROM %s
 			%s %s %s %s %s
 		|,
-		$fields
+		$fields,
 		$quoted_table_name,
 		$joins,
 		$where,
