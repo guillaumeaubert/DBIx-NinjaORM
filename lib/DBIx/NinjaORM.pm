@@ -2500,13 +2500,13 @@ sub parse_filtering_criteria
 				{
 					croak 'The operator is missing or not defined';
 				}
-				elsif ( $block->{'operator'} !~ m/^(?:=|not|<=|>=|<|>|between|null)$/x )
+				elsif ( $block->{'operator'} !~ m/^(?:=|not|<=|>=|<|>|between|null|not_null)$/x )
 				{
 					croak "The operator '$block->{'operator'}' is not a valid one. Try (=|not|<=|>=|<|>)";
 				}
-				elsif ( !exists( $block->{'value'} ) && $block->{'operator'} ne 'null' )
+				elsif ( !exists( $block->{'value'} ) && $block->{'operator'} !~ /^(?:null|not_null)$/ )
 				{
-					croak "The value key is missing for operator >$block->{'operator'}<";
+					croak "The value key is missing for operator '$block->{'operator'}'";
 				}
 				
 				my ( $clause, $clause_values ) = $class->build_filtering_clause(
@@ -2583,6 +2583,12 @@ sub build_filtering_clause
 	elsif ( $operator eq 'null' )
 	{
 		$clause = "$quoted_field IS NULL";
+		$clause_values = [];
+	}
+	# 'not_null' is also a special case with no values.
+	elsif ( $operator eq 'not_null' )
+	{
+		$clause = "$quoted_field IS NOT NULL";
 		$clause_values = [];
 	}
 	# More than one value passed.
