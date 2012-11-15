@@ -72,12 +72,15 @@ foreach my $test ( @$tests )
 				'Create DBIx::NinjaORM::Test object.',
 			);
 			
-			ok(
-				$insert_test->insert(
-					{
-						name => 'skip_cache_' . $count . '_' . time(),
-					}
-				),
+			lives_ok(
+				sub
+				{
+					$insert_test->insert(
+						{
+							name => 'skip_cache_' . $count . '_' . time(),
+						}
+					);
+				},
 				'Insert new row.',
 			);
 			

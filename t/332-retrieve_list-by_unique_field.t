@@ -73,12 +73,15 @@ foreach my $test ( @$tests )
 			);
 			
 			my $name = 'by_unique_field_' . $count . '_' . time();
-			ok(
-				$insert_test->insert(
-					{
-						name => $name,
-					}
-				),
+			lives_ok(
+				sub
+				{
+					$insert_test->insert(
+						{
+							name => $name,
+						}
+					);
+				},
 				'Insert new row.',
 			);
 			

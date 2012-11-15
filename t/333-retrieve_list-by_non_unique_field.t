@@ -73,13 +73,16 @@ foreach my $test ( @$tests )
 			);
 			
 			my $value = 'value_by_non_unique_field_' . $count . '_' . time();
-			ok(
-				$insert_test->insert(
-					{
-						name  => 'by_non_unique_field_' . $count . '_' . time(),
-						value => $value,
-					}
-				),
+			lives_ok(
+				sub
+				{
+					$insert_test->insert(
+						{
+							name  => 'by_non_unique_field_' . $count . '_' . time(),
+							value => $value,
+						}
+					);
+				},
 				'Insert new row.',
 			);
 			
