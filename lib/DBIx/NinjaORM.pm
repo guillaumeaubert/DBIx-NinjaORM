@@ -2674,6 +2674,35 @@ sub delete_cache
 }
 
 
+=head2 reorganize_non_native_fields()
+
+When we retrieve fields via SELECT in retrieve_list_nocache(), by convention we use
+_[table_name]_[field_name] for fields that are not native to the underlying
+table that the object represents.
+
+This method moves them to $object->{'_table_name'}->{'field_name'} for a
+cleaner organization inside the object.
+
+	$object->reorganize_non_native_fields();
+
+=cut
+
+sub reorganize_non_native_fields
+{
+	my ( $self ) = @_;
+	
+	# Move non-native fields to their own happy place.
+	foreach my $field ( keys %$self )
+	{
+		next unless $field =~ m/^(_[^_]+)_(.*)$/;
+		$self->{ $1 }->{ $2 } = $self->{ $field };
+		delete( $self->{ $field } );
+	}
+	
+	return;
+}
+
+
 =head1 INTERNAL METHODS
 
 Those methods are used internally by L<DBIx::NinjaORM>, you should not subclass
