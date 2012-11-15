@@ -2313,6 +2313,36 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 }
 
 
+=head2 assert_dbh()
+
+Assert that there is a database handle, either a specific one passed as first
+argument to this function (if defined) or the default one specified via
+C<static_class_info()>, and return it.
+
+	my $dbh = $class->assert_dbh();
+	my $dbh = $object->assert_dbh();
+	
+	my $dbh = $class->assert_dbh( $custom_dbh );
+	my $dbh = $object->assert_dbh( $custom_dbh );
+
+=cut
+
+sub assert_dbh
+{
+	my ( $class, $dbh ) = @_;
+	
+	if ( defined( $dbh ) )
+	{
+		croak 'The database handle specified is not valid (' . ref( $dbh ) . ')'
+			if !Data::Validate::Type::is_instance( $dbh, class => 'DBI::db' );
+		
+		return $dbh;
+	}
+	
+	return $class->get_default_dbh();
+}
+
+
 =head1 INTERNAL METHODS
 
 Those methods are used internally by L<DBIx::NinjaORM>, you should not subclass
