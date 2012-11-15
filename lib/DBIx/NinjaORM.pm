@@ -2343,6 +2343,29 @@ sub assert_dbh
 }
 
 
+=head2 cached_static_class_info()
+
+Return a cached version of the information retrieved by C<static_class_info()>.
+
+	my $static_class_info = $class->cached_static_class_info();
+	my $static_class_info = $object->cached_static_class_info();
+
+=cut
+
+{
+	my $CACHE = {};
+	sub cached_static_class_info
+	{
+		my ( $self ) = @_;
+		my $class = ref( $self ) || $self;
+		
+		$CACHE->{ $class } ||= $class->static_class_info();
+		
+		return $CACHE->{ $class }
+	}
+}
+
+
 =head1 INTERNAL METHODS
 
 Those methods are used internally by L<DBIx::NinjaORM>, you should not subclass
