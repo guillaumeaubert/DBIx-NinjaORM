@@ -15,7 +15,7 @@ use LocalTest;
 
 use DBIx::NinjaORM;
 use Test::Exception;
-use Test::More tests => 18;
+use Test::More tests => 20;
 
 
 my $dbh = LocalTest::ok_database_handle();
@@ -49,6 +49,36 @@ my $tests =
 			values   => 3,
 		},
 		expected => undef,
+	},
+	
+	# Operator "not_null".
+	{
+		name     => 'Test operator="not_null" with correct input.',
+		input    =>
+		{
+			field    => 'test_field',
+			operator => 'not_null',
+			values   => [],
+		},
+		expected =>
+		{
+			clause => "$quoted_field IS NOT NULL",
+			values => [],
+		},
+	},
+	{
+		name     => 'Test operator="not_null" with values that should be ignored.',
+		input    =>
+		{
+			field    => 'test_field',
+			operator => 'not_null',
+			values   => [ 1, 2, 3 ],
+		},
+		expected =>
+		{
+			clause => "$quoted_field IS NOT NULL",
+			values => [],
+		},
 	},
 	
 	# Operator "null".
