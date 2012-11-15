@@ -1913,6 +1913,46 @@ sub get_filtering_fields
 
 =head1 CACHE RELATED METHODS
 
+=head2 invalidate_cached_object()
+
+Invalidate the cached copies of the current object across all the unique
+keys this object can be referenced with.
+
+	$object->invalidate_cached_object();
+
+=cut
+
+sub invalidate_cached_object
+{
+	my ( $self ) = @_;
+	
+	my $primary_key_name = $self->get_primary_key_name();
+	if ( defined( $primary_key_name ) )
+	{
+		my $cache_key = $self->get_object_cache_key(
+			unique_field => 'id',
+			value        => $self->id(),
+		);
+		$self->delete_cache( key => $cache_key );
+	}
+	
+	foreach my $field ( @{ $self->get_unique_fields() } )
+	{
+		# If the object has no value for the unique field, it wasn't
+		# cached for this key/value pair and we can't build a cache key
+		# for it anyway, so we just skip to the next unique field.
+		next unless defined( $self->{ $field } );
+		
+		my $cache_key = $self->get_object_cache_key(
+			unique_field => $field,
+			value        => $self->{ $field },
+		);
+		$self->delete_cache( key => $cache_key );
+	}
+	
+	return 1;
+}
+
 
 =head1 INTERNAL METHODS
 
