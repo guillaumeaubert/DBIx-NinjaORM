@@ -16,6 +16,7 @@ my $builder = Module::Build->new(
 		'Test::Exception'      => 0,
 		'Test::More'           => 0.94, # subtest()
 		'Test::Type'           => 0,
+		'Try::Tiny'            => 0,
 	},
 	requires             =>
 	{
