@@ -18,6 +18,12 @@ my $builder = Module::Build->new(
 	requires             =>
 	{
 		'perl'                 => 5.006,
+		'Carp'                 => 0,
+		'Data::Dumper'         => 0,
+		'Data::Validate::Type' => 0,
+		'Digest::SHA1'         => 0,
+		'MIME::Base64'         => 0,
+		'Storable'             => 0,
 	},
 	add_to_cleanup       =>
 	[

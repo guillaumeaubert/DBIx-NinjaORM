@@ -6,6 +6,12 @@ WriteMakefile
   'NAME' => 'DBIx::NinjaORM',
   'VERSION_FROM' => 'lib/DBIx/NinjaORM.pm',
   'PREREQ_PM' => {
+                   'Carp' => 0,
+                   'Data::Dumper' => 0,
+                   'Data::Validate::Type' => 0,
+                   'Digest::SHA1' => 0,
+                   'MIME::Base64' => 0,
+                   'Storable' => 0,
                    'Test::Deep' => 0,
                    'Test::Exception' => 0,
                    'Test::More' => '0.94',
