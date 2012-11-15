@@ -935,7 +935,7 @@ sub insert ## no critic (Subroutines::RequireArgUnpacking)
 	{
 		$clean_data->{ $primary_key_name } = defined( $args{'generated_primary_key_value'} )
 			? $args{'generated_primary_key_value'}
-			: $dbh->last_insert_id( undef, undef, undef, undef );
+			: $dbh->last_insert_id( undef, undef, $table_name, $primary_key_name );
 	}
 	
 	# Check that the object was correctly inserted.
