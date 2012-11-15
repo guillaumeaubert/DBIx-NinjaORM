@@ -1719,6 +1719,8 @@ Currently, the following types of operations are supported:
 
 =back
 
+=back
+
 =cut
 
 sub is_verbose
