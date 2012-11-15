@@ -1001,7 +1001,7 @@ however sometimes necessary to use more complex SETs, such as
 
 Important: you will need to subclass C<update()> in your model classes and
 update manually the values upon success (or reload the object), as
-C<DBIx::NinjaORM cannot determine the end result of those complex sets on the
+L<DBIx::NinjaORM> cannot determine the end result of those complex sets on the
 database side.
 
 	$book->update(
