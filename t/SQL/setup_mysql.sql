@@ -5,6 +5,7 @@ CREATE TABLE accounts
 	email varchar(128) NOT NULL,
 	created bigint(20) NOT NULL default '0',
 	modified bigint(20) NOT NULL default '0',
+	PRIMARY KEY (account_id),
 	UNIQUE KEY idx_unique_email (email)
 );
 
@@ -14,7 +15,7 @@ CREATE TABLE tests
 	test_id bigint(20) unsigned NOT NULL auto_increment,
 	name varchar(32) NOT NULL,
 	value varchar(128) DEFAULT NULL,
-	account_id bigint(20) unsigned DEFAUL NULL REFERENCES accounts(account_id),
+	account_id bigint(20) unsigned DEFAULT NULL REFERENCES accounts(account_id),
 	created bigint(20) unsigned NOT NULL default '0',
 	modified bigint(20) unsigned NOT NULL default '0',
 	PRIMARY KEY (test_id),
@@ -22,7 +23,7 @@ CREATE TABLE tests
 );
 
 -- Table without a "created" field. --
-CREATE TABLE tests
+CREATE TABLE no_created_tests
 (
 	test_id bigint(20) unsigned NOT NULL auto_increment,
 	name varchar(32) NOT NULL,
@@ -33,7 +34,7 @@ CREATE TABLE tests
 );
 
 -- Table without a "modified" field. --
-CREATE TABLE tests
+CREATE TABLE no_modified_tests
 (
 	test_id bigint(20) unsigned NOT NULL auto_increment,
 	name varchar(32) NOT NULL,
