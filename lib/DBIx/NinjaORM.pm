@@ -1684,6 +1684,65 @@ sub id
 }
 
 
+=head2 is_verbose()
+
+Return if verbosity is enabled.
+
+This method supports two types of verbosity:
+
+=over 4
+
+=item * general verbosity
+
+Called with no argument, this returns whether code in general will be verbose.
+
+	carp 'This is verbose'
+		if $class->is_verbose();
+	carp 'This is verbose'
+		if $object->is_verbose();
+
+=item * verbosity for a specific type of operations
+
+Called with a specific type of operations as first argument, this returns
+whether that type of operations will be verbose.
+
+	carp 'Describe cache operation'
+		if $class->is_verbose( $operation_type );
+	carp 'Describe cache operation'
+		if $object->is_verbose( $operation_type );
+
+Currently, the following types of operations are supported:
+
+=over 8
+
+=item * 'cache_operations'
+
+=back
+
+=cut
+
+sub is_verbose
+{
+	my ( $self, $specific_area ) = @_;
+	
+	my $cached_static_class_info = $self->cached_static_class_info();
+	
+	if ( defined( $specific_area ) )
+	{
+		my $info_key = 'verbose_' . $specific_area;
+		
+		croak "'$specific_area' is not valid"
+			if ! exists( $cached_static_class_info->{ $info_key } );
+		
+		return $cached_static_class_info->{ $info_key };
+	}
+	else
+	{
+		return $cached_static_class_info->{'verbose'};
+	}
+}
+
+
 =head2 get_default_dbh()
 
 Return the default database handle to use with this class.
