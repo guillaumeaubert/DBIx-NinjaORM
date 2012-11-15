@@ -1954,6 +1954,113 @@ sub invalidate_cached_object
 }
 
 
+=head2 get_object_cache_key()
+
+Return the name of the cache key for an object or a class, given a field name
+on which a unique constraint exists and the corresponding value.
+
+	my $cache_key = $object->get_object_cache_key();
+	my $cache_key = $class->get_object_cache_key(
+		unique_field => $unique_field,
+		value        => $value,
+	);
+
+=cut
+
+sub get_object_cache_key
+{
+	my ( $self, %args ) = @_;
+	my $unique_field = delete( $args{'unique_field'} );
+	my $value = delete( $args{'value'} );
+	
+	# Retrieve the field we'll use to create the cache key.
+	my $cache_key_field = $self->get_cache_key_field();
+	croak 'No cache key found for class'
+		if !defined( $cache_key_field );
+	
+	my $table_name = $self->get_table_name();
+	if ( defined( $unique_field ) )
+	{
+		if ( !defined( $value ) )
+		{
+			carp "Passed unique field >$unique_field< without a corresponding value for "
+				. "table >$table_name<, cannot determine cache key";
+			return;
+		}
+		
+		# 'id' is only an alias and needs to be expanded to its actual name.
+		$unique_field = $self->get_primary_key_name()
+			if $unique_field eq 'id';
+	}
+	else
+	{
+		# If no unique field was passed, use the $cache_key_field field and its
+		# corresponding value.
+		if ( Data::Validate::Type::is_hashref( $self ) )
+		{
+			$unique_field = $cache_key_field;
+			$value = $self->{ $unique_field };
+			
+			# See Trac #1695 for why we think this is significant.
+			unless ( defined( $value ) )
+			{
+				carp "Trying to use field >$cache_key_field< on table >$table_name< to generate "
+					. "a cache key, but the value for that field on the object is undef";
+				return;
+			}
+		}
+		else
+		{
+			carp "If you don't specify a unique field and value, you need to call this "
+				. "function on an object";
+			return;
+		}
+	}
+	
+	# If the unique field passed doesn't match what the cache key is, we need
+	# to do a database lookup to find out the corresponding cache key.
+	my $cache_key_value;
+	if ( $unique_field ne $cache_key_field )
+	{
+		my $dbh = $self->assert_dbh();
+		
+		$cache_key_value = $dbh->selectrow_arrayref(
+			sprintf(
+				q|
+					SELECT %s
+					FROM %s
+					WHERE %s = ?
+				|,
+				$dbh->quote_identifier( $cache_key_field ),
+				$dbh->quote_identifier( $table_name ),
+				$dbh->quote_identifier( $unique_field ),
+			),
+			{},
+			$value,
+		);
+		
+		$cache_key_value = defined( $cache_key_value ) && scalar( @$cache_key_value ) != 0
+			? $cache_key_value->[0]
+			: undef;
+		
+		unless ( defined( $cache_key_value ) )
+		{
+			carp(
+				"Cache miss for unique field >$unique_field< and value >$value< on table "
+				. ">$table_name<, cannot generate cache key."
+			);
+			return;
+		}
+	}
+	else
+	{
+		$cache_key_value = $value;
+	}
+	
+	return lc( 'object|' . $table_name . '|' . $cache_key_field . '|' . $cache_key_value );
+}
+
+
 =head1 INTERNAL METHODS
 
 
