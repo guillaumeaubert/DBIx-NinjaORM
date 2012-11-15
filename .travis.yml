@@ -11,6 +11,6 @@ before_script:
 services:
   - memcache
 env:
-  - QUEUE_DBI_DATABASE=''
-  - QUEUE_DBI_DATABASE='DBI:mysql:database=ninja_orm;host=127.0.0.1|root|'
-  - QUEUE_DBI_DATABASE='DBI:Pg:dbname=ninja_orm;host=127.0.0.1|postgres|'
+  - NINJAORM_DATABASE=''
+  - NINJAORM_DATABASE='DBI:mysql:database=ninja_orm;host=127.0.0.1|root|'
+  - NINJAORM_DATABASE='DBI:Pg:dbname=ninja_orm;host=127.0.0.1|postgres|'
