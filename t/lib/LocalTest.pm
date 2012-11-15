@@ -130,7 +130,7 @@ sub ok_database_type
 	
 	like(
 		$type,
-		qr/^(?:mysql|SQLite)$/,
+		qr/^(?:mysql|SQLite|Pg)$/,
 		"Database type '$type' is supported.",
 	);
 	
