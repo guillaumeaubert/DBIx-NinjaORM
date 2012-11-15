@@ -2315,6 +2315,9 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 
 =head1 INTERNAL METHODS
 
+Those methods are used internally by L<DBIx::NinjaORM>, you should not subclass
+them.
+
 
 =head1 AUTHOR
 
