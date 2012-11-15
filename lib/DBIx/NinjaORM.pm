@@ -2474,6 +2474,114 @@ sub parse_filtering_criteria
 }
 
 
+=head2 build_filtering_clause()
+
+Create a filtering clause using the field, operator and values passed.
+
+	my ( $clause, $clause_values ) = $class->build_filtering_clause(
+		field    => $field,
+		operator => $operator,
+		values   => $values,
+	);
+
+=cut
+
+sub build_filtering_clause
+{
+	my ( $class, %args ) = @_;
+	my $field = $args{'field'};
+	my $operator = $args{'operator'};
+	my $values = $args{'values'};
+	
+	my $clause;
+	my $clause_values = [ $values ];
+	
+	# Quote the field name.
+	my $dbh = $class->assert_dbh();
+	my $quoted_field = join( '.', map { $dbh->quote_identifier( $_ ) } split( /\./, $field ) );
+	
+	croak 'A field name is required'
+		if !defined( $field ) || $field eq '';
+	
+	# Between is a special case where values are an arrayref of a specific size.
+	if ( $operator eq 'between' )
+	{
+		unless ( defined( $values ) && Data::Validate::Type::is_arrayref( $values )  && scalar( @$values ) == 2 )
+		{
+			croak '>between< requires two values to be passed as an arrayref';
+		}
+		
+		$clause = "$quoted_field BETWEEN ? AND ?";
+		$clause_values = $values;
+	}
+	# NULL is also a special case with no values.
+	elsif ( $operator eq 'NULL' )
+	{
+		$clause = "$quoted_field IS NULL";
+		$clause_values = [];
+	}
+	# More than one value passed.
+	elsif ( Data::Validate::Type::is_arrayref( $values ) )
+	{
+		if ( $operator eq '=' ) ## no critic (ControlStructures::ProhibitCascadingIfElse)
+		{
+			$clause = "$quoted_field IN (" . join( ', ', ( ( '?' ) x scalar( @$values ) ) ) . ")";
+			$clause_values = $values;
+		}
+		elsif ( $operator eq 'not' )
+		{
+			$clause = "$quoted_field NOT IN (" . join( ', ', ( ( '?' ) x scalar( @$values ) ) ) . ")";
+			$clause_values = $values;
+		}
+		elsif ( $operator eq '>' || $operator eq '>=' )
+		{
+			
+			# List::Util::max() really hates undefined elements and will warn
+			# loudly at each one it encounters. So, grep them out first.
+			my $max = List::Util::max( grep { defined( $_ ) } @$values );
+			if ( defined( $max ) )
+			{
+				$clause = "$quoted_field $operator ?";
+				$clause_values = [ $max ];
+			}
+			else
+			{
+				croak 'Could not find max of the following list: ' . Dumper( $values );
+			}
+		}
+		elsif ( $operator eq '<' || $operator eq '<=' )
+		{
+			# List::Util::max() really hates undefined elements and will warn
+			# loudly at each one it encounters. So, grep them out first.
+			my $min = List::Util::min( grep { defined( $_ ) } @$values );
+			if ( defined( $min ) )
+			{
+				$clause = "$quoted_field $operator ?";
+				$clause_values = [ $min ];
+			}
+			else
+			{
+				croak 'Could not find min of the following list: ' . Dumper( $values );
+			}
+		}
+		# Only one value passed.
+		else
+		{
+			croak "The operator '$operator' is not implemented";
+		}
+	}
+	else
+	{
+		$operator = '!='
+			if $operator eq 'not';
+		
+		$clause = "$quoted_field $operator ?";
+	}
+	
+	return ( $clause, $clause_values );
+}
+
+
 =head1 INTERNAL METHODS
 
 Those methods are used internally by L<DBIx::NinjaORM>, you should not subclass
