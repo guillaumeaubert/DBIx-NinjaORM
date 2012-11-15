@@ -33,7 +33,7 @@ dies_ok(
 	{
 		$object->insert(
 			{
-				name => 'test_insert_' . time(),
+				name => 'test_insert_dbh_' . time(),
 			}
 		)
 	},
@@ -45,7 +45,7 @@ lives_ok(
 	{
 		$object->insert(
 			{
-				name => 'test_insert_' . time(),
+				name => 'test_insert_dbh_' . time(),
 			},
 			dbh => $dbh,
 		)
