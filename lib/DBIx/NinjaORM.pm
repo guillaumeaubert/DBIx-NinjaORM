@@ -2366,6 +2366,114 @@ Return a cached version of the information retrieved by C<static_class_info()>.
 }
 
 
+=head2 parse_filtering_criteria()
+
+Helper function that takes a list of fields and converts them into where
+clauses and values that can be used by retrieve_list().
+
+	my ( $where_clauses, $where_values, $filtering_field_keys_passed ) =
+		@{
+			$class->parse_filtering_criteria(
+				fields => \@field,
+				values => \%value,
+			)
+		};
+
+$filtering_field_keys_passed indicates whether %values had keys matching at
+least one element of @field. This allows detecting whether any filtering
+criteria was passed, even if the filtering criteria do not result in WHERE
+clauses being returned.
+
+=cut
+
+sub parse_filtering_criteria
+{
+	my ( $class, %args ) = @_;
+	
+	# Check the arguments.
+	confess "The argument >fields< must be an arrayref"
+		if !Data::Validate::Type::is_arrayref( $args{'fields'} );
+	confess "The argument >values< must be defined"
+		if !defined( $args{'values'} );
+	
+	# Find the table name to prefix it to the field names when we create where
+	# clauses.
+	my $table_name = $class->get_table_name();
+	croak "No table name found for the class >" . ( ref( $class ) || $class ) . "<"
+		if !defined( $table_name );
+	
+	my $where_clauses = [];
+	my $where_values = [];
+	my $filtering_field_keys_passed = 0;
+	my $primary_key_name = $class->get_primary_key_name();
+	foreach my $field ( @{ $args{'fields'} } )
+	{
+		next if !exists( $args{'values'}->{ $field } );
+		$filtering_field_keys_passed = 1;
+		
+		next unless defined( $args{'values'}->{ $field } );
+		
+		# Add the table prefix if needed, this will prevent conflicts if the
+		# main query performs JOINs.
+		my $full_field_name = defined( $primary_key_name ) && ( $field eq 'id' )
+			? $table_name . '.' . $primary_key_name
+			: $field =~ m/\./
+				? $field
+				: $table_name . '.' . $field;
+		
+		# Turn the value into an array of values, if needed.
+		my $values = Data::Validate::Type::is_arrayref( $args{'values'}->{ $field } )
+			? $args{'values'}->{ $field }
+			: [ $args{'values'}->{ $field } ];
+		
+		my @scalar_values = ();
+		foreach my $block ( @$values )
+		{
+			if ( Data::Validate::Type::is_hashref( $block ) )
+			{
+				if ( !defined( $block->{'operator'} ) )
+				{
+					croak 'The operator is missing or not defined';
+				}
+				elsif ( $block->{'operator'} !~ m/^(?:=|not|<=|>=|<|>|between|NULL)$/x )
+				{
+					croak "The operator '$block->{'operator'}' is not a valid one. Try (=|not|<=|>=|<|>)";
+				}
+				elsif ( !exists( $block->{'value'} ) && $block->{'operator'} ne 'NULL' )
+				{
+					croak "The value key is missing for operator >$block->{'operator'}<";
+				}
+				
+				my ( $clause, $clause_values ) = $class->build_filtering_clause(
+					field    => $full_field_name,
+					operator => $block->{'operator'},
+					values   => $block->{'value'},
+				);
+				push( @$where_clauses, $clause );
+				push( @$where_values, $clause_values );
+			}
+			else
+			{
+				push( @scalar_values, $block );
+			}
+		}
+		
+		if ( scalar( @scalar_values ) != 0 )
+		{
+			my ( $clause, $clause_values ) = $class->build_filtering_clause(
+				field    => $full_field_name,
+				operator => '=',
+				values   => \@scalar_values,
+			);
+			push( @$where_clauses, $clause );
+			push( @$where_values, $clause_values );
+		}
+	}
+	
+	return [ $where_clauses, $where_values, $filtering_field_keys_passed ];
+}
+
+
 =head1 INTERNAL METHODS
 
 Those methods are used internally by L<DBIx::NinjaORM>, you should not subclass
