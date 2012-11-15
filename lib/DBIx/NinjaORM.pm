@@ -1324,7 +1324,7 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 		$limit,
 		$lock,
 	);
-	@query_values = map { @$_ } @$where_values;
+	my @query_values = map { @$_ } @$where_values;
 	carp "Performing query: \n$query\nValues:\n" . Dumper( @query_values )
 		if $args{'show_queries'};
 	
