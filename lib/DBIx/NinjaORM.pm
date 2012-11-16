@@ -1279,7 +1279,7 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 				SELECT %s
 				FROM %s
 				%s
-				ORDER BY ASC
+				ORDER BY %s ASC
 				%s
 				%s
 			|,
