@@ -1049,7 +1049,8 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 	# If there's nothing to update, bail out.
 	if ( scalar( keys %$clean_data ) == 0 )
 	{
-		carp 'No data left to update after validation, skipping SQL update';
+		carp 'No data left to update after validation, skipping SQL update'
+			if $self->is_verbose();
 		return;
 	}
 	
@@ -1119,7 +1120,8 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 	# the object cache keys for.
 	if ( defined( $object_cache_time ) )
 	{
-		carp "An update on '$table_name' is forcing to clear the cache for '$primary_key_name=" . $self->id() . "'";
+		carp "An update on '$table_name' is forcing to clear the cache for '$primary_key_name=" . $self->id() . "'"
+			if $self->is_verbose();
 		$self->invalidate_cached_object();
 	}
 	
