@@ -128,42 +128,23 @@ subtest(
 	}
 );
 
-# Make sure that private fields are protected.
-subtest(
-	'Private fields are ignored.',
+# Make sure that read-only fields are protected.
+my $validated_data;
+dies_ok(
 	sub
 	{
-		plan( tests => 2 );
-		
-		my $validated_data;
-		lives_ok(
-			sub
+		$validated_data = $object->validate_data(
 			{
-				$validated_data = $object->validate_data(
-					{
-						'field1'        => 'value1',
-						'private_field' => 'value2',
-					}
-				);
-			},
-			'Validate data.',
+				'field1'        => 'value1',
+				'readonly_field' => 'value2',
+			}
 		);
-		
-		my $expected = 
-		{
-			field1 => 'value1',
-		};
-		
-		is_deeply(
-			$validated_data,
-			$expected,
-			'The private field got dropped.',
-		) || diag( explain( 'Retrieved: ', $validated_data, 'Expected: ', $expected ) );
-	}
+	},
+	'Read-only fields are protected.',
 );
 
 
-# Test subclass with private fields and a primary key name set.
+# Test subclass with read-only fields and a primary key name set.
 package DBIx::NinjaORM::Test;
 
 use strict;
@@ -176,7 +157,7 @@ sub static_class_info
 {
 	return
 	{
-		'private_fields'   => [ 'private_field' ],
+		'readonly_fields'   => [ 'readonly_field' ],
 		'primary_key_name' => 'test_pk',
 	};
 }

@@ -42,80 +42,70 @@ dies_ok(
 	'The first argument must be a hashref.',
 );
 
-# Make sure that private fields cannot be set via set() by default.
+# Make sure that read-only fields cannot be set via set() by default.
 subtest(
-	'Set a private field without the "force" argument.',
+	'Set a read-only field without the "force" argument.',
 	sub
 	{
-		plan( tests => 3 );
+		plan( tests => 2 );
 		
 		ok(
-			!exists( $object->{'private_field'} ),
-			'"private_field" does not exist on the object.',
+			!exists( $object->{'readonly_field'} ),
+			'"readonly_field" does not exist on the object.',
 		);
 		
-		lives_ok(
+		dies_ok(
 			sub
 			{
 				$object->set(
 					{
-						private_field => 'value',
+						readonly_field => 'value',
 					}
 				);
 			},
-			'Set value.',
-		);
-		
-		ok(
-			!exists( $object->{'private_field'} ),
-			'"private_field" does not exist on the object.',
+			'Set value fails.',
 		);
 	}
 );
 
-# Make sure that private fields cannot be set via set() without 'force'.
+# Make sure that read-only fields cannot be set via set() without 'force'.
 subtest(
-	'Set a private field with force=0.',
+	'Set a read-only field with force=0.',
 	sub
 	{
-		plan( tests => 3 );
+		plan( tests => 2 );
 		
 		ok(
-			!exists( $object->{'private_field'} ),
-			'"private_field" does not exist on the object.',
+			!exists( $object->{'readonly_field'} ),
+			'"readonly_field" does not exist on the object.',
 		);
 		
-		lives_ok(
+		dies_ok(
 			sub
 			{
 				$object->set(
 					{
-						private_field => 'value',
+						readonly_field => 'value',
 					},
 					force => 0,
 				);
 			},
-			'Set value.',
-		);
-		
-		ok(
-			!exists( $object->{'private_field'} ),
-			'"private_field" does not exist on the object.',
+			'Set value fails.',
 		);
 	}
 );
 
-# Make sure that private fields can be set via set() when the 'force' argument
+# Make sure that readonly fields can be set via set() when the 'force' argument
 # is specified and set to 1.
 subtest(
-	'Set a private field with force=1.',
+	'Set a read-only field with force=1.',
 	sub
 	{
 		plan( tests => 3 );
 		
 		ok(
-			!exists( $object->{'private_field'} ),
-			'"private_field" does not exist on the object.',
+			!exists( $object->{'readonly_field'} ),
+			'"readonly_field" does not exist on the object.',
 		);
 		
 		lives_ok(
@@ -123,7 +113,7 @@ subtest(
 			{
 				$object->set(
 					{
-						private_field => 'value',
+						readonly_field => 'value',
 					},
 					force => 1,
 				);
@@ -132,15 +122,15 @@ subtest(
 		);
 		
 		is(
-			$object->{'private_field'},
+			$object->{'readonly_field'},
 			'value',
-			'The private field is set.',
+			'The read-only field is set.',
 		);
 	}
 );
 
 
-# Test subclass with private fields and a primary key name set.
+# Test subclass with read-only fields and a primary key name set.
 package DBIx::NinjaORM::Test;
 
 use strict;
@@ -153,7 +143,7 @@ sub static_class_info
 {
 	return
 	{
-		'private_fields'   => [ 'private_field' ],
+		'readonly_fields'   => [ 'readonly_field' ],
 		'primary_key_name' => 'test_pk',
 	};
 }

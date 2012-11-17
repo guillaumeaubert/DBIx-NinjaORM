@@ -48,7 +48,7 @@ my $mandatory_keys =
 		object_cache_time
 		unique_fields
 		filtering_fields
-		private_fields
+		readonly_fields
 		has_created_field
 		has_modified_field
 		cache_key_field
