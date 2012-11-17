@@ -354,7 +354,7 @@ The list of fields that can be used to filter on in C<retrieve_list()>.
 	# Allow filtering based on the book name and author ID.
 	$info->{'unique_fields'} = [ 'name', 'author_id' ];
 
-=item * private_fields
+=item * readonly_fields
 
 The list of fields that cannot be set directly. They will be populated in
 C<retrieve_list>, but you won't be able to insert / update / set them directly.
@@ -413,7 +413,7 @@ sub static_class_info
 		'object_cache_time'        => undef,
 		'unique_fields'            => [],
 		'filtering_fields'         => [],
-		'private_fields'           => [],
+		'readonly_fields'          => [],
 		'has_created_field'        => 1,
 		'has_modified_field'       => 1,
 		'cache_key_field'          => undef,
@@ -666,6 +666,15 @@ sub validate_data
 	
 	my $data = Storable::dclone( $original_data );
 	
+	# Protect read-only fields.
+	foreach my $field ( @{ $self->get_readonly_fields() } )
+	{
+		next
+			unless defined( $data->{ $field } );
+		
+		croak "The field '$field' is read-only and cannot be set via the model";
+	}
+	
 	# Don't allow setting timestamps.
 	delete( $data->{'modified'} );
 	delete( $data->{'created'} );
@@ -684,16 +693,6 @@ sub validate_data
 	{
 		delete( $data->{ $field } )
 			if substr( $field, 0, 1 ) eq '_';
-	}
-	
-	# Remove private fields.
-	foreach my $field ( @{ $self->get_private_fields() } )
-	{
-		next
-			unless defined( $data->{ $field } );
-		
-		carp "The field '$field' is private and should not be set manually";
-		delete( $data->{ $field } );
 	}
 	
 	return $data;
@@ -1815,20 +1814,21 @@ sub has_modified_field
 }
 
 
-=head2 get_private_fields()
+=head2 get_readonly_fields()
 
-Return an arrayref of fields that cannot be modified via C<set()>.
+Return an arrayref of fields that cannot be modified via C<set()>, C<update()>,
+or C<insert()>.
 
-	my $private_fields = $class->get_private_fields();
-	my $private_fields = $object->get_private_fields();
+	my $readonly_fields = $class->get_readonly_fields();
+	my $readonly_fields = $object->get_readonly_fields();
 
 =cut
 
-sub get_private_fields
+sub get_readonly_fields
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->{'private_fields'} || [];
+	return $self->cached_static_class_info()->{'readonly_fields'} || [];
 }
 
 
