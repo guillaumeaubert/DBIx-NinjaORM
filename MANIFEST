@@ -27,7 +27,7 @@ t/114-get_list_cache_time.t
 t/115-get_object_cache_time.t
 t/116-get_unique_fields.t
 t/117-get_filtering_fields.t
-t/118-get_private_fields.t
+t/118-get_readonly_fields.t
 t/119-has_created_field.t
 t/120-has_modified_field.t
 t/121-get_cache_key_field.t
