@@ -2835,6 +2835,15 @@ Thanks to ThinkGeek (L<http://www.thinkgeek.com/>) and its corporate overlords
 at Geeknet (L<http://www.geek.net/>), for footing the bill while I write code
 for them!
 
+Thanks to Kate Kirby C< <<kate at cpan.org>> > for her help with the design of
+this module, various additions, and pair programming C<retrieve_list_cache()>
+with me.
+
+Thanks to Jennifer Pinkham C< <<jpinkham at cpan.org >> > for creating separate
+cache times for objects and arguments to IDs translations.
+
+Thanks to Jamie McCarthy for adding the 'ignore' argument to C<insert()>.
+
 
 =head1 COPYRIGHT & LICENSE
 
