@@ -2576,7 +2576,7 @@ sub build_filtering_clause
 		if !defined( $field ) || $field eq '';
 	
 	# Between is a special case where values are an arrayref of a specific size.
-	if ( $operator eq 'between' )
+	if ( $operator eq 'between' ) ## no critic (ControlStructures::ProhibitCascadingIfElse)
 	{
 		unless ( defined( $values ) && Data::Validate::Type::is_arrayref( $values )  && scalar( @$values ) == 2 )
 		{
