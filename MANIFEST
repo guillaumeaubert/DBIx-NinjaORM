@@ -65,6 +65,7 @@ t/510-dump.t
 t/520-clone.t
 t/530-reload.t
 t/999-cleanup.t
+t/SQL/setup_Pg.sql
 t/SQL/setup_SQLite.sql
 t/SQL/setup_mysql.sql
 t/lib/LocalTest.pm
