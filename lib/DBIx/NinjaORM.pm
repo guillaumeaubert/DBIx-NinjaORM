@@ -217,338 +217,19 @@ This group of method covers the most commonly subclassed methods, with examples
 and use cases.
 
 
-=head2 static_class_info()
+=head2 clone()
 
-This methods sets defaults as well as general information for a specific class.
-It allows for example indicating what table the objects will be related to, or
-what database handle to use.
+Clone the current object and return the clone.
 
-Here's what a typical subclassed C<static_class_info()> would look like:
-
-	sub static_class_info
-	{
-		my ( $class ) = @_;
-		
-		# Retrieve defaults coming from higher in the inheritance chain, up
-		# to DBIx::NinjaORM->static_class_info().
-		my $info = $class->SUPER::static_class_info();
-		
-		# Set or override information.
-		$info->{'table_name'} = 'books';
-		$info->{'primary_key_name'} = 'book_id';
-		$info->{'default_dbh'} = DBI->connect(
-			"dbi:mysql:[database_name]:localhost:3306",
-			"[user]",
-			"[password]",
-		);
-		
-		# Return the updated information hashref.
-		return $info;
-	}
-
-Here's the full list of the options that can be set or overridden:
-
-=over 4
-
-=item * default_dbh
-
-The database handle to use when performing queries. The methods that interact
-with the database always provide a C<dbh> argument to allow using a specific
-database handle, but setting it here means you won't have to systematically
-pass that argument.
-
-	$info->{'default_dbh'} = DBI->connect(
-		"dbi:mysql:[database_name]:localhost:3306",
-		"[user]",
-		"[password]",
-	);
-
-=item * memcache
-
-Optionally, C<DBIx::NinjaORM> uses memcache to cache objects and queries,
-in conjunction with the C<list_cache_time> and C<object_cache_time> arguments.
-
-If you want to enable the cache features, you can set this to a valid
-C<Cache::Memcached> object (or a compatible module, such as
-C<Cache::Memcached::Fast>).
-
-	$info->{'memcache'} = Cache::Memcached::Fast->new(
-		{
-			servers =>
-			[
-				'localhost:11211',
-			],
-		}
-	);
-
-=item * table_name
-
-Mandatory, the name of the table that this class will be the interface for.
-
-	# Interface with a 'books' table.
-	$info->{'table_name'} = 'books';
-
-=item * primary_key_name
-
-The name of the primary key on the table specified with C<table_name>.
-
-	$info->{'primary_key_name'} = 'book_id';
-
-=item * list_cache_time
-
-Control the list cache, which is an optional cache system in
-C<retrieve_list()> to store how search criteria translate into object IDs.
-
-By default it is disabled (with C<undef>), but it is activated by setting it to
-an integer that represents the cache time in seconds.
-
-	# Cache for 10 seconds.
-	$info->{'list_cache_time'} = 10;
-	
-	# Don't cache.
-	$info->{'list_cache_time'} = undef;
-
-A good use case for this would be retrieving a list of books for a given author.
-We would pass the author ID as a search criteria, and the resulting list of book
-objects does not change often. Provided that you can tolerate a 1 hour delay
-for a new book to show up associated with a given author, then it makes sense
-to set the list_cache_time to 3600 and save most of the queries to find what
-book otherwise belongs to the author.
-
-=item * object_cache_time
-
-Control the object cache, which is an optional cache system in
-C<retrieve_list()> to store the objects returned and be able to look them up
-by object ID.
-
-By default it is disabled (with C<undef>), but it is activated by setting it to
-an integer that represents the cache time in seconds.
-
-	# Cache for 10 seconds.
-	$info->{'object_cache_time'} = 10;
-	
-	# Don't cache.
-	$info->{'object_cache_time'} = undef;
-
-A good use case for this are objects that are expensive to build. You will see
-more in C<retrieve_list()> on how to cache objects.
-
-=item * unique_fields
-
-The list of unique fields on the object.
-
-Note: L<DBIx::NinjaORM> does not support unique indexes made of more than one
-field. If you add more than one field in this arrayref, the ORM will treat them
-as separate unique indexes.
-
-	# Declare books.isbn as unique.
-	$info->{'unique_fields'} = [ 'isbn' ];
-	
-	# Declare books.isbn and books.upc as unique.
-	$info->{'unique_fields'} = [ 'isbn', 'upc' ];
-
-=item * filtering_fields
-
-The list of fields that can be used to filter on in C<retrieve_list()>.
-
-	# Allow filtering based on the book name and author ID.
-	$info->{'unique_fields'} = [ 'name', 'author_id' ];
-
-=item * readonly_fields
-
-The list of fields that cannot be set directly. They will be populated in
-C<retrieve_list>, but you won't be able to insert / update / set them directly.
-
-=item * has_created_field
-
-Indicate whether the table has a field name C<created> to store the UNIX time
-at which the row was created. Default: 1.
-
-	# The table doesn't have a 'created' field.
-	$info->{'has_created_field'} = 0;
-
-=item * has_modified_field
-
-Indicate whether the table has a field name C<modified> to store the UNIX time
-at which the row was modified. Default: 1.
-
-	# The table doesn't have a 'modified' field.
-	$info->{'has_modified_field'} = 0;
-	
-=item * cache_key_field
-
-By default, the object cache uses the primary key value to make cached objects
-available to look up, but this allows specifying a different field for that
-purpose.
-
-For example, you may want to use books.isbn instead of books.book_id to cache
-objects:
-
-	$info->{'cache_key_field'} = 'isbn';
-
-=item * verbose
-
-Add debugging and tracing information, 0 by default.
-
-	# Show debugging information for operations on this class.
-	$info->{'verbose'} = 1;
-
-=item * verbose_cache_operations
-
-Add information in the logs regarding cache operations and uses.
-
-=back
+	my $cloned_book = $book->clone();
 
 =cut
 
-sub static_class_info
+sub clone
 {
-	return
-	{
-		'default_dbh'              => undef,
-		'memcache'                 => undef,
-		'table_name'               => undef,
-		'primary_key_name'         => undef,
-		'list_cache_time'          => undef,
-		'object_cache_time'        => undef,
-		'unique_fields'            => [],
-		'filtering_fields'         => [],
-		'readonly_fields'          => [],
-		'has_created_field'        => 1,
-		'has_modified_field'       => 1,
-		'cache_key_field'          => undef,
-		'verbose'                  => 0,
-		'verbose_cache_operations' => 0,
-	};
-}
-
-
-=head2 new()
-
-C<new()> has two possible uses:
-
-=over 4
-
-=item * Creating a new empty object
-
-	my $object = My::Model::Book->new();
-
-=item * Retrieving a single object from the database.
-
-	# Retrieve by ID.
-	my $object = My::Model::Book->new( id => 3 )
-		// die 'Book #3 does not exist';
+	my ( $self ) = @_;
 	
-	# Retrieve by unique field.
-	my $object = My::Model::Book->new( isbn => '9781449303587' )
-		// die 'Book with ISBN 9781449303587 does not exist';
-
-=back
-
-As a result, C<new()> accepts the following arguments:
-
-=over 4
-
-=item * id
-
-The ID for the primary key on the underlying table. C<id> is an alias for the
-primary key field name.
-
-	my $object = My::Model::Book->new( id => 3 )
-		// die 'Book #3 does not exist';
-
-=item * A unique field
-
-Allows passing a unique field and its value, in order to load the
-corresponding object from the database.
-
-	my $object = My::Model::Book->new( isbn => '9781449303587' )
-		// die 'Book with ISBN 9781449303587 does not exist';
-
-=item * skip_cache (default: 0)
-
-By default, if cache is enabled with C<object_cache_time()> in
-C<static_class_info()>, then C<new> attempts to load the object from the cache
-first. Setting C<skip_cache> to 1 forces the ORM to load the values from the
-database.
-
-	my $object = My::Model::Book->new(
-		isbn       => '9781449303587',
-		skip_cache => 1,
-	) // die 'Book with ISBN 9781449303587 does not exist';
-
-=item * lock (default: 0)
-
-By default, the underlying row is not locked when retrieving an object via
-C<new()>. Setting C<lock> to 1 forces the ORM to bypass the cache if any, and
-to lock the rows in the database as it retrieves them.
-
-	my $object = My::Model::Book->new(
-		isbn => '9781449303587',
-		lock => 1,
-	) // die 'Book with ISBN 9781449303587 does not exist';
-
-=back
-
-=cut
-
-sub new
-{
-	my ( $class, %args ) = @_;
-	
-	# Check if we have a unique identifier passed.
-	# Note: passing an ID is a subcase of passing field defined as unique, but
-	# unique_fields() doesn't include the primary key name.
-	my $unique_field;
-	foreach my $field ( 'id', @{ $class->get_unique_fields() } )
-	{
-		next
-			if ! exists( $args{ $field } );
-		
-		# If the field exists in the list of arguments passed, it needs to be
-		# defined. Being undefined probably indicates a problem in the calling code.
-		croak "Called new() with '$field' declared but not defined"
-			if ! defined( $args{ $field } );
-		
-		# Detect if we're passing two unique fields to retrieve the object. This is
-		# obviously bad.
-		croak "Called new() with the unique argument '$field', but already found another unique argument '$unique_field'"
-			if defined( $unique_field );
-		
-		$unique_field = $field;
-	}
-	
-	# Retrieve the object.
-	my $self;
-	if ( defined( $unique_field ) )
-	{
-		my $objects = $class->retrieve_list(
-			$unique_field => $args{ $unique_field },
-			skip_cache    => $args{'skip_cache'},
-			lock          => $args{'lock'} ? 1 : 0,
-		);
-		
-		my $objects_count = scalar( @$objects );
-		if ( $objects_count == 0 )
-		{
-			# No row found.
-			$self = undef;
-		}
-		elsif ( $objects_count == 1 )
-		{
-			$self = $objects->[0];
-		}
-		else
-		{
-			croak "Called new() with a set of non-unique arguments that returned $objects_count objects: " . Dumper( \%args );
-		}
-	}
-	else
-	{
-		$self = bless( {}, $class );
-	}
-	
-	return $self;
+	return Storable::dclone( $self );
 }
 
 
@@ -587,123 +268,6 @@ sub commit
 }
 
 
-=head2 remove()
-
-Delete in the database the row corresponding to the current object.
-
-	$book->remove();
-
-This method accepts the following arguments:
-
-=over 4
-
-=item * dbh
-
-A different database handle from the default specified in C<static_class_info()>.
-This is particularly useful if you have separate reader/writer databases.
-
-=back
-
-=cut
-
-sub remove
-{
-	my ( $self, %args ) = @_;
-	
-	# Retrieve the metadata for that table.
-	my $class = ref( $self );
-	my $table_name = $self->get_table_name();
-	croak "The table name for class '$class' is not defined"
-		if ! defined( $table_name );
-	
-	my $primary_key_name = $self->get_primary_key_name();
-	croak "Missing primary key name for class '$class', cannot delete safely"
-		if !defined( $primary_key_name );
-	
-	croak "The object of class '$class' does not have a primary key value, cannot update"
-		if ! defined( $self->id() );
-	
-	# Allow using a different DB handle.
-	my $dbh = $self->assert_dbh( $args{'dbh'} );
-	
-	# Delete the row.
-	local $dbh->{'RaiseError'} = 1;
-	my $deleted = $dbh->do(
-		sprintf(
-			q|
-				DELETE
-				FROM %s
-				WHERE %s = ?
-			|,
-			$dbh->quote_identifier( $table_name ),
-			$dbh->quote_identifier( $primary_key_name ),
-		),
-		{},
-		$self->id(),
-	);
-	
-	return;
-}
-
-
-=head2 validate_data()
-
-Validate the hashref of data passed as first argument. This is used both by
-C<insert()> and C<update> to check the data before performing databse
-operations.
-
-	my $validated_data = $object->validate_data(
-		\%data,
-	);
-
-	If there is invalid data, the method will croak with a detail of the error.
-
-=cut
-
-sub validate_data
-{
-	my ( $self, $original_data ) = @_;
-	
-	my $data = Storable::dclone( $original_data );
-	
-	# Protect read-only fields.
-	foreach my $field ( @{ $self->get_readonly_fields() } )
-	{
-		next
-			unless defined( $data->{ $field } );
-		
-		croak "The field '$field' is read-only and cannot be set via the model";
-	}
-	
-	# Don't allow setting timestamps.
-	foreach my $field ( qw( created modified ) )
-	{
-		croak "The field '$field' cannot be set and will be ignored"
-			if $self->is_verbose();
-		
-		delete( $data->{ $field } );
-	}
-	
-	# Allow inserting the primary key, but not updating it.
-	my $primary_key_name = $self->get_primary_key_name();
-	if ( defined( $primary_key_name ) && defined( $self->{ $primary_key_name } ) && exists( $data->{ $primary_key_name } ) )
-	{
-		croak "'$primary_key_name' with a value of '" . ( $data->{ $primary_key_name } || 'undef' ) . "' ",
-			"was passed to set(), but primary keys cannot be set manually";
-	}
-	
-	# Fields starting with an underscore are hidden data that shouldn't be
-	# modified via a public interface.
-	foreach my $field ( keys %$data )
-	{
-		delete( $data->{ $field } )
-			if substr( $field, 0, 1 ) eq '_';
-	}
-	
-	return $data;
-}
-
-
 =head2 get()
 
 Get the value corresponding to an object's field.
@@ -738,74 +302,6 @@ sub get
 		if $populated_by_retrieve_list && !exists( $self->{ $field_name } );
 	
 	return $self->{ $field_name };
-}
-
-
-=head2 set()
-
-Set fields and values on an object.
-
-	$book->set(
-		{
-			name => 'Learning Perl',
-			isbn => '9781449303587',
-		},
-	);
-
-This method supports the following arguments:
-
-=over 4
-
-=item * force
-
-Set the properties on the object without going through C<validate_data()>.
-
-	$book->set(
-		{
-			name => 'Learning Perl',
-			isbn => '9781449303587',
-		},
-		force => 1,
-	);
-
-=back
-
-=cut
-
-sub set ## no critic (NamingConventions::ProhibitAmbiguousNames, Subroutines::RequireArgUnpacking)
-{
-	croak 'The first argument passed must be a hashref'
-		if !Data::Validate::Type::is_hashref( $_[1] );
-	
-	my ( $self, $data, %args ) = @_;
-	
-	# Validate the data first, unless force=1.
-	$data = $self->validate_data( $data )
-		if !$args{'force'};
-	
-	# Update the object.
-	foreach ( keys %$data )
-	{
-		$self->{ $_ } = $data->{ $_ };
-	}
-	
-	return;
-}
-
-
-=head2 clone()
-
-Clone the current object and return the clone.
-
-	my $cloned_book = $book->clone();
-
-=cut
-
-sub clone
-{
-	my ( $self ) = @_;
-	
-	return Storable::dclone( $self );
 }
 
 
@@ -958,180 +454,191 @@ sub insert ## no critic (Subroutines::RequireArgUnpacking)
 }
 
 
-=head2 update()
+=head2 new()
 
-Update the row in the database corresponding to the current object, using the
-primary key and its value on the object.
-
-	$book->update(
-		{
-			name => 'Learning Perl',
-		}
-	);
-
-This method supports the following optional arguments:
+C<new()> has two possible uses:
 
 =over 4
 
-=item * skip_modified_update (default 0)
+=item * Creating a new empty object
 
-Do not update the 'modified' field. This is useful if you're using 'modified' to
-record when was the last time a human changed the row, but you want to exclude
-automated changes.
+	my $object = My::Model::Book->new();
 
-=item * dbh
+=item * Retrieving a single object from the database.
 
-A different database handle than the default one specified in
-C<static_class_info()>, but it has to be writable.
+	# Retrieve by ID.
+	my $object = My::Model::Book->new( id => 3 )
+		// die 'Book #3 does not exist';
+	
+	# Retrieve by unique field.
+	my $object = My::Model::Book->new( isbn => '9781449303587' )
+		// die 'Book with ISBN 9781449303587 does not exist';
 
-=item * restrictions
+=back
 
-The update statement is limited using the primary key. This parameter however
-allows adding extra restrictions on the update. Additional clauses passed here
-are joined with AND.
+As a result, C<new()> accepts the following arguments:
 
-	$book->update(
-		{
-			author_id => 1234,
-		},
-		restrictions =>
-		{
-			where_clauses => [ 'status != ?' ],
-			where_values  => [ 'protected' ],
-		},
-	);
+=over 4
 
-=item * set
+=item * id
 
-\%data contains the data to update the row with "SET field = value". It is
-however sometimes necessary to use more complex SETs, such as
-"SET field = field + value", which is what this parameter allows.
+The ID for the primary key on the underlying table. C<id> is an alias for the
+primary key field name.
 
-Important: you will need to subclass C<update()> in your model classes and
-update manually the values upon success (or reload the object), as
-L<DBIx::NinjaORM> cannot determine the end result of those complex sets on the
-database side.
+	my $object = My::Model::Book->new( id => 3 )
+		// die 'Book #3 does not exist';
 
-	$book->update(
-		{
-			name => 'Learning Perl',
-		},
-		set =>
-		{
-			placeholders => [ 'edits = edits + ?' ],
-			values       => [ 1 ],
-		}
-	);
+=item * A unique field
+
+Allows passing a unique field and its value, in order to load the
+corresponding object from the database.
+
+	my $object = My::Model::Book->new( isbn => '9781449303587' )
+		// die 'Book with ISBN 9781449303587 does not exist';
+
+=item * skip_cache (default: 0)
+
+By default, if cache is enabled with C<object_cache_time()> in
+C<static_class_info()>, then C<new> attempts to load the object from the cache
+first. Setting C<skip_cache> to 1 forces the ORM to load the values from the
+database.
+
+	my $object = My::Model::Book->new(
+		isbn       => '9781449303587',
+		skip_cache => 1,
+	) // die 'Book with ISBN 9781449303587 does not exist';
+
+=item * lock (default: 0)
+
+By default, the underlying row is not locked when retrieving an object via
+C<new()>. Setting C<lock> to 1 forces the ORM to bypass the cache if any, and
+to lock the rows in the database as it retrieves them.
+
+	my $object = My::Model::Book->new(
+		isbn => '9781449303587',
+		lock => 1,
+	) // die 'Book with ISBN 9781449303587 does not exist';
 
 =back
 
 =cut
 
-sub update ## no critic (Subroutines::RequireArgUnpacking)
+sub new
 {
-	croak 'The first argument passed must be a hashref'
-		if !Data::Validate::Type::is_hashref( $_[1] );
+	my ( $class, %args ) = @_;
 	
-	my ( $self, $data, %args ) = @_;
-	
-	# Allow using a different DB handle.
-	my $dbh = $self->assert_dbh( $args{'dbh'} );
-	
-	# Clean input
-	my $clean_data = $self->validate_data( $data, %args );
-	return 0
-		if !defined( $clean_data );
-	
-	# Set defaults
-	$clean_data->{'modified'} = time()
-		if !$args{'skip_modified_update'} && $self->has_modified_field();
-	
-	# If there's nothing to update, bail out.
-	if ( scalar( keys %$clean_data ) == 0 )
+	# Check if we have a unique identifier passed.
+	# Note: passing an ID is a subcase of passing field defined as unique, but
+	# unique_fields() doesn't include the primary key name.
+	my $unique_field;
+	foreach my $field ( 'id', @{ $class->get_unique_fields() } )
 	{
-		carp 'No data left to update after validation, skipping SQL update'
-			if $self->is_verbose();
-		return;
+		next
+			if ! exists( $args{ $field } );
+		
+		# If the field exists in the list of arguments passed, it needs to be
+		# defined. Being undefined probably indicates a problem in the calling code.
+		croak "Called new() with '$field' declared but not defined"
+			if ! defined( $args{ $field } );
+		
+		# Detect if we're passing two unique fields to retrieve the object. This is
+		# obviously bad.
+		croak "Called new() with the unique argument '$field', but already found another unique argument '$unique_field'"
+			if defined( $unique_field );
+		
+		$unique_field = $field;
 	}
 	
-	# Retrieve the meta-data for that table.
-	my $class = ref( $self );
+	# Retrieve the object.
+	my $self;
+	if ( defined( $unique_field ) )
+	{
+		my $objects = $class->retrieve_list(
+			$unique_field => $args{ $unique_field },
+			skip_cache    => $args{'skip_cache'},
+			lock          => $args{'lock'} ? 1 : 0,
+		);
+		
+		my $objects_count = scalar( @$objects );
+		if ( $objects_count == 0 )
+		{
+			# No row found.
+			$self = undef;
+		}
+		elsif ( $objects_count == 1 )
+		{
+			$self = $objects->[0];
+		}
+		else
+		{
+			croak "Called new() with a set of non-unique arguments that returned $objects_count objects: " . Dumper( \%args );
+		}
+	}
+	else
+	{
+		$self = bless( {}, $class );
+	}
 	
+	return $self;
+}
+
+
+=head2 remove()
+
+Delete in the database the row corresponding to the current object.
+
+	$book->remove();
+
+This method accepts the following arguments:
+
+=over 4
+
+=item * dbh
+
+A different database handle from the default specified in C<static_class_info()>.
+This is particularly useful if you have separate reader/writer databases.
+
+=back
+
+=cut
+
+sub remove
+{
+	my ( $self, %args ) = @_;
+	
+	# Retrieve the metadata for that table.
+	my $class = ref( $self );
 	my $table_name = $self->get_table_name();
 	croak "The table name for class '$class' is not defined"
 		if ! defined( $table_name );
 	
 	my $primary_key_name = $self->get_primary_key_name();
-	croak "Missing primary key name for class '$class', cannot force primary key value"
-		if !defined( $primary_key_name ) && defined( $args{'generated_primary_key_value'} );
+	croak "Missing primary key name for class '$class', cannot delete safely"
+		if !defined( $primary_key_name );
 	
 	croak "The object of class '$class' does not have a primary key value, cannot update"
 		if ! defined( $self->id() );
 	
-	# Prepare the SQL request elements.
-	my $where_clauses = $args{'restrictions'}->{'where_clauses'} || [];
-	my $where_values = $args{'restrictions'}->{'where_values'} || [];
-	push( @$where_clauses, $primary_key_name . ' = ?' );
-	push( @$where_values, [ $self->id() ] );
-	my $where = '( ' . join( ' ) AND ( ', @$where_clauses ) . ' )';
+	# Allow using a different DB handle.
+	my $dbh = $self->assert_dbh( $args{'dbh'} );
 	
-	# Prepare the values to set.
-	my @set_placeholders = ();
-	my @set_values = ();
-	foreach my $key ( keys %$clean_data )
-	{
-		push( @set_placeholders, $dbh->quote_identifier( $key ) . ' = ?' );
-		push( @set_values, $clean_data->{ $key } );
-	}
-	if ( defined( $args{'set'} ) )
-	{
-		push( @set_placeholders, @{ $args{'set'}->{'placeholders'} // [] } );
-		push( @set_values, @{ $args{'set'}->{'values'} // [] } );
-	}
-	my $set_placeholders = join( ', ', @set_placeholders );
-	
-	# Update the row.
+	# Delete the row.
 	local $dbh->{'RaiseError'} = 1;
-	my $sth = $dbh->prepare(
+	my $deleted = $dbh->do(
 		sprintf(
-			qq|
-				UPDATE %s
-				SET $set_placeholders
-				WHERE $where
+			q|
+				DELETE
+				FROM %s
+				WHERE %s = ?
 			|,
 			$dbh->quote_identifier( $table_name ),
-		)
-	);
-	$sth->execute(
-		@set_values,
-		map { @$_ } @$where_values,
-	);
-	
-	my $rows_updated_count = $sth->rows();
-	
-	# Also, if rows() returns -1, it's an error.
-	croak 'Could not execute update: ' . $dbh->errstr()
-		if $rows_updated_count < 0;
-	
-	my $object_cache_time = $self->get_object_cache_time();
-	# This needs to be before the set() below, so we invalidate the cache based on the
-	# old object. We don't need to do it twice, because you can't change primary IDs, and
-	# you can't change unique fields to ones that are taken, and that's all that we set
-	# the object cache keys for.
-	if ( defined( $object_cache_time ) )
-	{
-		carp "An update on '$table_name' is forcing to clear the cache for '$primary_key_name=" . $self->id() . "'"
-			if $self->is_verbose();
-		$self->invalidate_cached_object();
-	}
-	
-	# Make sure that the object reflects $clean_data.
-	$self->set(
-		$clean_data,
-		force => 1,
+			$dbh->quote_identifier( $primary_key_name ),
+		),
+		{},
+		$self->id(),
 	);
 	
-	return $rows_updated_count;
+	return;
 }
 
 
@@ -1376,7 +883,617 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 }
 
 
+=head2 set()
+
+Set fields and values on an object.
+
+	$book->set(
+		{
+			name => 'Learning Perl',
+			isbn => '9781449303587',
+		},
+	);
+
+This method supports the following arguments:
+
+=over 4
+
+=item * force
+
+Set the properties on the object without going through C<validate_data()>.
+
+	$book->set(
+		{
+			name => 'Learning Perl',
+			isbn => '9781449303587',
+		},
+		force => 1,
+	);
+
+=back
+
+=cut
+
+sub set ## no critic (NamingConventions::ProhibitAmbiguousNames, Subroutines::RequireArgUnpacking)
+{
+	croak 'The first argument passed must be a hashref'
+		if !Data::Validate::Type::is_hashref( $_[1] );
+	
+	my ( $self, $data, %args ) = @_;
+	
+	# Validate the data first, unless force=1.
+	$data = $self->validate_data( $data )
+		if !$args{'force'};
+	
+	# Update the object.
+	foreach ( keys %$data )
+	{
+		$self->{ $_ } = $data->{ $_ };
+	}
+	
+	return;
+}
+
+
+=head2 static_class_info()
+
+This methods sets defaults as well as general information for a specific class.
+It allows for example indicating what table the objects will be related to, or
+what database handle to use.
+
+Here's what a typical subclassed C<static_class_info()> would look like:
+
+	sub static_class_info
+	{
+		my ( $class ) = @_;
+		
+		# Retrieve defaults coming from higher in the inheritance chain, up
+		# to DBIx::NinjaORM->static_class_info().
+		my $info = $class->SUPER::static_class_info();
+		
+		# Set or override information.
+		$info->{'table_name'} = 'books';
+		$info->{'primary_key_name'} = 'book_id';
+		$info->{'default_dbh'} = DBI->connect(
+			"dbi:mysql:[database_name]:localhost:3306",
+			"[user]",
+			"[password]",
+		);
+		
+		# Return the updated information hashref.
+		return $info;
+	}
+
+Here's the full list of the options that can be set or overridden:
+
+=over 4
+
+=item * default_dbh
+
+The database handle to use when performing queries. The methods that interact
+with the database always provide a C<dbh> argument to allow using a specific
+database handle, but setting it here means you won't have to systematically
+pass that argument.
+
+	$info->{'default_dbh'} = DBI->connect(
+		"dbi:mysql:[database_name]:localhost:3306",
+		"[user]",
+		"[password]",
+	);
+
+=item * memcache
+
+Optionally, C<DBIx::NinjaORM> uses memcache to cache objects and queries,
+in conjunction with the C<list_cache_time> and C<object_cache_time> arguments.
+
+If you want to enable the cache features, you can set this to a valid
+C<Cache::Memcached> object (or a compatible module, such as
+C<Cache::Memcached::Fast>).
+
+	$info->{'memcache'} = Cache::Memcached::Fast->new(
+		{
+			servers =>
+			[
+				'localhost:11211',
+			],
+		}
+	);
+
+=item * table_name
+
+Mandatory, the name of the table that this class will be the interface for.
+
+	# Interface with a 'books' table.
+	$info->{'table_name'} = 'books';
+
+=item * primary_key_name
+
+The name of the primary key on the table specified with C<table_name>.
+
+	$info->{'primary_key_name'} = 'book_id';
+
+=item * list_cache_time
+
+Control the list cache, which is an optional cache system in
+C<retrieve_list()> to store how search criteria translate into object IDs.
+
+By default it is disabled (with C<undef>), but it is activated by setting it to
+an integer that represents the cache time in seconds.
+
+	# Cache for 10 seconds.
+	$info->{'list_cache_time'} = 10;
+	
+	# Don't cache.
+	$info->{'list_cache_time'} = undef;
+
+A good use case for this would be retrieving a list of books for a given author.
+We would pass the author ID as a search criteria, and the resulting list of book
+objects does not change often. Provided that you can tolerate a 1 hour delay
+for a new book to show up associated with a given author, then it makes sense
+to set the list_cache_time to 3600 and save most of the queries to find what
+book otherwise belongs to the author.
+
+=item * object_cache_time
+
+Control the object cache, which is an optional cache system in
+C<retrieve_list()> to store the objects returned and be able to look them up
+by object ID.
+
+By default it is disabled (with C<undef>), but it is activated by setting it to
+an integer that represents the cache time in seconds.
+
+	# Cache for 10 seconds.
+	$info->{'object_cache_time'} = 10;
+	
+	# Don't cache.
+	$info->{'object_cache_time'} = undef;
+
+A good use case for this are objects that are expensive to build. You will see
+more in C<retrieve_list()> on how to cache objects.
+
+=item * unique_fields
+
+The list of unique fields on the object.
+
+Note: L<DBIx::NinjaORM> does not support unique indexes made of more than one
+field. If you add more than one field in this arrayref, the ORM will treat them
+as separate unique indexes.
+
+	# Declare books.isbn as unique.
+	$info->{'unique_fields'} = [ 'isbn' ];
+	
+	# Declare books.isbn and books.upc as unique.
+	$info->{'unique_fields'} = [ 'isbn', 'upc' ];
+
+=item * filtering_fields
+
+The list of fields that can be used to filter on in C<retrieve_list()>.
+
+	# Allow filtering based on the book name and author ID.
+	$info->{'unique_fields'} = [ 'name', 'author_id' ];
+
+=item * readonly_fields
+
+The list of fields that cannot be set directly. They will be populated in
+C<retrieve_list>, but you won't be able to insert / update / set them directly.
+
+=item * has_created_field
+
+Indicate whether the table has a field name C<created> to store the UNIX time
+at which the row was created. Default: 1.
+
+	# The table doesn't have a 'created' field.
+	$info->{'has_created_field'} = 0;
+
+=item * has_modified_field
+
+Indicate whether the table has a field name C<modified> to store the UNIX time
+at which the row was modified. Default: 1.
+
+	# The table doesn't have a 'modified' field.
+	$info->{'has_modified_field'} = 0;
+	
+=item * cache_key_field
+
+By default, the object cache uses the primary key value to make cached objects
+available to look up, but this allows specifying a different field for that
+purpose.
+
+For example, you may want to use books.isbn instead of books.book_id to cache
+objects:
+
+	$info->{'cache_key_field'} = 'isbn';
+
+=item * verbose
+
+Add debugging and tracing information, 0 by default.
+
+	# Show debugging information for operations on this class.
+	$info->{'verbose'} = 1;
+
+=item * verbose_cache_operations
+
+Add information in the logs regarding cache operations and uses.
+
+=back
+
+=cut
+
+sub static_class_info
+{
+	return
+	{
+		'default_dbh'              => undef,
+		'memcache'                 => undef,
+		'table_name'               => undef,
+		'primary_key_name'         => undef,
+		'list_cache_time'          => undef,
+		'object_cache_time'        => undef,
+		'unique_fields'            => [],
+		'filtering_fields'         => [],
+		'readonly_fields'          => [],
+		'has_created_field'        => 1,
+		'has_modified_field'       => 1,
+		'cache_key_field'          => undef,
+		'verbose'                  => 0,
+		'verbose_cache_operations' => 0,
+	};
+}
+
+
+=head2 update()
+
+Update the row in the database corresponding to the current object, using the
+primary key and its value on the object.
+
+	$book->update(
+		{
+			name => 'Learning Perl',
+		}
+	);
+
+This method supports the following optional arguments:
+
+=over 4
+
+=item * skip_modified_update (default 0)
+
+Do not update the 'modified' field. This is useful if you're using 'modified' to
+record when was the last time a human changed the row, but you want to exclude
+automated changes.
+
+=item * dbh
+
+A different database handle than the default one specified in
+C<static_class_info()>, but it has to be writable.
+
+=item * restrictions
+
+The update statement is limited using the primary key. This parameter however
+allows adding extra restrictions on the update. Additional clauses passed here
+are joined with AND.
+
+	$book->update(
+		{
+			author_id => 1234,
+		},
+		restrictions =>
+		{
+			where_clauses => [ 'status != ?' ],
+			where_values  => [ 'protected' ],
+		},
+	);
+
+=item * set
+
+\%data contains the data to update the row with "SET field = value". It is
+however sometimes necessary to use more complex SETs, such as
+"SET field = field + value", which is what this parameter allows.
+
+Important: you will need to subclass C<update()> in your model classes and
+update manually the values upon success (or reload the object), as
+L<DBIx::NinjaORM> cannot determine the end result of those complex sets on the
+database side.
+
+	$book->update(
+		{
+			name => 'Learning Perl',
+		},
+		set =>
+		{
+			placeholders => [ 'edits = edits + ?' ],
+			values       => [ 1 ],
+		}
+	);
+
+=back
+
+=cut
+
+sub update ## no critic (Subroutines::RequireArgUnpacking)
+{
+	croak 'The first argument passed must be a hashref'
+		if !Data::Validate::Type::is_hashref( $_[1] );
+	
+	my ( $self, $data, %args ) = @_;
+	
+	# Allow using a different DB handle.
+	my $dbh = $self->assert_dbh( $args{'dbh'} );
+	
+	# Clean input
+	my $clean_data = $self->validate_data( $data, %args );
+	return 0
+		if !defined( $clean_data );
+	
+	# Set defaults
+	$clean_data->{'modified'} = time()
+		if !$args{'skip_modified_update'} && $self->has_modified_field();
+	
+	# If there's nothing to update, bail out.
+	if ( scalar( keys %$clean_data ) == 0 )
+	{
+		carp 'No data left to update after validation, skipping SQL update'
+			if $self->is_verbose();
+		return;
+	}
+	
+	# Retrieve the meta-data for that table.
+	my $class = ref( $self );
+	
+	my $table_name = $self->get_table_name();
+	croak "The table name for class '$class' is not defined"
+		if ! defined( $table_name );
+	
+	my $primary_key_name = $self->get_primary_key_name();
+	croak "Missing primary key name for class '$class', cannot force primary key value"
+		if !defined( $primary_key_name ) && defined( $args{'generated_primary_key_value'} );
+	
+	croak "The object of class '$class' does not have a primary key value, cannot update"
+		if ! defined( $self->id() );
+	
+	# Prepare the SQL request elements.
+	my $where_clauses = $args{'restrictions'}->{'where_clauses'} || [];
+	my $where_values = $args{'restrictions'}->{'where_values'} || [];
+	push( @$where_clauses, $primary_key_name . ' = ?' );
+	push( @$where_values, [ $self->id() ] );
+	my $where = '( ' . join( ' ) AND ( ', @$where_clauses ) . ' )';
+	
+	# Prepare the values to set.
+	my @set_placeholders = ();
+	my @set_values = ();
+	foreach my $key ( keys %$clean_data )
+	{
+		push( @set_placeholders, $dbh->quote_identifier( $key ) . ' = ?' );
+		push( @set_values, $clean_data->{ $key } );
+	}
+	if ( defined( $args{'set'} ) )
+	{
+		push( @set_placeholders, @{ $args{'set'}->{'placeholders'} // [] } );
+		push( @set_values, @{ $args{'set'}->{'values'} // [] } );
+	}
+	my $set_placeholders = join( ', ', @set_placeholders );
+	
+	# Update the row.
+	local $dbh->{'RaiseError'} = 1;
+	my $sth = $dbh->prepare(
+		sprintf(
+			qq|
+				UPDATE %s
+				SET $set_placeholders
+				WHERE $where
+			|,
+			$dbh->quote_identifier( $table_name ),
+		)
+	);
+	$sth->execute(
+		@set_values,
+		map { @$_ } @$where_values,
+	);
+	
+	my $rows_updated_count = $sth->rows();
+	
+	# Also, if rows() returns -1, it's an error.
+	croak 'Could not execute update: ' . $dbh->errstr()
+		if $rows_updated_count < 0;
+	
+	my $object_cache_time = $self->get_object_cache_time();
+	# This needs to be before the set() below, so we invalidate the cache based on the
+	# old object. We don't need to do it twice, because you can't change primary IDs, and
+	# you can't change unique fields to ones that are taken, and that's all that we set
+	# the object cache keys for.
+	if ( defined( $object_cache_time ) )
+	{
+		carp "An update on '$table_name' is forcing to clear the cache for '$primary_key_name=" . $self->id() . "'"
+			if $self->is_verbose();
+		$self->invalidate_cached_object();
+	}
+	
+	# Make sure that the object reflects $clean_data.
+	$self->set(
+		$clean_data,
+		force => 1,
+	);
+	
+	return $rows_updated_count;
+}
+
+
+=head2 validate_data()
+
+Validate the hashref of data passed as first argument. This is used both by
+C<insert()> and C<update> to check the data before performing databse
+operations.
+
+	my $validated_data = $object->validate_data(
+		\%data,
+	);
+
+	If there is invalid data, the method will croak with a detail of the error.
+
+=cut
+
+sub validate_data
+{
+	my ( $self, $original_data ) = @_;
+	
+	my $data = Storable::dclone( $original_data );
+	
+	# Protect read-only fields.
+	foreach my $field ( @{ $self->get_readonly_fields() } )
+	{
+		next
+			unless defined( $data->{ $field } );
+		
+		croak "The field '$field' is read-only and cannot be set via the model";
+	}
+	
+	# Don't allow setting timestamps.
+	foreach my $field ( qw( created modified ) )
+	{
+		croak "The field '$field' cannot be set and will be ignored"
+			if $self->is_verbose();
+		
+		delete( $data->{ $field } );
+	}
+	
+	# Allow inserting the primary key, but not updating it.
+	my $primary_key_name = $self->get_primary_key_name();
+	if ( defined( $primary_key_name ) && defined( $self->{ $primary_key_name } ) && exists( $data->{ $primary_key_name } ) )
+	{
+		croak "'$primary_key_name' with a value of '" . ( $data->{ $primary_key_name } || 'undef' ) . "' ",
+			"was passed to set(), but primary keys cannot be set manually";
+	}
+	
+	# Fields starting with an underscore are hidden data that shouldn't be
+	# modified via a public interface.
+	foreach my $field ( keys %$data )
+	{
+		delete( $data->{ $field } )
+			if substr( $field, 0, 1 ) eq '_';
+	}
+	
+	return $data;
+}
+
+
 =head1 UTILITY METHODS
+
+
+=head2 dump()
+
+Return a Dumper( ) of the current object.
+
+	my $string = $book->dump();
+
+=cut
+
+sub dump ## no critic (Subroutines::ProhibitBuiltinHomonyms)
+{
+	my ( $self ) = @_;
+	
+	return Dumper( $self );
+}
+
+
+=head2 flatten_object()
+
+Return a hash with the requested key/value pairs based on the list of fields
+provided.
+
+Note that non-native fields (starting with an underscore) are not allowed. It
+also protects sensitive fields.
+
+#TODO: allow defining sensitive fields.
+
+	my $book_data = $book->flatten_object(
+		[ 'name', 'isbn' ]
+	);
+
+=cut
+
+sub flatten_object
+{
+	my ( $self, $fields ) = @_;
+	my @protected_fields = qw( password );
+	
+	my %data = ();
+	foreach my $field ( @$fields )
+	{
+		if ( scalar( grep { $_ eq $field } @protected_fields ) != 0 )
+		{
+			croak "The fields '$field' is protected and cannot be added to the flattened copy";
+		}
+		elsif ( substr( $field, 0, 1 ) eq '_' )
+		{
+			croak "The field '$field' is hidden and cannot be added to the flattened copy";
+		}
+		elsif ( $field eq 'id' )
+		{
+			if ( defined( $self->get_primary_key_name() ) )
+			{
+				$data{'id'} = $self->id();
+			}
+			else
+			{
+				croak "Requested adding ID to the list of fields, but the class doesn't define a primary key name";
+			}
+		}
+		else
+		{
+			$data{ $field } = $self->{ $field };
+		}
+	}
+	
+	return \%data;
+}
+
+
+=head2 reload()
+
+Reload the content of the current object. This always skips the cache.
+
+	$book->reload();
+
+=cut
+
+sub reload
+{
+	my ( $self ) = @_;
+	
+	# Make sure we were passed an object.
+	croak 'This method can only be called on an object'
+		if !Data::Validate::Type::is_hashref( $self );
+	
+	my $class = ref( $self );
+	
+	croak 'The object is not blessed with a class name'
+		if !defined( $class ) || ( $class eq '' );
+	
+	croak "The class '$class' doesn't allow calling \$class->new()"
+		if ! $class->can('new');
+	
+	# Verify that we can reload the object.
+	croak 'Cannot reload an object for which a primary key name has not been defined at the class level.'
+		if ! defined( $self->get_primary_key_name() );
+	croak 'Cannot reload an object with no ID value for its primary key'
+		if ! defined( $self->id() );
+	
+	# Retrieve a fresh version using the object ID.
+	my $id = $self->id();
+	my $fresh_object = $class->new(
+		id         => $self->id(),
+		skip_cache => 1,
+	);
+	
+	croak "Could not retrieve the row in the database corresponding to the current object using ID '$id'"
+		if ! defined( $fresh_object );
+	
+	# Keep the memory location intact.
+	%{ $self } = %{ $fresh_object };
+	
+	return;
+}
+
 
 =head2 retrieve_list()
 
@@ -1553,123 +1670,242 @@ sub retrieve_list
 }
 
 
-=head2 reload()
-
-Reload the content of the current object. This always skips the cache.
-
-	$book->reload();
-
-=cut
-
-sub reload
-{
-	my ( $self ) = @_;
-	
-	# Make sure we were passed an object.
-	croak 'This method can only be called on an object'
-		if !Data::Validate::Type::is_hashref( $self );
-	
-	my $class = ref( $self );
-	
-	croak 'The object is not blessed with a class name'
-		if !defined( $class ) || ( $class eq '' );
-	
-	croak "The class '$class' doesn't allow calling \$class->new()"
-		if ! $class->can('new');
-	
-	# Verify that we can reload the object.
-	croak 'Cannot reload an object for which a primary key name has not been defined at the class level.'
-		if ! defined( $self->get_primary_key_name() );
-	croak 'Cannot reload an object with no ID value for its primary key'
-		if ! defined( $self->id() );
-	
-	# Retrieve a fresh version using the object ID.
-	my $id = $self->id();
-	my $fresh_object = $class->new(
-		id         => $self->id(),
-		skip_cache => 1,
-	);
-	
-	croak "Could not retrieve the row in the database corresponding to the current object using ID '$id'"
-		if ! defined( $fresh_object );
-	
-	# Keep the memory location intact.
-	%{ $self } = %{ $fresh_object };
-	
-	return;
-}
-
-
-=head2 flatten_object()
-
-Return a hash with the requested key/value pairs based on the list of fields
-provided.
-
-Note that non-native fields (starting with an underscore) are not allowed. It
-also protects sensitive fields.
-
-#TODO: allow defining sensitive fields.
-
-	my $book_data = $book->flatten_object(
-		[ 'name', 'isbn' ]
-	);
-
-=cut
-
-sub flatten_object
-{
-	my ( $self, $fields ) = @_;
-	my @protected_fields = qw( password );
-	
-	my %data = ();
-	foreach my $field ( @$fields )
-	{
-		if ( scalar( grep { $_ eq $field } @protected_fields ) != 0 )
-		{
-			croak "The fields '$field' is protected and cannot be added to the flattened copy";
-		}
-		elsif ( substr( $field, 0, 1 ) eq '_' )
-		{
-			croak "The field '$field' is hidden and cannot be added to the flattened copy";
-		}
-		elsif ( $field eq 'id' )
-		{
-			if ( defined( $self->get_primary_key_name() ) )
-			{
-				$data{'id'} = $self->id();
-			}
-			else
-			{
-				croak "Requested adding ID to the list of fields, but the class doesn't define a primary key name";
-			}
-		}
-		else
-		{
-			$data{ $field } = $self->{ $field };
-		}
-	}
-	
-	return \%data;
-}
-
-
-=head2 dump()
-
-Return a Dumper( ) of the current object.
-
-	my $string = $book->dump();
-
-=cut
-
-sub dump ## no critic (Subroutines::ProhibitBuiltinHomonyms)
-{
-	my ( $self ) = @_;
-	
-	return Dumper( $self );
-}
-
-
 =head1 ACCESSORS
+
+
+=head2 get_cache_key_field()
+
+Return the name of the field that should be used in the cache key.
+
+	my $cache_time = $class->cache_key_field();
+	my $cache_time = $object->cache_key_field();
+
+=cut
+
+sub get_cache_key_field
+{
+	my ( $self ) = @_;
+	
+	my $cache_key_field = $self->cached_static_class_info()->{'cache_key_field'};
+	
+	# If the subclass specifies a field to use for the cache key name, use it.
+	# Otherwise, we fall back on the primary key if it exists.
+	return defined( $cache_key_field )
+		? $cache_key_field
+		: $self->get_primary_key_name();
+}
+
+
+=head2 get_default_dbh()
+
+Return the default database handle to use with this class.
+
+	my $default_dbh = $class->get_default_dbh();
+	my $default_dbh = $object->get_default_dbh();
+
+=cut
+
+sub get_default_dbh
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'default_dbh'};
+}
+
+
+=head2 get_filtering_fields()
+
+Returns the fields that can be used as filtering criteria in retrieve_list().
+
+Notes:
+
+=over 4
+
+=item * Does not include the primary key.
+
+=item * Includes unique fields.
+
+	my $filtering_fields = $class->get_filtering_fields();
+	my $filtering_fields = $object->get_filtering_fields();
+
+=back
+
+=cut
+
+sub get_filtering_fields
+{
+	my ( $self ) = @_;
+	
+	my %fields = (
+		map { $_ => undef }
+		(
+			@{ $self->cached_static_class_info()->{'filtering_fields'} },
+			@{ $self->cached_static_class_info()->{'unique_fields'} },
+		)
+	);
+	return [ keys %fields ];
+}
+
+
+=head2 get_list_cache_time()
+
+Return the duration for which a list of objects of the current class can be
+cached.
+
+	my $list_cache_time = $class->list_cache_time();
+	my $list_cache_time = $object->list_cache_time();
+
+=cut
+
+sub get_list_cache_time
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'list_cache_time'};
+}
+
+
+=head2 get_memcache()
+
+Return the memcache object to use with this class.
+
+	my $memcache = $class->get_memcache();
+	my $memcache = $object->get_memcache();
+
+=cut
+
+sub get_memcache
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'memcache'};
+}
+
+
+=head2 get_object_cache_time()
+
+Return the duration for which an object of the current class can be cached.
+
+	my $object_cache_time = $class->get_object_cache_time();
+	my $object_cache_time = $object->get_object_cache_time();
+
+=cut
+
+sub get_object_cache_time
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'object_cache_time'}
+}
+
+
+=head2 get_primary_key_name()
+
+Return the underlying primary key name for the current class or object.
+
+	my $primary_key_name = $class->get_primary_key_name();
+	my $primary_key_name = $object->get_primary_key_name();
+
+=cut
+
+sub get_primary_key_name
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'primary_key_name'};
+}
+
+
+=head2 get_readonly_fields()
+
+Return an arrayref of fields that cannot be modified via C<set()>, C<update()>,
+or C<insert()>.
+
+	my $readonly_fields = $class->get_readonly_fields();
+	my $readonly_fields = $object->get_readonly_fields();
+
+=cut
+
+sub get_readonly_fields
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'readonly_fields'} || [];
+}
+
+
+=head2 get_table_name()
+
+Returns the underlying table name for the current class or object.
+
+	my $table_name = $class->get_table_name();
+	my $table_name = $object->get_table_name();
+
+=cut
+
+sub get_table_name
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'table_name'};
+}
+
+
+=head2 get_unique_fields()
+
+Return an arrayref of fields that are unique for the underlying table.
+
+Important: this doesn't include the primary key name. To retrieve the name
+of the primary key, use C<$class->primary_key_name()>
+
+	my $unique_fields = $class->get_unique_fields();
+	my $unique_fields = $object->get_unique_fields();
+
+=cut
+
+sub get_unique_fields
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'unique_fields'} || [];
+}
+
+
+=head2 has_created_field()
+
+Return a boolean to indicate whether the underlying table has a 'created'
+field.
+
+	my $has_created_field = $class->has_created_field();
+	my $has_created_field = $object->has_created_field();
+
+=cut
+
+sub has_created_field
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'has_created_field'};
+}
+
+
+=head2 has_modified_field()
+
+Return a boolean to indicate whether the underlying table has a 'modified'
+field.
+
+	my $has_modified_field = $class->has_modified_field();
+	my $has_modified_field = $object->has_modified_field();
+
+=cut
+
+sub has_modified_field
+{
+	my ( $self ) = @_;
+	
+	return $self->cached_static_class_info()->{'has_modified_field'};
+}
+
 
 =head2 id()
 
@@ -1751,280 +1987,83 @@ sub is_verbose
 }
 
 
-=head2 get_default_dbh()
-
-Return the default database handle to use with this class.
-
-	my $default_dbh = $class->get_default_dbh();
-	my $default_dbh = $object->get_default_dbh();
-
-=cut
-
-sub get_default_dbh
-{
-	my ( $self ) = @_;
-	
-	return $self->cached_static_class_info()->{'default_dbh'};
-}
-
-
-=head2 get_memcache()
-
-Return the memcache object to use with this class.
-
-	my $memcache = $class->get_memcache();
-	my $memcache = $object->get_memcache();
-
-=cut
-
-sub get_memcache
-{
-	my ( $self ) = @_;
-	
-	return $self->cached_static_class_info()->{'memcache'};
-}
-
-
-=head2 has_created_field()
-
-Return a boolean to indicate whether the underlying table has a 'created'
-field.
-
-	my $has_created_field = $class->has_created_field();
-	my $has_created_field = $object->has_created_field();
-
-=cut
-
-sub has_created_field
-{
-	my ( $self ) = @_;
-	
-	return $self->cached_static_class_info()->{'has_created_field'};
-}
-
-
-=head2 has_modified_field()
-
-Return a boolean to indicate whether the underlying table has a 'modified'
-field.
-
-	my $has_modified_field = $class->has_modified_field();
-	my $has_modified_field = $object->has_modified_field();
-
-=cut
-
-sub has_modified_field
-{
-	my ( $self ) = @_;
-	
-	return $self->cached_static_class_info()->{'has_modified_field'};
-}
-
-
-=head2 get_readonly_fields()
-
-Return an arrayref of fields that cannot be modified via C<set()>, C<update()>,
-or C<insert()>.
-
-	my $readonly_fields = $class->get_readonly_fields();
-	my $readonly_fields = $object->get_readonly_fields();
-
-=cut
-
-sub get_readonly_fields
-{
-	my ( $self ) = @_;
-	
-	return $self->cached_static_class_info()->{'readonly_fields'} || [];
-}
-
-
-=head2 get_unique_fields()
-
-Return an arrayref of fields that are unique for the underlying table.
-
-Important: this doesn't include the primary key name. To retrieve the name
-of the primary key, use C<$class->primary_key_name()>
-
-	my $unique_fields = $class->get_unique_fields();
-	my $unique_fields = $object->get_unique_fields();
-
-=cut
-
-sub get_unique_fields
-{
-	my ( $self ) = @_;
-	
-	return $self->cached_static_class_info()->{'unique_fields'} || [];
-}
-
-
-=head2 get_table_name()
-
-Returns the underlying table name for the current class or object.
-
-	my $table_name = $class->get_table_name();
-	my $table_name = $object->get_table_name();
-
-=cut
-
-sub get_table_name
-{
-	my ( $self ) = @_;
-	
-	return $self->cached_static_class_info()->{'table_name'};
-}
-
-
-=head2 get_primary_key_name()
-
-Return the underlying primary key name for the current class or object.
-
-	my $primary_key_name = $class->get_primary_key_name();
-	my $primary_key_name = $object->get_primary_key_name();
-
-=cut
-
-sub get_primary_key_name
-{
-	my ( $self ) = @_;
-	
-	return $self->cached_static_class_info()->{'primary_key_name'};
-}
-
-
-=head2 get_object_cache_time()
-
-Return the duration for which an object of the current class can be cached.
-
-	my $object_cache_time = $class->get_object_cache_time();
-	my $object_cache_time = $object->get_object_cache_time();
-
-=cut
-
-sub get_object_cache_time
-{
-	my ( $self ) = @_;
-	
-	return $self->cached_static_class_info()->{'object_cache_time'}
-}
-
-
-=head2 get_list_cache_time()
-
-Return the duration for which a list of objects of the current class can be
-cached.
-
-	my $list_cache_time = $class->list_cache_time();
-	my $list_cache_time = $object->list_cache_time();
-
-=cut
-
-sub get_list_cache_time
-{
-	my ( $self ) = @_;
-	
-	return $self->cached_static_class_info()->{'list_cache_time'};
-}
-
-
-=head2 get_cache_key_field()
-
-Return the name of the field that should be used in the cache key.
-
-	my $cache_time = $class->cache_key_field();
-	my $cache_time = $object->cache_key_field();
-
-=cut
-
-sub get_cache_key_field
-{
-	my ( $self ) = @_;
-	
-	my $cache_key_field = $self->cached_static_class_info()->{'cache_key_field'};
-	
-	# If the subclass specifies a field to use for the cache key name, use it.
-	# Otherwise, we fall back on the primary key if it exists.
-	return defined( $cache_key_field )
-		? $cache_key_field
-		: $self->get_primary_key_name();
-}
-
-
-=head2 get_filtering_fields()
-
-Returns the fields that can be used as filtering criteria in retrieve_list().
-
-Notes:
-
-=over 4
-
-=item * Does not include the primary key.
-
-=item * Includes unique fields.
-
-	my $filtering_fields = $class->get_filtering_fields();
-	my $filtering_fields = $object->get_filtering_fields();
-
-=back
-
-=cut
-
-sub get_filtering_fields
-{
-	my ( $self ) = @_;
-	
-	my %fields = (
-		map { $_ => undef }
-		(
-			@{ $self->cached_static_class_info()->{'filtering_fields'} },
-			@{ $self->cached_static_class_info()->{'unique_fields'} },
-		)
-	);
-	return [ keys %fields ];
-}
-
-
 =head1 CACHE RELATED METHODS
 
-=head2 invalidate_cached_object()
 
-Invalidate the cached copies of the current object across all the unique
-keys this object can be referenced with.
+=head2 cached_static_class_info()
 
-	$object->invalidate_cached_object();
+Return a cached version of the information retrieved by C<static_class_info()>.
+
+	my $static_class_info = $class->cached_static_class_info();
+	my $static_class_info = $object->cached_static_class_info();
 
 =cut
 
-sub invalidate_cached_object
 {
-	my ( $self ) = @_;
-	
-	my $primary_key_name = $self->get_primary_key_name();
-	if ( defined( $primary_key_name ) )
+	my $CACHE = {};
+	sub cached_static_class_info
 	{
-		my $cache_key = $self->get_object_cache_key(
-			unique_field => 'id',
-			value        => $self->id(),
-		);
-		$self->delete_cache( key => $cache_key );
-	}
-	
-	foreach my $field ( @{ $self->get_unique_fields() } )
-	{
-		# If the object has no value for the unique field, it wasn't
-		# cached for this key/value pair and we can't build a cache key
-		# for it anyway, so we just skip to the next unique field.
-		next unless defined( $self->{ $field } );
+		my ( $self ) = @_;
+		my $class = ref( $self ) || $self;
 		
-		my $cache_key = $self->get_object_cache_key(
-			unique_field => $field,
-			value        => $self->{ $field },
-		);
-		$self->delete_cache( key => $cache_key );
+		$CACHE->{ $class } ||= $class->static_class_info();
+		
+		return $CACHE->{ $class }
 	}
+}
+
+
+=head2 delete_cache()
+
+Delete a key from the cache.
+
+	my $value = $class->delete_cache( key => $key );
+
+=cut
+
+sub delete_cache
+{
+	my ( $self, %args ) = @_;
+	my $key = delete( $args{'key'} );
+	croak 'Invalid argument(s): ' . join( ', ', keys %args )
+		if scalar( keys %args ) != 0;
 	
-	return 1;
+	# Check parameters.
+	croak 'The parameter "key" is mandatory'
+		if !defined( $key ) || $key !~ /\w/;
+	
+	my $memcache = $self->get_memcache();
+	return undef
+		if !defined( $memcache );
+	
+	return $memcache->delete( $key );
+}
+
+
+=head2 get_cache()
+
+Get a value from the cache.
+
+	my $value = $class->get_cache( key => $key );
+
+=cut
+
+sub get_cache
+{
+	my ( $self, %args ) = @_;
+	my $key = delete( $args{'key'} );
+	croak 'Invalid argument(s): ' . join( ', ', keys %args )
+		if scalar( keys %args ) != 0;
+	
+	# Check parameters.
+	croak 'The parameter "key" is mandatory'
+		if !defined( $key ) || $key !~ /\w/;
+	
+	my $memcache = $self->get_memcache();
+	return undef
+		if !defined( $memcache );
+	
+	return $memcache->get( $key );
 }
 
 
@@ -2132,6 +2171,47 @@ sub get_object_cache_key
 	}
 	
 	return lc( 'object|' . $table_name . '|' . $cache_key_field . '|' . $cache_key_value );
+}
+
+
+=head2 invalidate_cached_object()
+
+Invalidate the cached copies of the current object across all the unique
+keys this object can be referenced with.
+
+	$object->invalidate_cached_object();
+
+=cut
+
+sub invalidate_cached_object
+{
+	my ( $self ) = @_;
+	
+	my $primary_key_name = $self->get_primary_key_name();
+	if ( defined( $primary_key_name ) )
+	{
+		my $cache_key = $self->get_object_cache_key(
+			unique_field => 'id',
+			value        => $self->id(),
+		);
+		$self->delete_cache( key => $cache_key );
+	}
+	
+	foreach my $field ( @{ $self->get_unique_fields() } )
+	{
+		# If the object has no value for the unique field, it wasn't
+		# cached for this key/value pair and we can't build a cache key
+		# for it anyway, so we just skip to the next unique field.
+		next unless defined( $self->{ $field } );
+		
+		my $cache_key = $self->get_object_cache_key(
+			unique_field => $field,
+			value        => $self->{ $field },
+		);
+		$self->delete_cache( key => $cache_key );
+	}
+	
+	return 1;
 }
 
 
@@ -2385,6 +2465,50 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 }
 
 
+=head2 set_cache()
+
+Set a value into the cache.
+
+	$class->set_cache(
+		key         => $key,
+		value       => $value,
+		expire_time => $expire_time,
+	);
+
+=cut
+
+sub set_cache
+{
+	my ( $self, %args ) = @_;
+	my $key = delete( $args{'key'} );
+	my $value = delete( $args{'value'} );
+	my $expire_time = delete( $args{'expire_time'} );
+	croak 'Invalid argument(s): ' . join( ', ', keys %args )
+		if scalar( keys %args ) != 0;
+	
+	# Check parameters.
+	croak 'The argument "key" is mandatory'
+		if !defined( $key ) || $key !~ /\w/;
+	croak 'The argument "value" is mandatory'
+		if !defined( $value );
+	
+	my $memcache = $self->get_memcache();
+	return
+		if !defined( $memcache );
+	
+	$memcache->set( $key, $value, $expire_time )
+		|| carp 'Failed to set cache with key >' . $key . '<';
+	
+	return;
+}
+
+
+=head1 INTERNAL METHODS
+
+Those methods are used internally by L<DBIx::NinjaORM>, you should not subclass
+them.
+
+
 =head2 assert_dbh()
 
 Assert that there is a database handle, either a specific one passed as first
@@ -2412,137 +2536,6 @@ sub assert_dbh
 	}
 	
 	return $class->get_default_dbh();
-}
-
-
-=head2 cached_static_class_info()
-
-Return a cached version of the information retrieved by C<static_class_info()>.
-
-	my $static_class_info = $class->cached_static_class_info();
-	my $static_class_info = $object->cached_static_class_info();
-
-=cut
-
-{
-	my $CACHE = {};
-	sub cached_static_class_info
-	{
-		my ( $self ) = @_;
-		my $class = ref( $self ) || $self;
-		
-		$CACHE->{ $class } ||= $class->static_class_info();
-		
-		return $CACHE->{ $class }
-	}
-}
-
-
-=head2 parse_filtering_criteria()
-
-Helper function that takes a list of fields and converts them into where
-clauses and values that can be used by retrieve_list().
-
-	my ( $where_clauses, $where_values, $filtering_field_keys_passed ) =
-		@{
-			$class->parse_filtering_criteria(
-				fields => \@field,
-				values => \%value,
-			)
-		};
-
-$filtering_field_keys_passed indicates whether %values had keys matching at
-least one element of @field. This allows detecting whether any filtering
-criteria was passed, even if the filtering criteria do not result in WHERE
-clauses being returned.
-
-=cut
-
-sub parse_filtering_criteria
-{
-	my ( $class, %args ) = @_;
-	
-	# Check the arguments.
-	confess "The argument >fields< must be an arrayref"
-		if !Data::Validate::Type::is_arrayref( $args{'fields'} );
-	confess "The argument >values< must be defined"
-		if !defined( $args{'values'} );
-	
-	# Find the table name to prefix it to the field names when we create where
-	# clauses.
-	my $table_name = $class->get_table_name();
-	croak "No table name found for the class >" . ( ref( $class ) || $class ) . "<"
-		if !defined( $table_name );
-	
-	my $where_clauses = [];
-	my $where_values = [];
-	my $filtering_field_keys_passed = 0;
-	my $primary_key_name = $class->get_primary_key_name();
-	foreach my $field ( @{ $args{'fields'} } )
-	{
-		next if !exists( $args{'values'}->{ $field } );
-		$filtering_field_keys_passed = 1;
-		
-		next unless defined( $args{'values'}->{ $field } );
-		
-		# Add the table prefix if needed, this will prevent conflicts if the
-		# main query performs JOINs.
-		my $full_field_name = defined( $primary_key_name ) && ( $field eq 'id' )
-			? $table_name . '.' . $primary_key_name
-			: $field =~ m/\./
-				? $field
-				: $table_name . '.' . $field;
-		
-		# Turn the value into an array of values, if needed.
-		my $values = Data::Validate::Type::is_arrayref( $args{'values'}->{ $field } )
-			? $args{'values'}->{ $field }
-			: [ $args{'values'}->{ $field } ];
-		
-		my @scalar_values = ();
-		foreach my $block ( @$values )
-		{
-			if ( Data::Validate::Type::is_hashref( $block ) )
-			{
-				if ( !defined( $block->{'operator'} ) )
-				{
-					croak 'The operator is missing or not defined';
-				}
-				elsif ( $block->{'operator'} !~ m/^(?:=|not|<=|>=|<|>|between|null|not_null)$/x )
-				{
-					croak "The operator '$block->{'operator'}' is not a valid one. Try (=|not|<=|>=|<|>)";
-				}
-				elsif ( !exists( $block->{'value'} ) && $block->{'operator'} !~ /^(?:null|not_null)$/ )
-				{
-					croak "The value key is missing for operator '$block->{'operator'}'";
-				}
-				
-				my ( $clause, $clause_values ) = $class->build_filtering_clause(
-					field    => $full_field_name,
-					operator => $block->{'operator'},
-					values   => $block->{'value'},
-				);
-				push( @$where_clauses, $clause );
-				push( @$where_values, $clause_values );
-			}
-			else
-			{
-				push( @scalar_values, $block );
-			}
-		}
-		
-		if ( scalar( @scalar_values ) != 0 )
-		{
-			my ( $clause, $clause_values ) = $class->build_filtering_clause(
-				field    => $full_field_name,
-				operator => '=',
-				values   => \@scalar_values,
-			);
-			push( @$where_clauses, $clause );
-			push( @$where_values, $clause_values );
-		}
-	}
-	
-	return [ $where_clauses, $where_values, $filtering_field_keys_passed ];
 }
 
 
@@ -2660,95 +2653,111 @@ sub build_filtering_clause
 }
 
 
-=head2 get_cache()
+=head2 parse_filtering_criteria()
 
-Get a value from the cache.
+Helper function that takes a list of fields and converts them into where
+clauses and values that can be used by retrieve_list().
 
-	my $value = $class->get_cache( key => $key );
+	my ( $where_clauses, $where_values, $filtering_field_keys_passed ) =
+		@{
+			$class->parse_filtering_criteria(
+				fields => \@field,
+				values => \%value,
+			)
+		};
 
-=cut
-
-sub get_cache
-{
-	my ( $self, %args ) = @_;
-	my $key = delete( $args{'key'} );
-	croak 'Invalid argument(s): ' . join( ', ', keys %args )
-		if scalar( keys %args ) != 0;
-	
-	# Check parameters.
-	croak 'The parameter "key" is mandatory'
-		if !defined( $key ) || $key !~ /\w/;
-	
-	my $memcache = $self->get_memcache();
-	return undef
-		if !defined( $memcache );
-	
-	return $memcache->get( $key );
-}
-
-
-=head2 set_cache()
-
-Set a value into the cache.
-
-	$class->set_cache(
-		key         => $key,
-		value       => $value,
-		expire_time => $expire_time,
-	);
+$filtering_field_keys_passed indicates whether %values had keys matching at
+least one element of @field. This allows detecting whether any filtering
+criteria was passed, even if the filtering criteria do not result in WHERE
+clauses being returned.
 
 =cut
 
-sub set_cache
+sub parse_filtering_criteria
 {
-	my ( $self, %args ) = @_;
-	my $key = delete( $args{'key'} );
-	my $value = delete( $args{'value'} );
-	my $expire_time = delete( $args{'expire_time'} );
-	croak 'Invalid argument(s): ' . join( ', ', keys %args )
-		if scalar( keys %args ) != 0;
+	my ( $class, %args ) = @_;
 	
-	# Check parameters.
-	croak 'The argument "key" is mandatory'
-		if !defined( $key ) || $key !~ /\w/;
-	croak 'The argument "value" is mandatory'
-		if !defined( $value );
+	# Check the arguments.
+	confess "The argument >fields< must be an arrayref"
+		if !Data::Validate::Type::is_arrayref( $args{'fields'} );
+	confess "The argument >values< must be defined"
+		if !defined( $args{'values'} );
 	
-	my $memcache = $self->get_memcache();
-	return
-		if !defined( $memcache );
+	# Find the table name to prefix it to the field names when we create where
+	# clauses.
+	my $table_name = $class->get_table_name();
+	croak "No table name found for the class >" . ( ref( $class ) || $class ) . "<"
+		if !defined( $table_name );
 	
-	$memcache->set( $key, $value, $expire_time )
-		|| carp 'Failed to set cache with key >' . $key . '<';
+	my $where_clauses = [];
+	my $where_values = [];
+	my $filtering_field_keys_passed = 0;
+	my $primary_key_name = $class->get_primary_key_name();
+	foreach my $field ( @{ $args{'fields'} } )
+	{
+		next if !exists( $args{'values'}->{ $field } );
+		$filtering_field_keys_passed = 1;
+		
+		next unless defined( $args{'values'}->{ $field } );
+		
+		# Add the table prefix if needed, this will prevent conflicts if the
+		# main query performs JOINs.
+		my $full_field_name = defined( $primary_key_name ) && ( $field eq 'id' )
+			? $table_name . '.' . $primary_key_name
+			: $field =~ m/\./
+				? $field
+				: $table_name . '.' . $field;
+		
+		# Turn the value into an array of values, if needed.
+		my $values = Data::Validate::Type::is_arrayref( $args{'values'}->{ $field } )
+			? $args{'values'}->{ $field }
+			: [ $args{'values'}->{ $field } ];
+		
+		my @scalar_values = ();
+		foreach my $block ( @$values )
+		{
+			if ( Data::Validate::Type::is_hashref( $block ) )
+			{
+				if ( !defined( $block->{'operator'} ) )
+				{
+					croak 'The operator is missing or not defined';
+				}
+				elsif ( $block->{'operator'} !~ m/^(?:=|not|<=|>=|<|>|between|null|not_null)$/x )
+				{
+					croak "The operator '$block->{'operator'}' is not a valid one. Try (=|not|<=|>=|<|>)";
+				}
+				elsif ( !exists( $block->{'value'} ) && $block->{'operator'} !~ /^(?:null|not_null)$/ )
+				{
+					croak "The value key is missing for operator '$block->{'operator'}'";
+				}
+				
+				my ( $clause, $clause_values ) = $class->build_filtering_clause(
+					field    => $full_field_name,
+					operator => $block->{'operator'},
+					values   => $block->{'value'},
+				);
+				push( @$where_clauses, $clause );
+				push( @$where_values, $clause_values );
+			}
+			else
+			{
+				push( @scalar_values, $block );
+			}
+		}
+		
+		if ( scalar( @scalar_values ) != 0 )
+		{
+			my ( $clause, $clause_values ) = $class->build_filtering_clause(
+				field    => $full_field_name,
+				operator => '=',
+				values   => \@scalar_values,
+			);
+			push( @$where_clauses, $clause );
+			push( @$where_values, $clause_values );
+		}
+	}
 	
-	return;
-}
-
-
-=head2 delete_cache()
-
-Delete a key from the cache.
-
-	my $value = $class->delete_cache( key => $key );
-
-=cut
-
-sub delete_cache
-{
-	my ( $self, %args ) = @_;
-	my $key = delete( $args{'key'} );
-	croak 'Invalid argument(s): ' . join( ', ', keys %args )
-		if scalar( keys %args ) != 0;
-	
-	# Check parameters.
-	croak 'The parameter "key" is mandatory'
-		if !defined( $key ) || $key !~ /\w/;
-	
-	my $memcache = $self->get_memcache();
-	return undef
-		if !defined( $memcache );
-	
-	return $memcache->delete( $key );
+	return [ $where_clauses, $where_values, $filtering_field_keys_passed ];
 }
 
 
@@ -2779,12 +2788,6 @@ sub reorganize_non_native_fields
 	
 	return;
 }
-
-
-=head1 INTERNAL METHODS
-
-Those methods are used internally by L<DBIx::NinjaORM>, you should not subclass
-them.
 
 
 =head1 AUTHOR
