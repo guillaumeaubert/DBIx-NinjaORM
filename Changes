@@ -1,5 +1,9 @@
 Revision history for DBIx-NinjaORM
 
+v2.0.0  11/19/2012
+        * Generalized code, added more tests and documentation.
+        * First public release.
+
 v1.9.1  10/24/2012
         * Added 'not_null' operator.
 
