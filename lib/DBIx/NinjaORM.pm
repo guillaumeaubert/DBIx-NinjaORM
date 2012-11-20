@@ -9,6 +9,7 @@ use Data::Validate::Type;
 use Digest::SHA1 qw();
 use MIME::Base64 qw();
 use Storable;
+use Try::Tiny;
 
 
 =head1 NAME
@@ -402,7 +403,7 @@ sub insert ## no critic (Subroutines::RequireArgUnpacking)
 	$clean_data->{ $primary_key_name } = $args{'generated_primary_key_value'}
 		if defined( $args{'generated_primary_key_value'} );
 	
-	# Insert.
+	# Prepare the query elements.
 	my $ignore = defined( $args{'ignore'} ) && $args{'ignore'} ? 1 : 0;
 	my @insert_fields = ();
 	my @insert_values = ();
@@ -412,7 +413,6 @@ sub insert ## no critic (Subroutines::RequireArgUnpacking)
 		push( @insert_values, $clean_data->{ $key } );
 	}
 	
-	local $dbh->{'RaiseError'} = 1;
 	my $query = sprintf(
 		q|
 			INSERT %s INTO %s( %s )
@@ -423,15 +423,25 @@ sub insert ## no critic (Subroutines::RequireArgUnpacking)
 		join( ', ', @insert_fields ),
 		join( ', ', ( ( '?' ) x scalar( @insert_fields ) ) ),
 	);
-	my $insert = $dbh->do(
-		$query,
-		{},
-		@insert_values,
-	);
 	
-	# TODO: improve error detection here.
-	croak "Could not execute insert: " . $dbh->errstr()
-		if !$insert;
+	# Insert.
+	try
+	{
+		local $dbh->{'RaiseError'} = 1;
+		$dbh->do(
+			$query,
+			{},
+			@insert_values,
+		);
+	}
+	catch
+	{
+		confess "Could not insert row: $_\n"
+			. "Query:\n"
+			. "$query\n"
+			. "Values:\n"
+			. Dumper( @insert_values );
+	};
 	
 	if ( defined( $primary_key_name ) )
 	{
@@ -622,21 +632,36 @@ sub remove
 	# Allow using a different DB handle.
 	my $dbh = $self->assert_dbh( $args{'dbh'} );
 	
-	# Delete the row.
-	local $dbh->{'RaiseError'} = 1;
-	my $deleted = $dbh->do(
-		sprintf(
-			q|
-				DELETE
-				FROM %s
-				WHERE %s = ?
-			|,
-			$dbh->quote_identifier( $table_name ),
-			$dbh->quote_identifier( $primary_key_name ),
-		),
-		{},
-		$self->id(),
+	# Prepare the query.
+	my $query = sprintf(
+		q|
+			DELETE
+			FROM %s
+			WHERE %s = ?
+		|,
+		$dbh->quote_identifier( $table_name ),
+		$dbh->quote_identifier( $primary_key_name ),
 	);
+	my @query_values = ( $self->id() );
+	
+	# Delete the row.
+	try
+	{
+		local $dbh->{'RaiseError'} = 1;
+		$dbh->do(
+			$query,
+			{},
+			@query_values,
+		);
+	}
+	catch
+	{
+		confess "Could not delete row: $_\n"
+			. "Query:\n"
+			. "$query\n"
+			. "Values:\n"
+			. Dumper( @query_values );
+	};
 	
 	return;
 }
@@ -826,7 +851,7 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 		$lock = '';
 	}
 	
-	# Retrieve the objects.
+	# Prepare the query elements.
 	my $query = sprintf(
 		q|
 			SELECT %s
@@ -845,11 +870,22 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 	carp "Performing query: \n$query\nValues:\n" . Dumper( @query_values )
 		if $args{'show_queries'};
 	
-	local $dbh->{'RaiseError'} = 1;
-	my $sth = $dbh->prepare(
-		$query
-	);
-	$sth->execute( @query_values );
+	# Retrieve the objects.
+	my $sth;
+	try
+	{
+		local $dbh->{'RaiseError'} = 1;
+		$sth = $dbh->prepare( $query );
+		$sth->execute( @query_values );
+	}
+	catch
+	{
+		confess "Could not select rows: $_\n"
+			. "Query:\n"
+			. "$query\n"
+			. "Values:\n"
+			. Dumper( @query_values );
+	};
 	
 	my $object_list = [];
 	while ( my $ref = $sth->fetchrow_hashref() ) 
@@ -1271,26 +1307,42 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 		push( @set_placeholders, @{ $args{'set'}->{'placeholders'} // [] } );
 		push( @set_values, @{ $args{'set'}->{'values'} // [] } );
 	}
+	
 	my $set_placeholders = join( ', ', @set_placeholders );
 	
-	# Update the row.
-	local $dbh->{'RaiseError'} = 1;
-	my $sth = $dbh->prepare(
-		sprintf(
-			qq|
-				UPDATE %s
-				SET $set_placeholders
-				WHERE $where
-			|,
-			$dbh->quote_identifier( $table_name ),
-		)
+	# Prepare the query elements.
+	my $query = sprintf(
+		qq|
+			UPDATE %s
+			SET $set_placeholders
+			WHERE $where
+		|,
+		$dbh->quote_identifier( $table_name ),
 	);
-	$sth->execute(
+	my @query_values =
+	(
 		@set_values,
 		map { @$_ } @$where_values,
 	);
 	
-	my $rows_updated_count = $sth->rows();
+	# Update the row.
+	my $rows_updated_count;
+	try
+	{
+		local $dbh->{'RaiseError'} = 1;
+		my $sth = $dbh->prepare( $query );
+		$sth->execute( @query_values );
+		
+		$rows_updated_count = $sth->rows();
+	}
+	catch
+	{
+		confess "Could not update rows: $_\n"
+			. "Query:\n"
+			. "$query\n"
+			. "Values:\n"
+			. Dumper( @query_values );
+	};
 	
 	# Also, if rows() returns -1, it's an error.
 	croak 'Could not execute update: ' . $dbh->errstr()
