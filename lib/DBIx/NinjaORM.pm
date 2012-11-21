@@ -174,7 +174,7 @@ defaults will make C<static_class_info()> shorter in the other classes:
 
 =cut
 
-our $RESERVED_RETRIEVE_LIST_ARGS_NAME =
+our $RETRIEVE_LIST_VALID_ARGUMENTS =
 {
 	map { $_ => 1 }
 	qw(
@@ -564,7 +564,9 @@ sub new
 	if ( defined( $unique_field ) )
 	{
 		my $objects = $class->retrieve_list(
-			$unique_field => $args{ $unique_field },
+			{
+				$unique_field => $args{ $unique_field },
+			},
 			skip_cache    => $args{'skip_cache'},
 			lock          => $args{'lock'} ? 1 : 0,
 		);
@@ -677,41 +679,24 @@ See C<retrieve_list()> for the parameters this method accepts.
 
 sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 {
-	my ( $class, %args ) = @_;
+	my ( $class, $filters, %args ) = @_;
 	
 	# Handle a different database handle, if requested.
 	my $dbh = $class->assert_dbh( $args{'dbh'} );
 	
 	# TODO: If we're asked to lock the rows, we check that we're in a transaction.
 	
-	# Build the list of filtering fields we allow.
-	my $filtering_fields =
-	{
-		map { $_ => 1 }
-		@{ $class->get_filtering_fields() || [] }
-	};
-	
-	my $primary_key_name = $class->get_primary_key_name();
-	if ( defined( $primary_key_name ) )
-	{
-		# If there's a primary key name, allow 'id' as an alias.
-		$filtering_fields->{'id'} = 1;
-	}
-	
-	# Check if we were passed parameters we won't know how to handle. This will
-	# help the calling code to detect typos, missing filtering fields in the
-	# static class declaration or obsolete argument names.
+	# Check if we were passed arguments we don't know how to handle. This will
+	# help the calling code to detect typos or deprecated arguments.
 	foreach my $arg ( keys %args )
 	{
-		next if defined( $filtering_fields->{ $arg } )
-			|| defined( $RESERVED_RETRIEVE_LIST_ARGS_NAME->{ $arg } );
+		next if defined( $RETRIEVE_LIST_VALID_ARGUMENTS->{ $arg } );
 		
 		croak(
-			"The parameter '$arg' passed to DBIx::NinjaORM->retrieve_list() via ",
-			"${class}->retrieve_list() is not handled by the superclass. ",
-			"It could mean that you have a typo in the name, that the parameter is now ",
-			" obsolete or that you need to add it to the list of filtering fields in ",
-			"${class}->static_class_info().",
+			"The argument '$arg' passed to DBIx::NinjaORM->retrieve_list() via " .
+			"${class}->retrieve_list() is not handled by the superclass. " .
+			"It could mean that you have a typo in the name or that the argument has " .
+			"been deprecated."
 		);
 	}
 	
@@ -720,8 +705,7 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 	my $where_values = $args{'query_extensions'}->{'where_values'} || [];
 	my $filtering_field_keys_passed = 0;
 	my $filtering_criteria = $class->parse_filtering_criteria(
-		values => \%args,
-		fields => [ keys %$filtering_fields ],
+		$filters
 	);
 	if ( defined( $filtering_criteria ) )
 	{
@@ -731,11 +715,8 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 	}
 	
 	# Make sure there's at least one argument.
-	if ( !$args{'allow_all'} && ( scalar( @$where_clauses ) == 0 ) )
-	{
-		croak 'At least one argument must be passed'
-			if !$filtering_field_keys_passed;
-	}
+	croak 'At least one argument must be passed'
+		if !$args{'allow_all'} && !$filtering_field_keys_passed;
 	
 	# Prepare the ORDER BY.
 	my $table_name = $class->get_table_name();
@@ -758,6 +739,7 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 		: '';
 	
 	# Prepare quoted identifiers.
+	my $primary_key_name = $class->get_primary_key_name();
 	my $quoted_primary_key_name = $dbh->quote_identifier( $primary_key_name );
 	my $quoted_table_name = $dbh->quote_identifier( $table_name );
 	
@@ -1551,7 +1533,8 @@ sub reload
 
 Return an arrayref of objects matching all the criteria passed.
 
-This method supports the following filtering criteria:
+This method supports the following filtering criteria in a hashref passed as
+first argument:
 
 =over 4
 
@@ -1561,12 +1544,16 @@ An ID or an arrayref of IDs corresponding to the primary key.
 
 	# Retrieve books with ID 1.
 	my $books = My::Model::Book->retrieve_list(
-		id => 1,
+		{
+			id => 1,
+		}
 	);
 	
 	# Retrieve books with IDs 1, 2 or 3.
 	my $books = My::Model::Book->retrieve_list(
-		id => [ 1, 2, 3 ]
+		{
+			id => [ 1, 2, 3 ]
+		}
 	);
 
 =item * Field names
@@ -1576,21 +1563,41 @@ C<static_class_info()> under either C<filtering_fields> or C<unique_fields>.
 
 	# Retrieve books for an author.
 	my $books = My::Model::Book->retrieve_list(
-		author_id => 12,
+		{
+			author_id => 12,
+		}
 	);
 	
 	# Retrieve books by ISBN.
 	my $books = My::Model::Book->retrieve_list(
-		isbn =>
-		[
-			'9781449313142',
-			'9781449393090',
-		]
+		{
+			isbn =>
+			[
+				'9781449313142',
+				'9781449393090',
+			]
+		}
 	);
 
 =back
 
-This method also supports the following optional arguments:
+Note that you can combine filters (which is the equivalent of AND in SQL) in
+that hashref:
+
+	# Retrieve books by ISBN for a specific author.
+	my $books = My::Model::Book->retrieve_list(
+		{
+			isbn      =>
+			[
+				'9781449313142',
+				'9781449393090',
+			],
+			author_id => 12,
+		}
+	);
+
+This method also supports the following optional arguments, passed in a hash
+after the filtering criteria above-mentioned:
 
 =over 4
 
@@ -1604,8 +1611,10 @@ in C<static_class_info>.
 Specify an ORDER BY clause to sort the objects returned.
 
 	my $books = My::Model::Book->retrieve_list(
-		author_id => 12,
-		order_by  => 'books.name ASC',
+		{
+			author_id => 12,
+		},
+		order_by => 'books.name ASC',
 	);
 
 =item * limit
@@ -1614,8 +1623,10 @@ Limit the number of objects to return.
 
 	# Get 10 books from author #12.
 	my $books = My::Model::Book->retrieve_list(
-		author_id => 12,
-		limit     => 10,
+		{
+			author_id => 12,
+		},
+		limit => 10,
 	);
 
 =item * query_extensions
@@ -1643,7 +1654,9 @@ A string of extra fields to add to the SELECT.
 =back
 
 	my $books = My::Model::Book->retrieve_list(
-		id               => [ 1, 2, 3 ],
+		{
+			id => [ 1, 2, 3 ],
+		},
 		query_extensions =>
 		{
 			where_clauses => [ 'authors.name = ?' ],
@@ -1673,7 +1686,9 @@ options will be used.
 Add a lock to the rows retrieved.
 
 	my $books = My::Model::Book->retrieve_list(
-		id   => [ 1, 2, 3 ],
+		{
+			id => [ 1, 2, 3 ],
+		},
 		lock => 1,
 	);
 
@@ -1684,6 +1699,7 @@ default to prevent retrieving large tables at once.
 
 	# All the books!
 	my $books = My::Model::Book->retrieve_list(
+		{},
 		allow_all => 1,
 	);
 
@@ -1692,7 +1708,9 @@ default to prevent retrieving large tables at once.
 Set to '1' to see in the logs the queries being performed.
 
 	my $books = My::Model::Book->retrieve_list(
-		id           => [ 1, 2, 3 ],
+		{
+			id => [ 1, 2, 3 ],
+		},
 		show_queries => 1,
 	);
 
@@ -1702,7 +1720,7 @@ Set to '1' to see in the logs the queries being performed.
 
 sub retrieve_list
 {
-	my ( $class, %args ) = @_;
+	my ( $class, $filters, %args ) = @_;
 	
 	# Check caller and prevent calls from a subclass' retrieve_list().
 	my $subroutine = (caller(1))[3];
@@ -1717,8 +1735,8 @@ sub retrieve_list
 	
 	my $any_cache_time = $class->get_list_cache_time() || $class->get_object_cache_time();
 	return defined( $any_cache_time ) && !$args{'skip_cache'} && !$args{'lock'}
-		? $class->retrieve_list_cache( %args )
-		: $class->retrieve_list_nocache( %args );
+		? $class->retrieve_list_cache( $filters, %args )
+		: $class->retrieve_list_nocache( $filters, %args );
 }
 
 
@@ -2277,22 +2295,28 @@ See C<retrieve_list()> for the parameters this method accepts.
 
 sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 {
-	my ( $class, %args ) = @_;
+	my ( $class, $filters, %args ) = @_;
 	my $list_cache_time = $class->get_list_cache_time();
 	my $object_cache_time = $class->get_object_cache_time();
 	my $primary_key_name = $class->get_primary_key_name();
 	
 	# Create a unique cache key.
 	my $list_cache_keys = [];
+	foreach my $filter ( keys %$filters )
+	{
+		# Force all arguments into lower case for purposes of caching.
+		push( @$list_cache_keys, [ lc( $filter ), $filters->{ $filter } ] );
+	}
 	foreach my $arg ( sort keys %args )
 	{
-		# Force all arguments into lower case for purposes of cacheing.
-		$arg = lc($arg);
-		
+		# Those arguments don't have an impact on the filters to IDs translation,
+		# so we can exclude them from the unique cache key.
 		next if $arg =~ /^(?:dbh|lock|show_queries|skip_cache)$/x;
 		
-		push( @$list_cache_keys, [ $arg, $args{ $arg } ] );
+		# Force all arguments into lower case for purposes of caching.
+		push( @$list_cache_keys, [ lc( $arg ), $args{ $arg } ] );
 	}
+	
 	my $list_cache_key = MIME::Base64::encode_base64( Storable::freeze( $list_cache_keys ) );
 	chomp( $list_cache_key );
 	my $list_cache_key_sha1 = Digest::SHA1::sha1_base64( $list_cache_key );
@@ -2303,11 +2327,12 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 	foreach my $field ( 'id', @{ $class->get_unique_fields() } )
 	{
 		next
-			unless exists( $args{ $field } );
+			unless exists( $filters->{ $field } );
 		
 		$search_field = $field;
 		
-		$list_of_search_values = Data::Validate::Type::filter_arrayref( $args{ $field } ) // [ $args{ $field } ];
+		$list_of_search_values = Data::Validate::Type::filter_arrayref( $filters->{ $field } )
+			// [ $filters->{ $field } ];
 	}
 	
 	# If we're searcing by ID or unique field, those are how the objects are
@@ -2396,7 +2421,9 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 				if $class->is_verbose('cache_operations');
 			
 			$objects = $class->retrieve_list_nocache(
-				$search_field => [ keys %$objects_to_retrieve_from_database ],
+				{
+					$search_field => [ keys %$objects_to_retrieve_from_database ],
+				},
 			);
 		}
 		
@@ -2415,7 +2442,8 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 		# If we don't have a list of IDs, we need to go to the database via
 		# retrieve_list_nocache() to get the objects.
 		( $objects, $pagination ) = $class->retrieve_list_nocache(
-			%args
+			$filters,
+			%args,
 		);
 		
 		# Set the list cache.
@@ -2713,8 +2741,7 @@ clauses and values that can be used by retrieve_list().
 	my ( $where_clauses, $where_values, $filtering_field_keys_passed ) =
 		@{
 			$class->parse_filtering_criteria(
-				fields => \@field,
-				values => \%value,
+				\%filtering_criteria
 			)
 		};
 
@@ -2727,13 +2754,40 @@ clauses being returned.
 
 sub parse_filtering_criteria
 {
-	my ( $class, %args ) = @_;
+	my ( $class, $filters ) = @_;
 	
 	# Check the arguments.
-	confess "The argument >fields< must be an arrayref"
-		if !Data::Validate::Type::is_arrayref( $args{'fields'} );
-	confess "The argument >values< must be defined"
-		if !defined( $args{'values'} );
+	confess "The first argument must be a hashref of filtering criteria"
+		if !Data::Validate::Type::is_hashref( $filters );
+	
+	# Build the list of filtering fields we allow.
+	my $filtering_fields =
+	{
+		map { $_ => 1 }
+		@{ $class->get_filtering_fields() || [] }
+	};
+	
+	my $primary_key_name = $class->get_primary_key_name();
+	if ( defined( $primary_key_name ) )
+	{
+		# If there's a primary key name, allow 'id' as an alias.
+		$filtering_fields->{'id'} = 1;
+	}
+	
+	# Check if we were passed filters we don't know how to handle. This will
+	# help the calling code to detect typos or missing filtering fields in the
+	# static class declaration.
+	foreach my $filter ( keys %$filters )
+	{
+		next if defined( $filtering_fields->{ $filter } );
+		
+		croak(
+			"The filtering criteria '$filter' passed to DBIx::NinjaORM->retrieve_list() " .
+			"via ${class}->retrieve_list() is not handled by the superclass. It could " .
+			"mean that you have a typo in the name, or that you need to add it to " .
+			"the list of filtering fields in ${class}->static_class_info()."
+		);
+	}
 	
 	# Find the table name to prefix it to the field names when we create where
 	# clauses.
@@ -2744,13 +2798,10 @@ sub parse_filtering_criteria
 	my $where_clauses = [];
 	my $where_values = [];
 	my $filtering_field_keys_passed = 0;
-	my $primary_key_name = $class->get_primary_key_name();
-	foreach my $field ( @{ $args{'fields'} } )
+	foreach my $field ( keys %$filters )
 	{
-		next if !exists( $args{'values'}->{ $field } );
+		next unless defined( $filters->{ $field } );
 		$filtering_field_keys_passed = 1;
-		
-		next unless defined( $args{'values'}->{ $field } );
 		
 		# Add the table prefix if needed, this will prevent conflicts if the
 		# main query performs JOINs.
@@ -2761,9 +2812,9 @@ sub parse_filtering_criteria
 				: $table_name . '.' . $field;
 		
 		# Turn the value into an array of values, if needed.
-		my $values = Data::Validate::Type::is_arrayref( $args{'values'}->{ $field } )
-			? $args{'values'}->{ $field }
-			: [ $args{'values'}->{ $field } ];
+		my $values = Data::Validate::Type::is_arrayref( $filters->{ $field } )
+			? $filters->{ $field }
+			: [ $filters->{ $field } ];
 		
 		my @scalar_values = ();
 		foreach my $block ( @$values )
