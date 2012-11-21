@@ -42,7 +42,7 @@ subtest(
 					my $test = DBIx::NinjaORM::Test->new();
 					$test->insert(
 						{
-							name  => 'partial_cache_' . $i,
+							name  => 'partial_cache_' . $i . '_' . $time,
 							value => "$time-$i",
 						}
 					);
@@ -58,16 +58,18 @@ note( "Let's get rows 1-6 in the object cache." );
 ok(
 	defined(
 		my $preload_tests = DBIx::NinjaORM::Test->retrieve_list(
+			{
+				value =>
+				[
+					"$time-1",
+					"$time-2",
+					"$time-3",
+					"$time-4",
+					"$time-5",
+					"$time-6",
+				],
+			},
 			order_by => 'tests.name ASC',
-			value    =>
-			[
-				"$time-1",
-				"$time-2",
-				"$time-3",
-				"$time-4",
-				"$time-5",
-				"$time-6",
-			],
 		)
 	),
 	'Retrieve rows 1-6.',
@@ -129,16 +131,18 @@ foreach my $i ( 2, 4, 6 )
 ok(
 	defined(
 		my $tests = DBIx::NinjaORM::Test->retrieve_list(
+			{
+				value    =>
+				[
+					"$time-1",
+					"$time-2",
+					"$time-3",
+					"$time-4",
+					"$time-5",
+					"$time-6",
+				],
+			},
 			order_by => 'tests.name ASC',
-			value    =>
-			[
-				"$time-1",
-				"$time-2",
-				"$time-3",
-				"$time-4",
-				"$time-5",
-				"$time-6",
-			],
 		)
 	),
 	'Retrieve rows 1-6.',
@@ -188,12 +192,12 @@ subtest(
 	{
 		my $expected_object_cache_use =
 		{
-			partial_cache_1 => 1,
-			partial_cache_2 => 0,
-			partial_cache_3 => 1,
-			partial_cache_4 => 0,
-			partial_cache_5 => 1,
-			partial_cache_6 => 0,
+			"partial_cache_1_$time" => 1,
+			"partial_cache_2_$time" => 0,
+			"partial_cache_3_$time" => 1,
+			"partial_cache_4_$time" => 0,
+			"partial_cache_5_$time" => 1,
+			"partial_cache_6_$time" => 0,
 		};
 		
 		foreach my $test ( @$tests )
@@ -221,16 +225,18 @@ subtest(
 ok(
 	defined(
 		my $tests2 = DBIx::NinjaORM::Test->retrieve_list(
+			{
+				value =>
+				[
+					"$time-1",
+					"$time-2",
+					"$time-3",
+					"$time-4",
+					"$time-5",
+					"$time-6",
+				],
+			},
 			order_by => 'tests.name ASC',
-			value    =>
-			[
-				"$time-1",
-				"$time-2",
-				"$time-3",
-				"$time-4",
-				"$time-5",
-				"$time-6",
-			],
 		)
 	),
 	'Retrieve rows 1-6.',

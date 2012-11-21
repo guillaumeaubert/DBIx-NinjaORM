@@ -50,7 +50,9 @@ lives_ok(
 	sub
 	{
 		$objects = DBIx::NinjaORM::Test->retrieve_list_nocache(
-			name => [ map { $test_name . $_ } ( 1..3 ) ],
+			{
+				name => [ map { $test_name . $_ } ( 1..3 ) ],
+			}
 		);
 	},
 	'Retrieve the objects matching the names.',

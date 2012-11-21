@@ -15,7 +15,7 @@ use LocalTest;
 
 use DBIx::NinjaORM;
 use Test::Exception;
-use Test::More tests => 12;
+use Test::More tests => 10;
 
 
 my $dbh = LocalTest::ok_database_handle();
@@ -28,34 +28,15 @@ my $field2 = $dbh->quote_identifier( 'field2' );
 # Tests.
 my $tests =
 [
-	# The argument "fields" must be an arrayref.
+	# The first argument must be a hashref.
 	{
-		name     => 'The argument "fields" cannot be undef.',
-		input    =>
-		{
-			fields => undef,
-			values => {},
-		},
+		name     => 'The first argument cannot be undef.',
+		input    => undef,
 		expected => undef,
 	},
 	{
-		name     => 'The argument "fields" cannot be a scalar.',
-		input    =>
-		{
-			fields => 'test',
-			values => {},
-		},
-		expected => undef,
-	},
-	
-	# The argument "values" must be defined.
-	{
-		name     => 'The argument "values" cannot be undef.',
-		input    =>
-		{
-			fields => 'test',
-			values => undef,
-		},
+		name     => 'The first argument cannot be a scalar.',
+		input    => 'test',
 		expected => undef,
 	},
 	
@@ -64,11 +45,7 @@ my $tests =
 		name     => 'Parse with one field.',
 		input    =>
 		{
-			fields => [ 'field1' ],
-			values =>
-			{
-				'field1' => 'value1',
-			},
+			'field1' => 'value1',
 		},
 		expected =>
 		{
@@ -89,13 +66,8 @@ my $tests =
 		name     => 'Parse with two fields.',
 		input    =>
 		{
-			fields => [ 'field1', 'field2' ],
-			values =>
-			{
-				'field1' => 'value1',
-				'field2' => 'value2',
-				'field3' => 'value3',
-			},
+			'field1' => 'value1',
+			'field2' => 'value2',
 		},
 		expected =>
 		{
@@ -118,11 +90,7 @@ my $tests =
 		name     => 'Parse the field\'s values being an arrayref.',
 		input    =>
 		{
-			fields => [ 'field1' ],
-			values =>
-			{
-				'field1' => [ 'value1', 2 ],
-			},
+			'field1' => [ 'value1', 2 ],
 		},
 		expected =>
 		{
@@ -143,14 +111,10 @@ my $tests =
 		name     => 'Parse a non-implicit operator.',
 		input    =>
 		{
-			fields => [ 'field1' ],
-			values =>
+			'field1' =>
 			{
-				'field1' =>
-				{
-					operator => '>',
-					value    => 2,
-				},
+				operator => '>',
+				value    => 2,
 			},
 		},
 		expected =>
@@ -170,14 +134,10 @@ my $tests =
 		name     => 'Parse a non-implicit operator with an arrayref of values.',
 		input    =>
 		{
-			fields => [ 'field1' ],
-			values =>
+			'field1' =>
 			{
-				'field1' =>
-				{
-					operator => 'not',
-					value    => [ 'a', 'b', 'c' ],
-				},
+				operator => 'not',
+				value    => [ 'a', 'b', 'c' ],
 			},
 		},
 		expected =>
@@ -194,38 +154,15 @@ my $tests =
 		},
 	},
 	
-	# Verify detection of filtering fields passed.
-	{
-		name     => 'Verify detection of filtering fields passed.',
-		input    =>
-		{
-			fields => [ 'field1' ],
-			values =>
-			{
-				'field2' => 'value2',
-			},
-		},
-		expected =>
-		{
-			clauses     => [],
-			values      => [],
-			keys_passed => 0,
-		},
-	},
-	
 	# Verify that only supported operators are accepted.
 	{
 		name     => 'Verify that only supported operators are accepted.',
 		input    =>
 		{
-			fields => [ 'field1' ],
-			values =>
+			'field1' =>
 			{
-				'field1' =>
-				{
-					operator => 'invalid_operator',
-					value    => 'x'
-				},
+				operator => 'invalid_operator',
+				value    => 'x'
 			},
 		},
 		expected => undef,
@@ -262,7 +199,7 @@ foreach my $test ( @$tests )
 						( $where_clauses, $where_values, $filtering_field_keys_passed ) =
 							@{
 								DBIx::NinjaORM::Test->parse_filtering_criteria(
-									%$input
+									$input
 								)
 							};
 					},
@@ -297,7 +234,7 @@ foreach my $test ( @$tests )
 			sub
 			{
 				DBIx::NinjaORM::Test->parse_filtering_criteria(
-					%$input
+					$input
 				);
 			},
 			$test->{'name'},
@@ -325,6 +262,7 @@ sub static_class_info
 		'table_name'       => 'tests',
 		'primary_key_name' => 'test_id',
 		'default_dbh'      => LocalTest::get_database_handle(),
+		'filtering_fields' => [ 'field1', 'field2' ],
 	};
 }
 

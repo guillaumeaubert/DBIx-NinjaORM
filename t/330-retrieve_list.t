@@ -64,6 +64,7 @@ subtest(
 		
 		is(
 			DBIx::NinjaORM::NoCache->retrieve_list(
+				{},
 				skip_cache => 0,
 			),
 			'retrieve_list_nocache',
@@ -72,6 +73,7 @@ subtest(
 		
 		is(
 			DBIx::NinjaORM::NoCache->retrieve_list(
+				{},
 				skip_cache => 1,
 			),
 			'retrieve_list_nocache',
@@ -106,6 +108,7 @@ subtest(
 		
 		is(
 			DBIx::NinjaORM::ObjectCache->retrieve_list(
+				{},
 				skip_cache => 0,
 			),
 			'retrieve_list_cache',
@@ -114,6 +117,7 @@ subtest(
 		
 		is(
 			DBIx::NinjaORM::ObjectCache->retrieve_list(
+				{},
 				skip_cache => 1,
 			),
 			'retrieve_list_nocache',
@@ -148,6 +152,7 @@ subtest(
 		
 		is(
 			DBIx::NinjaORM::ListCache->retrieve_list(
+				{},
 				skip_cache => 0,
 			),
 			'retrieve_list_cache',
@@ -156,6 +161,7 @@ subtest(
 		
 		is(
 			DBIx::NinjaORM::ListCache->retrieve_list(
+				{},
 				skip_cache => 1,
 			),
 			'retrieve_list_nocache',

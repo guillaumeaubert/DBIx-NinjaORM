@@ -91,7 +91,9 @@ foreach my $test ( @$tests )
 			# inserted.
 			ok(
 				my $tests1 = DBIx::NinjaORM::Test->retrieve_list(
-					value      => $value,
+					{
+						value => $value,
+					},
 					skip_cache => $skip_cache,
 				),
 				'Retrieve rows by ID.',
@@ -122,7 +124,9 @@ foreach my $test ( @$tests )
 			# have it in the cache.
 			ok(
 				my $tests2 = DBIx::NinjaORM::Test->retrieve_list(
-					value      => $value,
+					{
+						value => $value,
+					},
 					skip_cache => $skip_cache,
 				),
 				'Retrieve rows by ID.',

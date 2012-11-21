@@ -61,7 +61,9 @@ lives_ok(
 	sub
 	{
 		$objects = DBIx::NinjaORM::Test->retrieve_list_nocache(
-			name => $test_name,
+			{
+				name => $test_name,
+			}
 		);
 	},
 	'Retrieve the objects matching the name.',
@@ -110,9 +112,10 @@ sub static_class_info
 # Subclass 'retrieve_list_nocache' to add the information about the JOIN.
 sub retrieve_list_nocache
 {
-	my ( $class, %args ) = @_;
-
+	my ( $class, $filters, %args ) = @_;
+	
 	return $class->SUPER::retrieve_list_nocache(
+		$filters,
 		%args,
 		query_extensions =>
 		{

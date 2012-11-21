@@ -32,6 +32,7 @@ throws_ok(
 	sub
 	{
 		my $tests = DBIx::NinjaORM::Test->retrieve_list(
+			{},
 			allow_all => 1,
 		);
 	},

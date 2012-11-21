@@ -32,7 +32,9 @@ dies_ok(
 	sub
 	{
 		DBIx::NinjaORM::Test->retrieve_list_nocache(
-			value => 'value',
+			{
+				value => 'value',
+			},
 		);
 	},
 	'Detect fields that are not listed as allowing filtering.',
@@ -42,7 +44,7 @@ dies_ok(
 	sub
 	{
 		DBIx::NinjaORM::Test->retrieve_list_nocache(
-			dbh => undef,
+			{},
 		);
 	},
 	'Require at least one filtering criteria by default.',
@@ -52,6 +54,7 @@ dies_ok(
 	sub
 	{
 		DBIx::NinjaORM::Test->retrieve_list_nocache(
+			{},
 			allow_all => 0,
 		);
 	},
@@ -62,6 +65,7 @@ lives_ok(
 	sub
 	{
 		DBIx::NinjaORM::Test->retrieve_list_nocache(
+			{},
 			allow_all => 1,
 		);
 	},
