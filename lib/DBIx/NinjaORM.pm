@@ -477,11 +477,11 @@ C<new()> has two possible uses:
 =item * Retrieving a single object from the database.
 
 	# Retrieve by ID.
-	my $object = My::Model::Book->new( id => 3 )
+	my $object = My::Model::Book->new( { id => 3 } )
 		// die 'Book #3 does not exist';
 	
 	# Retrieve by unique field.
-	my $object = My::Model::Book->new( isbn => '9781449303587' )
+	my $object = My::Model::Book->new( { isbn => '9781449303587' } )
 		// die 'Book with ISBN 9781449303587 does not exist';
 
 =back
@@ -495,7 +495,7 @@ As a result, C<new()> accepts the following arguments:
 The ID for the primary key on the underlying table. C<id> is an alias for the
 primary key field name.
 
-	my $object = My::Model::Book->new( id => 3 )
+	my $object = My::Model::Book->new( { id => 3 } )
 		// die 'Book #3 does not exist';
 
 =item * A unique field
@@ -503,8 +503,11 @@ primary key field name.
 Allows passing a unique field and its value, in order to load the
 corresponding object from the database.
 
-	my $object = My::Model::Book->new( isbn => '9781449303587' )
+	my $object = My::Model::Book->new( { isbn => '9781449303587' } )
 		// die 'Book with ISBN 9781449303587 does not exist';
+
+Note that unique fields need to be defined in C<static_class_info()>, in the
+C<unique_fields> key.
 
 =item * skip_cache (default: 0)
 
@@ -514,7 +517,7 @@ first. Setting C<skip_cache> to 1 forces the ORM to load the values from the
 database.
 
 	my $object = My::Model::Book->new(
-		isbn       => '9781449303587',
+		{ isbn => '9781449303587' },
 		skip_cache => 1,
 	) // die 'Book with ISBN 9781449303587 does not exist';
 
@@ -525,7 +528,7 @@ C<new()>. Setting C<lock> to 1 forces the ORM to bypass the cache if any, and
 to lock the rows in the database as it retrieves them.
 
 	my $object = My::Model::Book->new(
-		isbn => '9781449303587',
+		{ isbn => '9781449303587' },
 		lock => 1,
 	) // die 'Book with ISBN 9781449303587 does not exist';
 
@@ -535,7 +538,7 @@ to lock the rows in the database as it retrieves them.
 
 sub new
 {
-	my ( $class, %args ) = @_;
+	my ( $class, $filters, %args ) = @_;
 	
 	# Check if we have a unique identifier passed.
 	# Note: passing an ID is a subcase of passing field defined as unique, but
@@ -544,12 +547,12 @@ sub new
 	foreach my $field ( 'id', @{ $class->get_unique_fields() } )
 	{
 		next
-			if ! exists( $args{ $field } );
+			if ! exists( $filters->{ $field } );
 		
-		# If the field exists in the list of arguments passed, it needs to be
+		# If the field exists in the list of filters, it needs to be
 		# defined. Being undefined probably indicates a problem in the calling code.
 		croak "Called new() with '$field' declared but not defined"
-			if ! defined( $args{ $field } );
+			if ! defined( $filters->{ $field } );
 		
 		# Detect if we're passing two unique fields to retrieve the object. This is
 		# obviously bad.
@@ -565,7 +568,7 @@ sub new
 	{
 		my $objects = $class->retrieve_list(
 			{
-				$unique_field => $args{ $unique_field },
+				$unique_field => $filters->{ $unique_field },
 			},
 			skip_cache    => $args{'skip_cache'},
 			lock          => $args{'lock'} ? 1 : 0,
