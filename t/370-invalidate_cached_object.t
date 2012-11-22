@@ -70,7 +70,7 @@ subtest(
 ok(
 	defined(
 		my $object = DBIx::NinjaORM::Test->new(
-			id => $object_id,
+			{ id => $object_id },
 		)
 	),
 	'Retrieve the object previously inserted.',
@@ -88,7 +88,7 @@ is(
 ok(
 	defined(
 		$object = DBIx::NinjaORM::Test->new(
-			id => $object_id,
+			{ id => $object_id },
 		)
 	),
 	'Retrieve the object again.',
@@ -115,7 +115,7 @@ lives_ok(
 ok(
 	defined(
 		$object = DBIx::NinjaORM::Test->new(
-			id => $object_id,
+			{ id => $object_id },
 		)
 	),
 	'Retrieve the object again.',

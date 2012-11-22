@@ -63,7 +63,7 @@ subtest(
 ok(
 	defined(
 		my $object = DBIx::NinjaORM::Test->new(
-			id => $object_id,
+			{ id => $object_id },
 		)
 	),
 	'Retrieve the object previously inserted.',

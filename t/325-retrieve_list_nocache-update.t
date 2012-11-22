@@ -67,7 +67,7 @@ subtest(
 		ok(
 			defined(
 				$test = DBIx::NinjaORM::Test->new(
-					name => $test_name,
+					{ name => $test_name },
 				)
 			),
 			'Retrieve the object.',
@@ -102,7 +102,7 @@ subtest(
 		ok(
 			defined(
 				my $test = DBIx::NinjaORM::Test->new(
-					name => $test_name,
+					{ name => $test_name },
 				)
 			),
 			'Retrieve the object.',
