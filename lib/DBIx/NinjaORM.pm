@@ -515,6 +515,8 @@ C<unique_fields> key.
 This method also supports the following optional arguments, passed in a hash
 after the filtering criteria above-mentioned:
 
+=over 4
+
 =item * skip_cache (default: 0)
 
 By default, if cache is enabled with C<object_cache_time()> in
