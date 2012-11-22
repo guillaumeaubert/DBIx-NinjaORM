@@ -50,7 +50,7 @@
    "provides" : {
       "DBIx::NinjaORM" : {
          "file" : "lib/DBIx/NinjaORM.pm",
-         "version" : "v2.0.0"
+         "version" : "v2.1.0"
       }
    },
    "release_status" : "stable",
@@ -66,5 +66,5 @@
          "url" : "https://github.com/guillaumeaubert/DBIx-NinjaORM"
       }
    },
-   "version" : "v2.0.0"
+   "version" : "v2.1.0"
 }
