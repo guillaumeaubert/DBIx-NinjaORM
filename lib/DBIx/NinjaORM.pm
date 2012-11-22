@@ -486,7 +486,8 @@ C<new()> has two possible uses:
 
 =back
 
-As a result, C<new()> accepts the following arguments:
+When retrieving a single object from the database, the first argument should be
+a hashref containing the following information to select a single row:
 
 =over 4
 
@@ -508,6 +509,11 @@ corresponding object from the database.
 
 Note that unique fields need to be defined in C<static_class_info()>, in the
 C<unique_fields> key.
+
+=back
+
+This method also supports the following optional arguments, passed in a hash
+after the filtering criteria above-mentioned:
 
 =item * skip_cache (default: 0)
 
