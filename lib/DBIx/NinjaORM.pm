@@ -1518,7 +1518,7 @@ sub reload
 	# Retrieve a fresh version using the object ID.
 	my $id = $self->id();
 	my $fresh_object = $class->new(
-		id         => $self->id(),
+		{ id => $self->id() },
 		skip_cache => 1,
 	);
 	
