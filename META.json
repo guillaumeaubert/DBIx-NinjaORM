@@ -43,7 +43,7 @@
             "Digest::SHA1" : "0",
             "MIME::Base64" : "0",
             "Storable" : "0",
-            "perl" : "5.006"
+            "perl" : "5.01"
          }
       }
    },
