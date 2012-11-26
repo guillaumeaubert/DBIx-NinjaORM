@@ -255,7 +255,6 @@ sub commit
 	
 	if ( defined( $self->id() ) )
 	{
-		
 		my $primary_key_name = $self->get_primary_key_name();
 		delete( $data->{ $primary_key_name } )
 			if exists( $data->{ $primary_key_name } );
