@@ -1,5 +1,9 @@
 Revision history for DBIx-NinjaORM
 
+v2.1.1  11/26/2012
+        * Ignored Devel::Cover output files.
+        * Added Perl 5.10 as a requirement.
+
 v2.1.0  11/22/2012
         * Refactored retrieve_list() and new() to use a hashref as first
           argument, like insert() and update().
