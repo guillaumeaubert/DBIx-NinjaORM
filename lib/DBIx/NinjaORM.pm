@@ -640,7 +640,7 @@ sub remove
 	croak "Missing primary key name for class '$class', cannot delete safely"
 		if !defined( $primary_key_name );
 	
-	croak "The object of class '$class' does not have a primary key value, cannot update"
+	croak "The object of class '$class' does not have a primary key value, cannot delete"
 		if ! defined( $self->id() );
 	
 	# Allow using a different DB handle.
