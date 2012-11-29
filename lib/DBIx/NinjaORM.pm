@@ -2810,7 +2810,7 @@ sub parse_filtering_criteria
 	my $where_clauses = [];
 	my $where_values = [];
 	my $filtering_field_keys_passed = 0;
-	foreach my $field ( keys %$filters )
+	foreach my $field ( sort keys %$filters )
 	{
 		next unless defined( $filters->{ $field } );
 		$filtering_field_keys_passed = 1;
