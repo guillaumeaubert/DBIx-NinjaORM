@@ -110,7 +110,7 @@ subtest(
 					{
 						name => 'test_remove_' . time(),
 					}
-				)
+				);
 			},
 			'Insert succeeds.',
 		);
