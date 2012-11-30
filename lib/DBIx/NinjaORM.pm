@@ -726,9 +726,10 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 		$filtering_field_keys_passed = $filtering_criteria->[2];
 	}
 	
-	# Make sure there's at least one argument.
+	# Make sure there's at least one argument, unless allow_all=1 or there is
+	# custom where clauses.
 	croak 'At least one argument must be passed'
-		if !$args{'allow_all'} && !$filtering_field_keys_passed;
+		if !$args{'allow_all'} && !$filtering_field_keys_passed && scalar( @$where_clauses ) == 0;
 	
 	# Prepare the ORDER BY.
 	my $table_name = $class->get_table_name();
