@@ -549,6 +549,10 @@ sub new
 {
 	my ( $class, $filters, %args ) = @_;
 	
+	# If filters exist, they need to be a hashref.
+	croak 'The first argument must be a hashref containing filtering criteria'
+		if defined( $filters ) && !Data::Validate::Type::is_hashref( $filters );
+	
 	# Check if we have a unique identifier passed.
 	# Note: passing an ID is a subcase of passing field defined as unique, but
 	# unique_fields() doesn't include the primary key name.
