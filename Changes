@@ -1,5 +1,12 @@
 Revision history for DBIx-NinjaORM
 
+v2.1.2  11/30/2012
+        * Added tests for remove() and commit().
+        * If custom clauses are present, filters are not required anymore.
+        * Checked filters argument in new() to detect issues early.
+        * Sorted filters in parse_filtering_criteria() to make output easily
+          testable.
+
 v2.1.1  11/26/2012
         * Ignored Devel::Cover output files.
         * Added Perl 5.10 as a requirement.
