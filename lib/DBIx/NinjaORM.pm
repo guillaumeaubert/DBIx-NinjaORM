@@ -779,10 +779,12 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 				q|
 					SELECT COUNT(*)
 					FROM %s
-					$joins
-					$where
+					%s
+					%s
 				|,
 				$quoted_table_name,
+				$joins,
+				$where,
 			),
 			{},
 			map { @$_ } @$where_values,
