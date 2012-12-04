@@ -12,6 +12,7 @@ WriteMakefile
                    'Data::Dumper' => 0,
                    'Data::Validate::Type' => 0,
                    'Digest::SHA1' => 0,
+                   'Log::Any' => 0,
                    'MIME::Base64' => 0,
                    'Storable' => 0,
                    'Test::Deep' => 0,
