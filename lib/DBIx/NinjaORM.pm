@@ -2624,17 +2624,27 @@ C<static_class_info()>, and return it.
 
 sub assert_dbh
 {
-	my ( $class, $dbh ) = @_;
+	my ( $class, $specific_dbh ) = @_;
 	
-	if ( defined( $dbh ) )
+	my ( $dbh, $type );
+	if ( defined( $specific_dbh ) )
 	{
-		croak 'The database handle specified is not valid (' . ref( $dbh ) . ')'
-			if !Data::Validate::Type::is_instance( $dbh, class => 'DBI::db' );
-		
-		return $dbh;
+		$dbh = $specific_dbh;
+		$type = 'specified';
+	}
+	else
+	{
+		$dbh = $class->get_default_dbh();
+		$type = 'default';
 	}
 	
-	return $class->get_default_dbh();
+	$dbh = $dbh->()
+		if Data::Validate::Type::is_coderef( $dbh );
+	
+	croak "The $type database handle is not a valid DBI::db object (" . ref( $dbh ) . ')'
+		if !Data::Validate::Type::is_instance( $dbh, class => 'DBI::db' );
+	
+	return $dbh;
 }
 
 
