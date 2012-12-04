@@ -2620,6 +2620,10 @@ C<static_class_info()>, and return it.
 	my $dbh = $class->assert_dbh( $custom_dbh );
 	my $dbh = $object->assert_dbh( $custom_dbh );
 
+Note that this method also supports coderefs that return a C<DBI::db> object
+when evaluated. That way, if no database connection is needed when running the
+code, no connection needs to be established.
+
 =cut
 
 sub assert_dbh
