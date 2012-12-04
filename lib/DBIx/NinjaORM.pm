@@ -2250,7 +2250,7 @@ sub get_object_cache_key
 			carp(
 				"Cache miss for unique field >$unique_field< and value >$value< on table "
 				. ">$table_name<, cannot generate cache key."
-			);
+			) if $self->is_verbose();
 			return;
 		}
 	}
