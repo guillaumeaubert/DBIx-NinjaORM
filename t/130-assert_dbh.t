@@ -126,9 +126,7 @@ sub static_class_info
 {
 	return
 	{
-		# We're not going to use the database handle, we just need to
-		# be able to compare the value, so it's easier here to set it
-		# to a known value.
+		# Not a DBI::db object.
 		'default_dbh' => "INVALID",
 	};
 }
