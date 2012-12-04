@@ -31,6 +31,7 @@ t/118-get_readonly_fields.t
 t/119-has_created_field.t
 t/120-has_modified_field.t
 t/121-get_cache_key_field.t
+t/130-assert_dbh.t
 t/150-set_cache.t
 t/151-get_cache.t
 t/152-delete_cache.t
