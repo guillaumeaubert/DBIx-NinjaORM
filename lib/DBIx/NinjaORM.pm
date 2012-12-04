@@ -22,11 +22,11 @@ DBIx::NinjaORM - Flexible Perl ORM for easy transitions from inline SQL to objec
 
 =head1 VERSION
 
-Version 2.2.1
+Version 2.3.0
 
 =cut
 
-our $VERSION = '2.2.1';
+our $VERSION = '2.3.0';
 
 
 =head1 DESCRIPTION

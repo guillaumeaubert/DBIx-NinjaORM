@@ -1,5 +1,8 @@
 Revision history for DBIx-NinjaORM
 
+v2.3.0  12/04/2012
+        * Refactored to use Log::Any instead of carp/confess.
+
 v2.2.1  12/04/2012
         * Split limit and offset, for PostgreSQL.
 
