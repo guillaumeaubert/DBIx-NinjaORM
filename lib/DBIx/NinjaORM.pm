@@ -12,6 +12,7 @@ use Digest::SHA1 qw();
 use MIME::Base64 qw();
 use Storable;
 use Try::Tiny;
+use Log::Any qw( $log );
 
 
 =head1 NAME
@@ -437,11 +438,13 @@ sub insert ## no critic (Subroutines::RequireArgUnpacking)
 	}
 	catch
 	{
-		confess "Could not insert row: $_\n"
-			. "Query:\n"
-			. "$query\n"
-			. "Values:\n"
-			. Dumper( @insert_values );
+		$log->fatalf(
+			"Could not insert row: %s\nQuery: %s\nValues: %s",
+			$_,
+			$query,
+			\@insert_values,
+		);
+		croak "Insert failed: $_";
 	};
 	
 	if ( defined( $primary_key_name ) )
@@ -674,11 +677,13 @@ sub remove
 	}
 	catch
 	{
-		confess "Could not delete row: $_\n"
-			. "Query:\n"
-			. "$query\n"
-			. "Values:\n"
-			. Dumper( @query_values );
+		$log->fatalf(
+			"Could not delete row: %s\nQuery: %s\nValues: %s",
+			$_,
+			$query,
+			\@query_values,
+		);
+		croak "Failed delete: $_";
 	};
 	
 	return;
@@ -831,8 +836,11 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 		);
 		
 		my @query_values = map { @$_ } @$where_values;
-		carp "Performing query:\n$query\nValues:\n" . Dumper( @query_values )
-			if $args{'show_queries'};
+		$log->debugf(
+			"Performing query:\n%s\nValues:\n%s",
+			$query,
+			\@query_values,
+		) if $args{'show_queries'};
 		
 		my $locked_ids = $dbh->selectall_arrayref(
 			$query,
@@ -868,8 +876,11 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 		$lock,
 	);
 	my @query_values = map { @$_ } @$where_values;
-	carp "Performing query: \n$query\nValues:\n" . Dumper( @query_values )
-		if $args{'show_queries'};
+	$log->debugf(
+		"Performing query:\n%s\nValues:\n%s",
+		$query,
+		\@query_values,
+	) if $args{'show_queries'};
 	
 	# Retrieve the objects.
 	my $sth;
@@ -881,11 +892,13 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 	}
 	catch
 	{
-		confess "Could not select rows: $_\n"
-			. "Query:\n"
-			. "$query\n"
-			. "Values:\n"
-			. Dumper( @query_values );
+		$log->fatalf(
+			"Could not select rows: %s\nQuery: %s\nValues: %s",
+			$_,
+			$query,
+			\@query_values,
+		);
+		croak "Failed select: $_";
 	};
 	
 	my $object_list = [];
@@ -1269,7 +1282,7 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 	# If there's nothing to update, bail out.
 	if ( scalar( keys %$clean_data ) == 0 )
 	{
-		carp 'No data left to update after validation, skipping SQL update'
+		$log->debug( 'No data left to update after validation, skipping SQL update' )
 			if $self->is_verbose();
 		return;
 	}
@@ -1338,11 +1351,12 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 	}
 	catch
 	{
-		confess "Could not update rows: $_\n"
-			. "Query:\n"
-			. "$query\n"
-			. "Values:\n"
-			. Dumper( @query_values );
+		$log->fatalf(
+			"Could not update rows: %s\nQuery: %s\nValues: %s",
+			$_,
+			$query,
+			\@query_values,
+		);
 	};
 	
 	# Also, if rows() returns -1, it's an error.
@@ -1356,8 +1370,13 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 	# the object cache keys for.
 	if ( defined( $object_cache_time ) )
 	{
-		carp "An update on '$table_name' is forcing to clear the cache for '$primary_key_name=" . $self->id() . "'"
-			if $self->is_verbose();
+		$log->debugf(
+			"An update on '%s' is forcing to clear the cache for '%s=%s'",
+			$table_name,
+			$primary_key_name,
+			$self->id(),
+		) if $self->is_verbose();
+		
 		$self->invalidate_cached_object();
 	}
 	
@@ -2027,9 +2046,9 @@ This method supports two types of verbosity:
 
 Called with no argument, this returns whether code in general will be verbose.
 
-	carp 'This is verbose'
+	$log->debug( 'This is verbose' )
 		if $class->is_verbose();
-	carp 'This is verbose'
+	$log->debug( 'This is verbose' )
 		if $object->is_verbose();
 
 =item * verbosity for a specific type of operations
@@ -2037,9 +2056,9 @@ Called with no argument, this returns whether code in general will be verbose.
 Called with a specific type of operations as first argument, this returns
 whether that type of operations will be verbose.
 
-	carp 'Describe cache operation'
+	$log->debug( 'Describe cache operation' )
 		if $class->is_verbose( $operation_type );
-	carp 'Describe cache operation'
+	$log->debug( 'Describe cache operation' )
 		if $object->is_verbose( $operation_type );
 
 Currently, the following types of operations are supported:
@@ -2185,8 +2204,12 @@ sub get_object_cache_key
 	{
 		if ( !defined( $value ) )
 		{
-			carp "Passed unique field >$unique_field< without a corresponding value for "
-				. "table >$table_name<, cannot determine cache key";
+			$log->debugf(
+				"Passed unique field '%s' without a corresponding value for "
+				. "table '%s', cannot determine cache key",
+				$unique_field,
+				$table_name,
+			);
 			return;
 		}
 		
@@ -2206,15 +2229,22 @@ sub get_object_cache_key
 			# See Trac #1695 for why we think this is significant.
 			unless ( defined( $value ) )
 			{
-				carp "Trying to use field >$cache_key_field< on table >$table_name< to generate "
-					. "a cache key, but the value for that field on the object is undef";
+				$log->debugf(
+					"Trying to use field '%s' on table '%s' to generate "
+					. "a cache key, but the value for that field on the "
+					. "object is undef",
+					$cache_key_field,
+					$table_name,
+				);
 				return;
 			}
 		}
 		else
 		{
-			carp "If you don't specify a unique field and value, you need to call this "
-				. "function on an object";
+			$log->debug(
+				"If you don't specify a unique field and value, you need to "
+				. "call this function on an object"
+			);
 			return;
 		}
 	}
@@ -2247,9 +2277,12 @@ sub get_object_cache_key
 		
 		unless ( defined( $cache_key_value ) )
 		{
-			carp(
-				"Cache miss for unique field >$unique_field< and value >$value< on table "
-				. ">$table_name<, cannot generate cache key."
+			$log->debugf(
+				"Cache miss for unique field '%s' and value '%s' on table "
+				. "'%s', cannot generate cache key.",
+				$unique_field,
+				$value,
+				$table_name,
 			) if $self->is_verbose();
 			return;
 		}
@@ -2388,7 +2421,7 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 	my $objects;
 	if ( !$args{'lock'} && defined( $list_of_search_values ) )
 	{
-		carp "Using values (unique/IDs) from the list cache"
+		$log->debug( "Using values (unique/IDs) from the list cache" )
 			if $class->is_verbose('cache_operations');
 		
 		# If we're not trying to lock the underlying rows, and we have a list of
@@ -2409,8 +2442,10 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 			
 			if ( defined( $object ) )
 			{
-				carp "Retrieved >$object_cache_key< from cache"
-					if $class->is_verbose('cache_operations');
+				$log->debugf(
+					"Retrieved '%s' from cache.",
+					$object_cache_key,
+				) if $class->is_verbose('cache_operations');
 				
 				$object->{'_debug'}->{'object_cache_used'} = 1;
 				
@@ -2424,8 +2459,10 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 			}
 			else
 			{
-				carp ">$object_cache_key< not found in the cache"
-					if $class->is_verbose('cache_operations');
+				$log->debugf(
+					"'%s' not found in the cache.",
+					$object_cache_key,
+				) if $class->is_verbose('cache_operations');
 				
 				$objects_to_retrieve_from_database->{ lc( $search_value ) } = $object_cache_key;
 			}
@@ -2435,9 +2472,10 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 		# go to the database.
 		if ( scalar( keys %$objects_to_retrieve_from_database ) != 0 )
 		{
-			carp "The following objects are not cached and need to be retrieved from the database: "
-				. join( ', ', keys %$objects_to_retrieve_from_database )
-				if $class->is_verbose('cache_operations');
+			$log->debug(
+				"The following objects are not cached and need to be retrieved from the database: %s",
+				join( ', ', keys %$objects_to_retrieve_from_database ),
+			) if $class->is_verbose('cache_operations');
 			
 			$objects = $class->retrieve_list_nocache(
 				{
@@ -2468,9 +2506,11 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 		# Set the list cache.
 		my $list_cache_ids = [ map { $_->id() } @$objects ];
 		
-		carp "Adding key >$list_cache_key< to the list cache, with the following IDs: "
-			. join( ',', @$list_cache_ids )
-			if $class->is_verbose('cache_operations');
+		$log->debugf(
+			"Adding key '%s' to the list cache, with the following IDs: %s",
+			$list_cache_key,
+			join( ', ', @$list_cache_ids ),
+		) if $class->is_verbose('cache_operations');
 		
 		$class->set_cache(
 			key         => $list_cache_key_sha1,
@@ -2516,8 +2556,10 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 		
 		$object->{'_debug'}->{'cache_expires'} = time() + $object_cache_time;
 		
-		carp "Set object cache for key '$object_cache_key'"
-			if $class->is_verbose('cache_operations');
+		$log->debugf(
+			"Set object cache for key '%s'.",
+			$object_cache_key,
+		) if $class->is_verbose('cache_operations');
 		
 		$class->set_cache(
 			key         => $object_cache_key,
@@ -2596,7 +2638,7 @@ sub set_cache
 		if !defined( $memcache );
 	
 	$memcache->set( $key, $value, $expire_time )
-		|| carp 'Failed to set cache with key >' . $key . '<';
+		|| $log->errorf( "Failed to set cache with key '%s'.", $key );
 	
 	return;
 }
@@ -2790,8 +2832,12 @@ sub parse_filtering_criteria
 	my ( $class, $filters ) = @_;
 	
 	# Check the arguments.
-	confess "The first argument must be a hashref of filtering criteria"
-		if !Data::Validate::Type::is_hashref( $filters );
+	if ( !Data::Validate::Type::is_hashref( $filters ) )
+	{
+		my $error = "The first argument must be a hashref of filtering criteria";
+		$log->error( $error );
+		croak $error;
+	};
 	
 	# Build the list of filtering fields we allow.
 	my $filtering_fields =
