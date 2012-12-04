@@ -1,5 +1,8 @@
 Revision history for DBIx-NinjaORM
 
+v2.2.1  12/04/2012
+        * Split limit and offset, for PostgreSQL.
+
 v2.2.0  12/04/2012
         * Modified assert_dbh() to allow coderefs that return a DBI::db object
           in either default_dbh from static_class_information() or from its
