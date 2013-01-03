@@ -837,18 +837,38 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 		
 		my @query_values = map { @$_ } @$where_values;
 		$log->debugf(
-			"Performing query:\n%s\nValues:\n%s",
+			"Performing pre-locking query:\n%s\nValues:\n%s",
 			$query,
 			\@query_values,
 		) if $args{'show_queries'};
 		
-		my $locked_ids = $dbh->selectall_arrayref(
+		my $locked_ids;
+		try
+		{
+			local $dbh->{'RaiseError'} = 1;
+			$locked_ids = $dbh->selectall_arrayref(
+				$query,
+				{
+					Columns => [ 1 ],
+				},
+				@query_values
+			);
+		}
+		catch
+		{
+			$log->fatalf(
+			"Could not select rows in pre-locking query: %s\n%s\nValues:\n%s",
+			$_,
 			$query,
-			@query_values
-		);
+			\@query_values,
+			);
+			croak "Failed select: $_";
+		}
 		
-		return []
-			if !defined( $locked_ids ) || ( scalar( @$locked_ids ) == 0 );
+		if ( !defined( $locked_ids ) || ( scalar( @$locked_ids ) == 0 ) )
+		{
+			return [];
+		}
 		
 		$where = sprintf(
 			'WHERE %s.%s IN ( %s )',
