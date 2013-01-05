@@ -54,6 +54,7 @@ t/310-reorganize_non_native_fields.t
 t/320-retrieve_list_nocache.t
 t/321-retrieve_list_nocache-objects.t
 t/322-retrieve_list_nocache-join.t
+t/323-retrieve_list_nocache-join_and_lock.t
 t/325-retrieve_list_nocache-update.t
 t/330-retrieve_list.t
 t/331-retrieve_list-by_id.t
