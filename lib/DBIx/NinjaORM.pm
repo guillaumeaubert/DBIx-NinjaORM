@@ -857,10 +857,10 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 		catch
 		{
 			$log->fatalf(
-			"Could not select rows in pre-locking query: %s\n%s\nValues:\n%s",
-			$_,
-			$query,
-			\@query_values,
+				"Could not select rows in pre-locking query: %s\nQuery: %s\nValues:\n%s",
+				$_,
+				$query,
+				\@query_values,
 			);
 			croak "Failed select: $_";
 		};
