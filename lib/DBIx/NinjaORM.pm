@@ -755,10 +755,31 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 	$fields .= defined( $args{'query_extensions'}->{'joined_fields'} )
 		? ', ' . $args{'query_extensions'}->{'joined_fields'}
 		: '';
-	my $lock = $args{'lock'} ? 'FOR UPDATE' : '';
 	my $limit = defined( $args{'limit'} ) && ( $args{'limit'} =~ m/^\d+$/ )
 		? 'LIMIT ' . $args{'limit'}
 		: '';
+	
+	# We need to make an exception for lock=1 when using SQLite, since
+	# SQLite doesn't support FOR UPDATE.
+	# Per http://sqlite.org/cvstrac/wiki?p=UnsupportedSql, the entire
+	# database is locked when updating any bit of it, so we can simply
+	# ignore the locking request here.
+	my $lock = '';
+	if ( $args{'lock'} )
+	{
+		my $database_type = $dbh->{'Driver'}->{'Name'} || '';
+		if ( $database_type eq 'SQLite' )
+		{
+			$log->info(
+				'SQLite does not support locking since only one process at a time is ',
+				'allowed to update a given SQLite database, so lock=1 is ignored.',
+			);
+		}
+		else
+		{
+			$lock = 'FOR UPDATE';
+		}
+	}
 	
 	# Prepare quoted identifiers.
 	my $primary_key_name = $class->get_primary_key_name();
