@@ -25,7 +25,7 @@ no_index:
 provides:
   DBIx::NinjaORM:
     file: lib/DBIx/NinjaORM.pm
-    version: v2.3.0
+    version: v2.3.1
 requires:
   Carp: 0
   Data::Dumper: 0
@@ -40,4 +40,4 @@ resources:
   homepage: https://metacpan.org/release/DBIx-NinjaORM
   license: http://www.gnu.org/licenses/gpl-3.0.txt
   repository: https://github.com/guillaumeaubert/DBIx-NinjaORM
-version: v2.3.0
+version: v2.3.1
