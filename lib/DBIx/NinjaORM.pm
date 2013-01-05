@@ -863,7 +863,7 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 			\@query_values,
 			);
 			croak "Failed select: $_";
-		}
+		};
 		
 		if ( !defined( $locked_ids ) || ( scalar( @$locked_ids ) == 0 ) )
 		{
