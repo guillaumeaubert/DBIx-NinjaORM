@@ -897,7 +897,7 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 			$quoted_primary_key_name,
 			join( ', ', ( ('?') x scalar( @$locked_ids ) ) ),
 		);
-		$where_values = [ map { $_->[0] } @$locked_ids ];
+		$where_values = [ [ map { $_->[0] } @$locked_ids ] ];
 		$lock = '';
 	}
 	
