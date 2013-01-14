@@ -131,7 +131,7 @@ my $tests =
 		},
 	},
 	
-	# If no page is specified, this should default to page 1.
+	# If no number of results per page is specified, this should default to 20.
 	{
 		name     => 'Retrieve default page count.',
 		input    =>
