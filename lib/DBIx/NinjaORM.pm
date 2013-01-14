@@ -258,9 +258,10 @@ sub commit
 	
 	if ( defined( $self->id() ) )
 	{
+		# If id() is defined, we have a value for the primary key name
+		# and we need to delete it from the data to update.
 		my $primary_key_name = $self->get_primary_key_name();
-		delete( $data->{ $primary_key_name } )
-			if exists( $data->{ $primary_key_name } );
+		delete( $data->{ $primary_key_name } );
 		
 		return $self->update( $data );
 	}
