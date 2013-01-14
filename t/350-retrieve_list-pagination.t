@@ -22,9 +22,9 @@ subtest(
 	'Insert test rows.',
 	sub
 	{
-		plan( tests => 15 );
+		plan( tests => 25 );
 		
-		foreach my $i ( 1 .. 15 )
+		foreach my $i ( 1 .. 25 )
 		{
 			my $test = DBIx::NinjaORM::Test->new();
 			lives_ok(
