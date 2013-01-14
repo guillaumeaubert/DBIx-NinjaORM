@@ -1348,7 +1348,6 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 	my $where_values = $args{'restrictions'}->{'where_values'} || [];
 	push( @$where_clauses, $primary_key_name . ' = ?' );
 	push( @$where_values, [ $self->id() ] );
-	my $where = '( ' . join( ' ) AND ( ', @$where_clauses ) . ' )';
 	
 	# Prepare the values to set.
 	my @set_placeholders = ();
@@ -1364,16 +1363,16 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 		push( @set_values, @{ $args{'set'}->{'values'} // [] } );
 	}
 	
-	my $set_placeholders = join( ', ', @set_placeholders );
-	
 	# Prepare the query elements.
 	my $query = sprintf(
 		qq|
 			UPDATE %s
-			SET $set_placeholders
-			WHERE $where
+			SET %s
+			WHERE %s
 		|,
 		$dbh->quote_identifier( $table_name ),
+		join( ', ', @set_placeholders ),
+		'( ' . join( ' ) AND ( ', @$where_clauses ) . ' )',
 	);
 	my @query_values =
 	(
