@@ -41,7 +41,7 @@ subtest(
 			{
 				$object->insert(
 					field => 'value',
-				)
+				);
 			},
 			'The first argument must be a hashref.',
 		);
@@ -61,8 +61,10 @@ subtest(
 			sub
 			{
 				$object->insert(
-					field => 'value',
-				)
+					{
+						field => 'value',
+					}
+				);
 			},
 			'Insert fails.',
 		);
@@ -82,8 +84,10 @@ subtest(
 			sub
 			{
 				$object->insert(
-					field => 'value',
-				)
+					{
+						field => 'value',
+					}
+				);
 			},
 			'Insert fails.',
 		);
