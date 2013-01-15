@@ -47,6 +47,7 @@ t/224-insert-dbh.t
 t/225-insert-no_created_field.t
 t/226-insert-no_modified_field.t
 t/230-id.t
+t/250-update.t
 t/290-get.t
 t/300-build_filtering_clause.t
 t/305-parse_filtering_criteria.t
