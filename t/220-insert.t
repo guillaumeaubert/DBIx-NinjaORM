@@ -111,7 +111,7 @@ subtest(
 					{
 						name => 'test_insert_' . time(),
 					}
-				)
+				);
 			},
 			'Insert succeeds.',
 		);
