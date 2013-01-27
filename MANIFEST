@@ -46,6 +46,7 @@ t/223-insert-generated_primary_key_value.t
 t/224-insert-dbh.t
 t/225-insert-no_created_field.t
 t/226-insert-no_modified_field.t
+t/227-insert-dbi_failure.t
 t/230-id.t
 t/250-update.t
 t/290-get.t
