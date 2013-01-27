@@ -684,7 +684,7 @@ sub remove
 			$query,
 			\@query_values,
 		);
-		croak "Failed delete: $_";
+		croak "Remove failed: $_";
 	};
 	
 	return;
