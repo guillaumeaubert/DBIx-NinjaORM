@@ -1,0 +1,104 @@
+#!perl -T
+
+=head1 PURPOSE
+
+Test that errors thrown by DBI when trying to update a row via
+DBIx::NinjaORM->update() are caught and propagated properly.
+
+=cut
+
+use strict;
+use warnings;
+
+use DBIx::NinjaORM;
+use Test::Exception;
+use Test::More tests => 2;
+use Test::Type;
+
+
+# Insert a test object.
+my $object;
+subtest(
+	'Create test object and insert the corresponding test row.',
+	sub
+	{
+		ok(
+			$object = DBIx::NinjaORM::Test->new(),
+			'Create new object.',
+		);
+		
+		lives_ok(
+			sub
+			{
+				$object->insert(
+					{
+						name => 'test_update_failure_' . time(),
+					},
+				);
+			},
+			'Insert succeeds.',
+		);
+	}
+);
+
+throws_ok(
+	sub
+	{
+		$object->update(
+			{
+				name => 'test_update_failure_' . time(),
+			}
+		);
+	},
+	qr/\AUpdate failed: died in prepare()\E/,
+	'Caught update failure.',
+);
+
+
+# Test subclass with enough information to insert rows.
+package DBIx::NinjaORM::Test;
+
+use strict;
+use warnings;
+
+use lib 't/lib';
+use LocalTest;
+
+use base 'DBIx::NinjaORM';
+
+sub static_class_info
+{
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	# Get a regular database connection DBI::db object, then
+	# re-bless it as DBI::db::Test which overrides the prepare() method
+	# to make it die.
+	my $dbh = LocalTest::get_database_handle();
+	bless( $dbh, 'DBI::db::Test' );
+	
+	# Regular setup.
+	$info->{'default_dbh'} = $dbh;
+	$info->{'table_name'} = 'tests';
+	$info->{'primary_key_name'} = 'test_id';
+	
+	return $info;
+}
+
+1;
+
+
+# Subclass DBI::db and override prepare() to make it die.
+# This is what allows testing that errors thrown by DBI are properly handled
+# by DBIx::NinjaORM.
+package DBI::db::Test;
+
+use base 'DBI::db';
+
+sub prepare
+{
+	die 'died in prepare()';
+}
+
+1;
