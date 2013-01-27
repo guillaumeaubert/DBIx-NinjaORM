@@ -1793,6 +1793,18 @@ Set to '1' to see in the logs the queries being performed.
 		show_queries => 1,
 	);
 
+=item * allow_subclassing (default 0)
+
+By default, C<retrieve_list()> cannot be subclassed to prevent accidental
+infinite recursions and breaking the cache features provided by NinjaORM.
+Typically, if you want to add functionality to how retrieving a group of
+objects works, you will want to modify C<retrieve_list_nocache()> instead.
+
+If you really need to subclass C<retrieve_list()>, you will then need to
+set C<allow_subclassing> to C<1> in subclassed method's call to its parent,
+to indicate that you've carefully considered the impact of this and that it
+is safe.
+
 =back
 
 =cut
@@ -1800,16 +1812,20 @@ Set to '1' to see in the logs the queries being performed.
 sub retrieve_list
 {
 	my ( $class, $filters, %args ) = @_;
+	my $allow_subclassing = delete( $args{'allow_subclassing'} ) || 0;
 	
 	# Check caller and prevent calls from a subclass' retrieve_list().
-	my $subroutine = (caller(1))[3];
-	if ( defined( $subroutine ) )
+	if ( !$allow_subclassing )
 	{
-		$subroutine =~ s/^.*:://;
-		croak(
-			'You have subclassed retrieve_list(), which is not allowed to prevent infinite recursions. ' .
-			'You most likely want to subclass retrieve_list_nocache() instead.'
-		) if $subroutine eq 'retrieve_list';
+		my $subroutine = (caller(1))[3];
+		if ( defined( $subroutine ) )
+		{
+			$subroutine =~ s/^.*:://;
+			croak(
+				'You have subclassed retrieve_list(), which is not allowed to prevent infinite recursions. ' .
+				'You most likely want to subclass retrieve_list_nocache() instead.'
+			) if $subroutine eq 'retrieve_list';
+		}
 	}
 	
 	my $any_cache_time = $class->get_list_cache_time() || $class->get_object_cache_time();
