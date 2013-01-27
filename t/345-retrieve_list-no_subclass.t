@@ -13,7 +13,7 @@ use strict;
 use warnings;
 
 use Test::Exception;
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 
 # Verify that the main class supports the method.
@@ -38,6 +38,18 @@ throws_ok(
 	},
 	qr/\QYou have subclassed retrieve_list(), which is not allowed to prevent infinite recursions\E/,
 	'A direct retrieve_list() call in a subclass is forbidden.',
+);
+
+lives_ok(
+	sub
+	{
+		my $tests = DBIx::NinjaORM::Test->retrieve_list(
+			{},
+			allow_all         => 1,
+			allow_subclassing => 1,
+		);
+	},
+	'A direct retrieve_list() call with allow_subclassing=1 is allowed.',
 );
 
 
