@@ -41,6 +41,11 @@ subtest(
 	}
 );
 
+# Re-bless the database connection as a DBI::db::Test object, which is the
+# same as DBI::db except that it overrides prepare() to make it die.
+my $dbh = $object->get_default_dbh();
+bless( $dbh, 'DBI::db::Test' );
+
 throws_ok(
 	sub
 	{
@@ -72,14 +77,7 @@ sub static_class_info
 	
 	my $info = $class->SUPER::static_class_info();
 	
-	# Get a regular database connection DBI::db object, then
-	# re-bless it as DBI::db::Test which overrides the prepare() method
-	# to make it die.
-	my $dbh = LocalTest::get_database_handle();
-	bless( $dbh, 'DBI::db::Test' );
-	
-	# Regular setup.
-	$info->{'default_dbh'} = $dbh;
+	$info->{'default_dbh'} = LocalTest::get_database_handle();
 	$info->{'table_name'} = 'tests';
 	$info->{'primary_key_name'} = 'test_id';
 	
