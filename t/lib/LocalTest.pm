@@ -17,11 +17,11 @@ LocalTest - Test functions for L<DBIx::NinjaORM>.
 
 =head1 VERSION
 
-Version 2.3.1
+Version 2.3.2
 
 =cut
 
-our $VERSION = '2.3.1';
+our $VERSION = '2.3.2';
 
 
 =head1 SYNOPSIS

@@ -1,5 +1,13 @@
 Revision history for DBIx-NinjaORM
 
+v2.3.2  01/27/2013
+        * Fixed propagation of DBI failures in update().
+        * Added tests to cover DBI failures for insert(), update(), and
+          remove().
+        * Added 'allow_subclassing' option for retrieve_list().
+        * Added new tests for pagination in retrieve_list_nocache().
+        * Cleaned up tests and code.
+
 v2.3.1  01/05/2013
 	* Fixed call to selectall_arrayref() in retrieve_list_nocache() and
 	  added error handling (thanks Jacob Rose).
