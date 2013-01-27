@@ -68,6 +68,7 @@ t/345-retrieve_list-no_subclass.t
 t/350-retrieve_list-pagination.t
 t/370-invalidate_cached_object.t
 t/400-remove.t
+t/405-remove-dbi_failure.t
 t/415-commit.t
 t/500-flatten_object.t
 t/510-dump.t
