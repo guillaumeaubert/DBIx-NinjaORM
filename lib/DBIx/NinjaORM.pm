@@ -1398,6 +1398,8 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 			$query,
 			\@query_values,
 		);
+		
+		croak "Update failed: $_";
 	};
 	
 	# Also, if rows() returns -1, it's an error.
