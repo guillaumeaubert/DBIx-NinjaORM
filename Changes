@@ -1,5 +1,8 @@
 Revision history for DBIx-NinjaORM
 
+v2.4.0  02/19/2013
+        * Fixed detecting invalid filtering criteria [].
+
 v2.3.2  01/27/2013
         * Fixed propagation of DBI failures in update().
         * Added tests to cover DBI failures for insert(), update(), and
