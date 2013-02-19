@@ -2938,7 +2938,21 @@ sub parse_filtering_criteria
 	my $filtering_field_keys_passed = 0;
 	foreach my $field ( sort keys %$filters )
 	{
+		# "field => undef" and "field => []" are not valid filtering
+		# criteria. This prevents programming errors, by forcing the
+		# use of the 'null' operator when you explicitely want to
+		# test for NULL. See:
+		#
+		#     field =>
+		#     {
+		#         operator => 'null',
+		#     }
+		#
 		next unless defined( $filters->{ $field } );
+		next if Data::Validate::Type::is_arrayref( $filters->{ $field } )
+			&& scalar( @{ $filters->{ $field } } ) == 0;
+		
+		# We now have a valid filtering criteria.
 		$filtering_field_keys_passed = 1;
 		
 		# Add the table prefix if needed, this will prevent conflicts if the
