@@ -28,7 +28,7 @@ can_ok(
 	'retrieve_list_nocache',
 );
 
-dies_ok(
+throws_ok(
 	sub
 	{
 		DBIx::NinjaORM::Test->retrieve_list_nocache(
@@ -37,20 +37,22 @@ dies_ok(
 			},
 		);
 	},
+	qr/\QThe filtering criteria 'value' passed to DBIx::NinjaORM->retrieve_list() via DBIx::NinjaORM::Test->retrieve_list() is not handled by the superclass\E/,
 	'Detect fields that are not listed as allowing filtering.',
 );
 
-dies_ok(
+throws_ok(
 	sub
 	{
 		DBIx::NinjaORM::Test->retrieve_list_nocache(
 			{},
 		);
 	},
+	qr/At least one argument must be passed/,
 	'Require at least one filtering criteria by default.',
 );
 
-dies_ok(
+throws_ok(
 	sub
 	{
 		DBIx::NinjaORM::Test->retrieve_list_nocache(
@@ -58,6 +60,7 @@ dies_ok(
 			allow_all => 0,
 		);
 	},
+	qr/At least one argument must be passed/,
 	'Require at least one filtering criteria unless allow_all=1.',
 );
 
