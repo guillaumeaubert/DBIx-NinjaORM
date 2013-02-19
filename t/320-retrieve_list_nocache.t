@@ -12,7 +12,7 @@ use warnings;
 
 use DBIx::NinjaORM;
 use Test::Exception;
-use Test::More tests => 6;
+use Test::More tests => 8;
 use Test::Type;
 
 
@@ -62,6 +62,34 @@ throws_ok(
 	},
 	qr/At least one argument must be passed/,
 	'Require at least one filtering criteria unless allow_all=1.',
+);
+
+throws_ok(
+	sub
+	{
+		DBIx::NinjaORM::Test->retrieve_list_nocache(
+			{
+				name => undef,
+			},
+			allow_all => 0,
+		);
+	},
+	qr/At least one argument must be passed/,
+	'Require at least one filtering criteria unless allow_all=1 (ignore undef criteria).',
+);
+
+throws_ok(
+	sub
+	{
+		DBIx::NinjaORM::Test->retrieve_list_nocache(
+			{
+				name => [],
+			},
+			allow_all => 0,
+		);
+	},
+	qr/At least one argument must be passed/,
+	'Require at least one filtering criteria unless allow_all=1 (ignore [] criteria).',
 );
 
 lives_ok(
