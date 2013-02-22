@@ -2376,7 +2376,8 @@ sub invalidate_cached_object
 			unique_field => 'id',
 			value        => $self->id(),
 		);
-		$self->delete_cache( key => $cache_key );
+		$self->delete_cache( key => $cache_key )
+			if defined( $cache_key );
 	}
 	
 	foreach my $field ( @{ $self->get_unique_fields() } )
@@ -2390,7 +2391,8 @@ sub invalidate_cached_object
 			unique_field => $field,
 			value        => $self->{ $field },
 		);
-		$self->delete_cache( key => $cache_key );
+		$self->delete_cache( key => $cache_key )
+			if defined( $cache_key );
 	}
 	
 	return 1;
