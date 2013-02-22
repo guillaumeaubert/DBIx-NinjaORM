@@ -1465,9 +1465,10 @@ sub validate_data
 	# Don't allow setting timestamps.
 	foreach my $field ( qw( created modified ) )
 	{
-		croak "The field '$field' cannot be set and will be ignored"
-			if $self->is_verbose();
-		
+		$log->warnf(
+			"The field '%s' cannot be set and will be ignored",
+			$field,
+		);
 		delete( $data->{ $field } );
 	}
 	
