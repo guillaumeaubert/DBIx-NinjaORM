@@ -1456,8 +1456,7 @@ sub validate_data
 	# Protect read-only fields.
 	foreach my $field ( @{ $self->get_readonly_fields() } )
 	{
-		next
-			unless defined( $data->{ $field } );
+		next if ! defined( $data->{ $field } );
 		
 		croak "The field '$field' is read-only and cannot be set via the model";
 	}
@@ -1465,6 +1464,8 @@ sub validate_data
 	# Don't allow setting timestamps.
 	foreach my $field ( qw( created modified ) )
 	{
+		next if ! defined( $data->{ $field } );
+		
 		$log->warnf(
 			"The field '%s' cannot be set and will be ignored",
 			$field,
