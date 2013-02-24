@@ -1,5 +1,11 @@
 Revision history for DBIx-NinjaORM
 
+v2.4.1  02/24/2013
+        * (RT #83513) Fixed incorrect croak() in verbose mode.
+        * (RT #83514) Don't delete cache if no cache key can be determined.
+        * Modified validate_data() to check for existence, not just defineness
+          of keys, as undefined keys would still impact insert/update.
+
 v2.4.0  02/19/2013
         * Fixed detecting invalid filtering criteria [].
 
