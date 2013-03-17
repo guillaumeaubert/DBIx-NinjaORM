@@ -44,7 +44,7 @@ my $builder = Module::Build->new(
 		{
 			repository  => 'https://github.com/guillaumeaubert/DBIx-NinjaORM',
 			homepage    => 'https://metacpan.org/release/DBIx-NinjaORM',
-			bugtracker  => 'http://rt.cpan.org/NoAuth/ReportBug.html?Queue=dbix-ninjaorm',
+			bugtracker  => 'https://github.com/guillaumeaubert/DBIx-NinjaORM/issues',
 		},
 		no_index               =>
 		{

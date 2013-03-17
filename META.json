@@ -57,7 +57,7 @@
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
-         "web" : "http://rt.cpan.org/NoAuth/ReportBug.html?Queue=dbix-ninjaorm"
+         "web" : "https://github.com/guillaumeaubert/DBIx-NinjaORM/issues"
       },
       "homepage" : "https://metacpan.org/release/DBIx-NinjaORM",
       "license" : [
