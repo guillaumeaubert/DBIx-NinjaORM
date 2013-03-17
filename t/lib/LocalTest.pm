@@ -231,9 +231,9 @@ L<http://annocpan.org/dist/DBIx-NinjaORM>
 
 L<http://cpanratings.perl.org/d/DBIx-NinjaORM>
 
-=item * Search CPAN
+=item * MetaCPAN
 
-L<http://search.cpan.org/dist/DBIx-NinjaORM/>
+L<https://metacpan.org/release/DBIx-NinjaORM>
 
 =back
 
