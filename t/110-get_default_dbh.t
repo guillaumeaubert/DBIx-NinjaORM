@@ -12,7 +12,8 @@ use warnings;
 
 use DBIx::NinjaORM;
 use Test::Exception;
-use Test::More tests => 4;
+use Test::More tests => 5;
+use Test::NoWarnings;
 
 
 # Make sure that get_default_dbh() is supported by DBIx::NinjaORM.

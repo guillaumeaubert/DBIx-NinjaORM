@@ -16,12 +16,13 @@ use DBIx::NinjaORM;
 use Test::Deep;
 use Test::Exception;
 use Test::More;
+use Test::NoWarnings;
 use Test::Type;
 
 
 # We must have memcache enabled for this test.
 LocalTest::ok_memcache();
-plan( tests => 10 );
+plan( tests => 11 );
 
 # Verify that the main class supports the method.
 can_ok(

@@ -14,7 +14,8 @@ use warnings;
 use DBIx::NinjaORM;
 use Test::Deep;
 use Test::Exception;
-use Test::More tests => 10;
+use Test::More tests => 11;
+use Test::NoWarnings;
 
 
 # Verify that the main class supports the method.

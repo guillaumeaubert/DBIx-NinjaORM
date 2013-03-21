@@ -19,11 +19,12 @@ use LocalTest;
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::More;
+use Test::NoWarnings;
 
 
 LocalTest::ok_memcache();
 
-plan( tests => 6 );
+plan( tests => 7 );
 
 dies_ok(
 	sub

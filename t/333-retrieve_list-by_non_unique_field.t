@@ -16,6 +16,7 @@ use LocalTest;
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::More;
+use Test::NoWarnings;
 
 
 LocalTest::ok_memcache();
@@ -49,7 +50,7 @@ my $tests =
 	},
 ];
 
-plan( tests => scalar( @$tests ) );
+plan( tests => scalar( @$tests ) + 1 );
 
 # Run tests.
 my $count = 0;

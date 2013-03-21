@@ -15,11 +15,12 @@ use LocalTest;
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::More;
+use Test::NoWarnings;
 
 
 LocalTest::ok_memcache();
 
-plan( tests => 7 );
+plan( tests => 8 );
 
 dies_ok(
 	sub

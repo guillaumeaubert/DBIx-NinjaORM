@@ -15,7 +15,8 @@ use LocalTest;
 
 use DBIx::NinjaORM;
 use Test::Exception;
-use Test::More tests => 7;
+use Test::More tests => 8;
+use Test::NoWarnings;
 
 
 # Verify that the main class supports the method.

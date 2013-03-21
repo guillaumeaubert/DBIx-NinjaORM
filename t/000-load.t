@@ -6,7 +6,8 @@ Test that DBIx::NinjaORM loads.
 
 =cut
 
-use Test::More tests => 2;
+use Test::More tests => 3;
+use Test::NoWarnings;
 
 
 BEGIN

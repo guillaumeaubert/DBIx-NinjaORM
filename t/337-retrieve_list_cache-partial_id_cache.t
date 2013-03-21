@@ -20,11 +20,12 @@ use LocalTest;
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::More;
+use Test::NoWarnings;
 
 
 # These tests require memcache to be running.
 LocalTest::ok_memcache();
-plan( tests => 13 );
+plan( tests => 14 );
 
 # Insert test records.
 my $time = time();

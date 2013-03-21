@@ -11,7 +11,8 @@ use warnings;
 
 use DBIx::NinjaORM;
 use Test::Exception;
-use Test::More tests => 9;
+use Test::More tests => 10;
+use Test::NoWarnings;
 use Test::Type;
 
 
