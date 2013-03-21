@@ -10,7 +10,6 @@ build_requires:
   Test::More: 0.94
   Test::NoWarnings: 0
   Test::Type: 0
-  Try::Tiny: 0
 configure_requires:
   Module::Build: 0
 dynamic_config: 1
@@ -35,6 +34,7 @@ requires:
   Log::Any: 0
   MIME::Base64: 0
   Storable: 0
+  Try::Tiny: 0
   perl: 5.01
 resources:
   bugtracker: https://github.com/guillaumeaubert/DBIx-NinjaORM/issues

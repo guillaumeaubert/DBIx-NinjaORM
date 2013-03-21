@@ -17,7 +17,6 @@ my $builder = Module::Build->new(
 		'Test::More'           => 0.94, # subtest()
 		'Test::NoWarnings'     => 0,
 		'Test::Type'           => 0,
-		'Try::Tiny'            => 0,
 	},
 	requires             =>
 	{
@@ -29,6 +28,7 @@ my $builder = Module::Build->new(
 		'Log::Any'             => 0,
 		'MIME::Base64'         => 0,
 		'Storable'             => 0,
+		'Try::Tiny'            => 0,
 	},
 	add_to_cleanup       =>
 	[

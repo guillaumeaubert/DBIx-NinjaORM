@@ -27,8 +27,7 @@
             "Test::Exception" : "0",
             "Test::More" : "0.94",
             "Test::NoWarnings" : "0",
-            "Test::Type" : "0",
-            "Try::Tiny" : "0"
+            "Test::Type" : "0"
          }
       },
       "configure" : {
@@ -45,6 +44,7 @@
             "Log::Any" : "0",
             "MIME::Base64" : "0",
             "Storable" : "0",
+            "Try::Tiny" : "0",
             "perl" : "5.01"
          }
       }
