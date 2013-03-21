@@ -20,7 +20,7 @@ use LocalTest;
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::More;
-use Test::NoWarnings;
+use Test::NoWarnings qw();
 
 
 # These tests require memcache to be running.
@@ -272,6 +272,8 @@ subtest(
 		}
 	}
 );
+
+Test::NoWarnings::had_no_warnings();
 
 
 # Test subclass.

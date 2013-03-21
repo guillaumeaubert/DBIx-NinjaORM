@@ -16,7 +16,7 @@ use LocalTest;
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::More;
-use Test::NoWarnings;
+use Test::NoWarnings qw();
 
 
 LocalTest::ok_memcache();
@@ -161,6 +161,8 @@ foreach my $test ( @$tests )
 		}
 	);
 }
+
+Test::NoWarnings::had_no_warnings();
 
 
 # Test subclass with enough information to insert rows properly, and with both

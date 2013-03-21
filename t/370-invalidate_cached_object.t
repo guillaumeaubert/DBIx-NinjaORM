@@ -16,7 +16,7 @@ use DBIx::NinjaORM;
 use Test::Deep;
 use Test::Exception;
 use Test::More;
-use Test::NoWarnings;
+use Test::NoWarnings qw();
 use Test::Type;
 
 
@@ -129,6 +129,8 @@ is(
 	0,
 	'The object cache was not used.',
 ) || diag( explain( $object ) );
+
+Test::NoWarnings::had_no_warnings();
 
 
 # Test subclass with enough information to insert rows.

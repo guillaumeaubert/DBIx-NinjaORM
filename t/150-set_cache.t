@@ -19,7 +19,7 @@ use LocalTest;
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::More;
-use Test::NoWarnings;
+use Test::NoWarnings qw();
 
 
 LocalTest::ok_memcache();
@@ -83,6 +83,8 @@ lives_ok(
 	},
 	'Set a test cache key without expire time.',
 );
+
+Test::NoWarnings::had_no_warnings();
 
 
 # Test subclass, with the memcache object to use.
