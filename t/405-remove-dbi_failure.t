@@ -52,7 +52,7 @@ throws_ok(
 	{
 		$object->remove();
 	},
-	qr/\ARemove failed: died in do()\E/,
+	qr/\A\QRemove failed: died in do()\E/,
 	'Caught remove failure.',
 );
 

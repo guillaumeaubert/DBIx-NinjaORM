@@ -31,7 +31,7 @@ throws_ok(
 			}
 		);
 	},
-	qr/\AInsert failed: died in do()\E/,
+	qr/\A\QInsert failed: died in do()\E/,
 	'Caught insert failure.',
 );
 

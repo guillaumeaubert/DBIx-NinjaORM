@@ -56,7 +56,7 @@ throws_ok(
 			}
 		);
 	},
-	qr/\AUpdate failed: died in prepare()\E/,
+	qr/\A\QUpdate failed: died in prepare()\E/,
 	'Caught update failure.',
 );
 
