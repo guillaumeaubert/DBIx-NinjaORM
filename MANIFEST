@@ -80,8 +80,8 @@ t/SQL/setup_Pg.sql
 t/SQL/setup_SQLite.sql
 t/SQL/setup_mysql.sql
 t/lib/LocalTest.pm
-t/manifest.t
-t/module_versions.t
-t/perlcritic.t
-t/pod-coverage.t
-t/pod.t
+xt/manifest.t
+xt/module_versions.t
+xt/perlcritic.t
+xt/pod-coverage.t
+xt/pod.t
