@@ -11,7 +11,7 @@ eval
 {
 	require Test::Kwalitee::Extra;
 };
-plan( skip_all => 'Test::Kwalitee required to evaluate code' )
+plan( skip_all => 'Test::Kwalitee::Extra required to evaluate code' )
 	if $@;
 
 # Run extra tests.
