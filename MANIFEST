@@ -80,6 +80,7 @@ t/SQL/setup_Pg.sql
 t/SQL/setup_SQLite.sql
 t/SQL/setup_mysql.sql
 t/lib/LocalTest.pm
+xt/kwalitee.t
 xt/manifest.t
 xt/module_versions.t
 xt/perlcritic.t
