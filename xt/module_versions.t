@@ -5,10 +5,12 @@ use warnings;
 
 use Test::More;
 
-# Ensure a recent version of Test::Dist::VersionSync
-my $version_min = '1.0.1';
-eval "use Test::Dist::VersionSync $version_min";
-plan( skip_all => "Test::Dist::VersionSync $version_min required for testing module versions in the distribution." )
+
+# Load Test::Dist::VersionSync.
+my $min_version = '1.0.0';
+eval "use Test::Dist::VersionSync $min_version";
+plan( skip_all => "Test::Dist::VersionSync $min_version required." )
 	if $@;
 
+# Check that all the module versions in the distribution are the same.
 Test::Dist::VersionSync::ok_versions();

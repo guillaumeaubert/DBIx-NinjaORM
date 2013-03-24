@@ -6,12 +6,13 @@ use warnings;
 use Test::More;
 
 
-unless ( $ENV{RELEASE_TESTING} ) {
-    plan( skip_all => "Author tests not required for installation" );
-}
+# Load Test::CheckManifest.
+my $min_version = '0.9';
+eval "use Test::CheckManifest $min_version";
+plan( skip_all => "Test::CheckManifest $min_version required" )
+	if $@;
 
-eval "use Test::CheckManifest 0.9";
-plan skip_all => "Test::CheckManifest 0.9 required" if $@;
+# Verify files against manifest.
 ok_manifest(
 	{
 		exclude => [ '/.git/' ],
