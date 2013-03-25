@@ -2287,7 +2287,6 @@ sub get_object_cache_key
 			$unique_field = $cache_key_field;
 			$value = $self->{ $unique_field };
 			
-			# See Trac #1695 for why we think this is significant.
 			unless ( defined( $value ) )
 			{
 				$log->debugf(
