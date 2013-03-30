@@ -18,11 +18,10 @@ plan( skip_all => 'Test::Kwalitee::Extra required to evaluate code' )
 Test::Kwalitee::Extra->import(
 	qw(
 		:optional
-		!has_example
 	)
 );
 
-# Clean up the extra file Test::Kwalitee generates.
+# Clean up the extra file Test::Kwalitee::Extra generates.
 END
 {
 	unlink 'Debian_CPANTS.txt'
