@@ -13,7 +13,7 @@ use strict;
 use warnings;
 
 use Test::Exception;
-use Test::FailWarnings;
+use Test::FailWarnings -allow_deps => 1;
 use Test::More tests => 4;
 
 

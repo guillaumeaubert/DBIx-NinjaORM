@@ -6,7 +6,7 @@ use warnings;
 use lib 't/lib';
 
 use Test::More tests => 1;
-use Test::FailWarnings;
+use Test::FailWarnings -allow_deps => 1;
 
 
 BEGIN
