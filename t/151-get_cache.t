@@ -14,13 +14,13 @@ use LocalTest;
 
 use DBIx::NinjaORM;
 use Test::Exception;
+use Test::FailWarnings;
 use Test::More;
-use Test::NoWarnings qw();
 
 
 LocalTest::ok_memcache();
 
-plan( tests => 7 );
+plan( tests => 6 );
 
 dies_ok(
 	sub
@@ -75,8 +75,6 @@ is(
 	$test_value,
 	'The retrived value matches the set value.',
 );
-
-Test::NoWarnings::had_no_warnings();
 
 
 # Test subclass, with the memcache object to use.

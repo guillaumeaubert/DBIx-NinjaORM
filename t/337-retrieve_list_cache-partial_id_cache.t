@@ -19,13 +19,13 @@ use LocalTest;
 
 use DBIx::NinjaORM;
 use Test::Exception;
+use Test::FailWarnings;
 use Test::More;
-use Test::NoWarnings qw();
 
 
 # These tests require memcache to be running.
 LocalTest::ok_memcache();
-plan( tests => 14 );
+plan( tests => 13 );
 
 # Insert test records.
 my $time = time();
@@ -272,8 +272,6 @@ subtest(
 		}
 	}
 );
-
-Test::NoWarnings::had_no_warnings();
 
 
 # Test subclass.

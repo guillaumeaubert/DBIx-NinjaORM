@@ -10,8 +10,8 @@ use strict;
 use warnings;
 
 use Test::Exception;
-use Test::More tests => 7;
-use Test::NoWarnings;
+use Test::FailWarnings;
+use Test::More tests => 6;
 
 
 # Use time to make the test records unique, in case we need to run this test file

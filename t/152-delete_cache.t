@@ -14,13 +14,13 @@ use LocalTest;
 
 use DBIx::NinjaORM;
 use Test::Exception;
+use Test::FailWarnings;
 use Test::More;
-use Test::NoWarnings qw();
 
 
 LocalTest::ok_memcache();
 
-plan( tests => 8 );
+plan( tests => 7 );
 
 dies_ok(
 	sub
@@ -117,8 +117,6 @@ subtest(
 		);
 	}
 );
-
-Test::NoWarnings::had_no_warnings();
 
 
 # Test subclass, with the memcache object to use.

@@ -15,8 +15,8 @@ use LocalTest;
 
 use DBIx::NinjaORM;
 use Test::Exception;
-use Test::More tests => 21;
-use Test::NoWarnings;
+use Test::FailWarnings;
+use Test::More tests => 20;
 
 
 my $dbh = LocalTest::ok_database_handle();

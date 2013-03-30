@@ -6,7 +6,9 @@ use warnings;
 use lib 't/lib';
 use LocalTest;
 
+use Test::FailWarnings;
 use Test::More tests => 2;
+
 
 can_ok(
 	'LocalTest',
