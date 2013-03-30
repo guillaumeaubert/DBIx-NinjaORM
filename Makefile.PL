@@ -17,8 +17,8 @@ WriteMakefile
                    'Storable' => 0,
                    'Test::Deep' => 0,
                    'Test::Exception' => 0,
+                   'Test::FailWarnings' => 0,
                    'Test::More' => '0.94',
-                   'Test::NoWarnings' => 0,
                    'Test::Type' => 0,
                    'Try::Tiny' => 0
                  },
