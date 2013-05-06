@@ -1443,7 +1443,7 @@ operations.
 		\%data,
 	);
 
-	If there is invalid data, the method will croak with a detail of the error.
+If there is invalid data, the method will croak with a detail of the error.
 
 =cut
 
