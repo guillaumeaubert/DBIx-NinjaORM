@@ -1,6 +1,8 @@
 DBIx-NinjaORM
 =============
 
+[![Build Status](https://travis-ci.org/guillaumeaubert/DBIx-NinjaORM.png?branch=master)](https://travis-ci.org/guillaumeaubert/DBIx-NinjaORM)
+
 Flexible Perl ORM for easy transitions from inline SQL to objects.
 
 
