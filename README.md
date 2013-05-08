@@ -1,9 +1,11 @@
 DBIx-NinjaORM
+=============
 
 Flexible Perl ORM for easy transitions from inline SQL to objects.
 
 
 INSTALLATION
+------------
 
 To install this module, run the following commands:
 
@@ -14,28 +16,31 @@ To install this module, run the following commands:
 
 
 SUPPORT AND DOCUMENTATION
+-------------------------
 
 After installing, you can find documentation for this module with the
 perldoc command.
 
-    perldoc DBIx::NinjaORM
+	perldoc DBIx::NinjaORM
+
 
 You can also look for information at:
 
-    GitHub's request tracker (report bugs here)
-        https://github.com/guillaumeaubert/DBIx-NinjaORM/issues
+ * [GitHub's request tracker (report bugs here)]
+   (https://github.com/guillaumeaubert/DBIx-NinjaORM/issues)
 
-    AnnoCPAN, Annotated CPAN documentation
-        http://annocpan.org/dist/DBIx-NinjaORM
+ * [AnnoCPAN, Annotated CPAN documentation]
+   (http://annocpan.org/dist/DBIx-NinjaORM)
 
-    CPAN Ratings
-        http://cpanratings.perl.org/d/DBIx-NinjaORM
+ * [CPAN Ratings]
+   (http://cpanratings.perl.org/d/DBIx-NinjaORM)
 
-    MetaCPAN
-        https://metacpan.org/release/DBIx-NinjaORM
+ * [MetaCPAN]
+   (https://metacpan.org/release/DBIx-NinjaORM)
 
 
 LICENSE AND COPYRIGHT
+---------------------
 
 Copyright (C) 2009-2013 Guillaume Aubert
 
