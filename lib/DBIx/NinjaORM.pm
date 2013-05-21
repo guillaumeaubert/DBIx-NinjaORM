@@ -2859,6 +2859,13 @@ sub build_filtering_clause
 			$clause = substr( $clause, 0, -4 );
 			$clause_values = $values;
 		}
+		elsif ( $operator eq 'not_like' )
+		{
+			# Permit more than one like clause on the same field.
+			$clause = "$quoted_field NOT LIKE ? OR " x scalar @{ $values };
+			$clause = substr( $clause, 0, -4 );
+			$clause_values = $values;
+		}
 		# Only one value passed.
 		else
 		{
@@ -2987,7 +2994,7 @@ sub parse_filtering_criteria
 				{
 					croak 'The operator is missing or not defined';
 				}
-				elsif ( $block->{'operator'} !~ m/^(?:=|not|<=|>=|<|>|between|null|not_null|like)$/x )
+				elsif ( $block->{'operator'} !~ m/^(?:=|not|<=|>=|<|>|between|null|not_null|like|not_like)$/x )
 				{
 					croak "The operator '$block->{'operator'}' is not a valid one. Try (=|not|<=|>=|<|>)";
 				}
