@@ -1,5 +1,9 @@
 Revision history for DBIx-NinjaORM
 
+v2.5.0  2013-05-22
+        * Added 'like' and 'not_like' operators to retrieve_list()
+          Thanks Brian Voorhes!
+
 v2.4.4  2013-03-30
         * Replaced Test::NoWarnings with Test::FailWarnings.
         * Added new release tests.
