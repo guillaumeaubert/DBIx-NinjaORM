@@ -2862,8 +2862,8 @@ sub build_filtering_clause
 		elsif ( $operator eq 'not_like' )
 		{
 			# Permit more than one like clause on the same field.
-			$clause = "$quoted_field NOT LIKE ? OR " x scalar @{ $values };
-			$clause = substr( $clause, 0, -4 );
+			$clause = "$quoted_field NOT LIKE ? AND " x scalar @{ $values };
+			$clause = substr( $clause, 0, -5 );
 			$clause_values = $values;
 		}
 		# Only one value passed.

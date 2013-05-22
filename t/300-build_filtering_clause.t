@@ -345,7 +345,7 @@ my $tests =
 		},
 		expected =>
 		{
-			clause => "$quoted_field NOT LIKE ? OR $quoted_field NOT LIKE ?",
+			clause => "$quoted_field NOT LIKE ? AND $quoted_field NOT LIKE ?",
 			values => [ '1b%', '1245%' ],
 		},
 	},
