@@ -16,7 +16,7 @@ use LocalTest;
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::FailWarnings -allow_deps => 1;
-use Test::More tests => 20;
+use Test::More tests => 24;
 
 
 my $dbh = LocalTest::ok_database_handle();
@@ -291,6 +291,65 @@ my $tests =
 			values => [ 1 ],
 		},
 	},
+	# Operator "like".
+	{
+		name     => 'Test operator="like" with one input value.',
+		input    =>
+		{
+			field    => 'test_field',
+			operator => 'like',
+			values   => [ '1b%' ],
+		},
+		expected =>
+		{
+			clause => "$quoted_field LIKE ?",
+			values => [ '1b%' ],
+		},
+	},
+	{
+		name     => 'Test operator="like" with > 1 input value.',
+		input    =>
+		{
+			field    => 'test_field',
+			operator => 'like',
+			values   => [ '1b%', '1245%' ],
+		},
+		expected =>
+		{
+			clause => "$quoted_field LIKE ? OR $quoted_field LIKE ?",
+			values => [ '1b%', '1245%' ],
+		},
+	},
+	# Operator "not_like".
+	{
+		name     => 'Test operator="not_like" with one input value.',
+		input    =>
+		{
+			field    => 'test_field',
+			operator => 'not_like',
+			values   => [ '1b%' ],
+		},
+		expected =>
+		{
+			clause => "$quoted_field NOT LIKE ?",
+			values => [ '1b%' ],
+		},
+	},
+	{
+		name     => 'Test operator="not_like" with > 1 input value.',
+		input    =>
+		{
+			field    => 'test_field',
+			operator => 'not_like',
+			values   => [ '1b%', '1245%' ],
+		},
+		expected =>
+		{
+			clause => "$quoted_field NOT LIKE ? AND $quoted_field NOT LIKE ?",
+			values => [ '1b%', '1245%' ],
+		},
+	},
+
 ];
 
 # Verify that the main class supports the method.
