@@ -1679,6 +1679,41 @@ that hashref:
 		}
 	);
 
+Filters as discussed above, imply an equality between the field and the values. For instance, in the last example,
+the request could be written as "Please provide a list of books with author_id equal to 12, which also have an
+ISBN equal to 9781449313142 or an ISBN equal to 9781449393090".
+
+If you wish to request records using some other operator than equals, you can create a request similar to the following:
+
+	# Retrieve books for a specific author with ISBNs starting with a certain pattern.
+	my $books = My::Model::Book->retrieve_list(
+		{
+			isbn      =>
+			{
+				operator => 'like',
+				value => [ '9781%' ],
+			},
+			author_id => 12,
+		}
+	);
+
+The above example could be written as "Please provide a list of books with author_id equal to 12, which also have
+an ISBN starting with 9781".
+
+Valid operators include:
+
+	* =
+	* not
+	* <=
+	* >=
+	* <
+	* >
+	* between
+	* null
+	* not_null
+	* like
+	* not_like
+
 This method also supports the following optional arguments, passed in a hash
 after the filtering criteria above-mentioned:
 
