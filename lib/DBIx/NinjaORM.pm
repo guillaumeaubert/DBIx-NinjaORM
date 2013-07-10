@@ -745,7 +745,9 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 	my $table_name = $class->get_table_name();
 	my $order_by = defined( $args{'order_by'} ) && ( $args{'order_by'} ne '' )
 		? "ORDER BY $args{'order_by'}"
-		: "ORDER BY " . $dbh->quote_identifier( $table_name ) . ".created ASC";
+		: $class->has_created_field()
+			? "ORDER BY " . $dbh->quote_identifier( $table_name ) . ".created ASC"
+			: "ORDER BY " . $dbh->quote_identifier( $table_name ) . '.' . $class->get_primary_key_name();
 	
 	# Prepare the SQL request elements.
 	my $where = scalar( @$where_clauses ) != 0
