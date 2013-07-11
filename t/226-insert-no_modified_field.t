@@ -77,13 +77,20 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'default_dbh'        => LocalTest::get_database_handle(),
-		'table_name'         => 'no_modified_tests',
-		'has_modified_field' => 0,
-		'primary_key_name'   => 'test_id',
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			'default_dbh'        => LocalTest::get_database_handle(),
+			'table_name'         => 'no_modified_tests',
+			'primary_key_name'   => 'test_id',
+			'has_modified_field' => 0,
+		}
+	);
+	
+	return $info;
 }
 
 1;

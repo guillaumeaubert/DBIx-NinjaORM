@@ -88,10 +88,17 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'unique_fields' => [ 'test' ],
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			'unique_fields' => [ 'test' ],
+		}
+	);
+	
+	return $info;
 }
 
 1;

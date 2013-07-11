@@ -427,10 +427,17 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'default_dbh' => LocalTest::get_database_handle(),
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			'default_dbh' => LocalTest::get_database_handle(),
+		}
+	);
+	
+	return $info;
 }
 
 1;

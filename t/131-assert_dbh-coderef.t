@@ -123,11 +123,18 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		# Not a DBI::db object.
-		'default_dbh' => "INVALID",
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			# Not a DBI::db object.
+			'default_dbh' => "INVALID",
+		}
+	);
+	
+	return $info;
 }
 
 1;

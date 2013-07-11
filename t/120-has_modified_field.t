@@ -101,10 +101,17 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'has_modified_field' => 1,
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			'has_modified_field' => 1,
+		}
+	);
+	
+	return $info;
 }
 
 1;
@@ -121,10 +128,17 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'has_modified_field' => 0,
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			'has_modified_field' => 0,
+		}
+	);
+	
+	return $info;
 }
 
 1;

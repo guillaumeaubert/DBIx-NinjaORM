@@ -147,9 +147,13 @@ sub static_class_info
 	
 	my $info = $class->SUPER::static_class_info();
 	
-	$info->{'default_dbh'} = LocalTest::get_database_handle();
-	$info->{'table_name'} = 'tests';
-	$info->{'primary_key_name'} = 'test_id';
+	$info->set(
+		{
+			default_dbh      => LocalTest::get_database_handle(),
+			table_name       => 'tests',
+			primary_key_name => 'test_id',
+		}
+	);
 	
 	return $info;
 }
@@ -169,10 +173,17 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'primary_key_name' => 'test_id',
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			primary_key_name => 'test_id',
+		}
+	);
+	
+	return $info;
 }
 
 1;
@@ -190,10 +201,17 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'table_name'       => 'tests',
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			table_name => 'tests',
+		}
+	);
+	
+	return $info;
 }
 
 1;

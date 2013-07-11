@@ -258,13 +258,20 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'table_name'       => 'tests',
-		'primary_key_name' => 'test_id',
-		'default_dbh'      => LocalTest::get_database_handle(),
-		'filtering_fields' => [ 'field1', 'field2' ],
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			'table_name'       => 'tests',
+			'primary_key_name' => 'test_id',
+			'default_dbh'      => LocalTest::get_database_handle(),
+			'filtering_fields' => [ 'field1', 'field2' ],
+		}
+	);
+	
+	return $info;
 }
 
 1;

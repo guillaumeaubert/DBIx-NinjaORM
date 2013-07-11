@@ -80,10 +80,17 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'table_name' => "TEST_TABLE_NAME",
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			'table_name' => "TEST_TABLE_NAME",
+		}
+	);
+	
+	return $info;
 }
 
 1;

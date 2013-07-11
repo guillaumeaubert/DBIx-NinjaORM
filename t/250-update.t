@@ -249,10 +249,17 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'table_name'       => 'tests',
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			'table_name' => 'tests',
+		}
+	);
+	
+	return $info;
 }
 
 1;

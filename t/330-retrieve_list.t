@@ -252,16 +252,23 @@ use warnings;
 
 use base 'DBIx::NinjaORM';
 
+
 sub static_class_info
 {
 	my ( $class ) = @_;
-	my $static_class_info = $class->SUPER::static_class_info();
 	
-	$static_class_info->{'object_cache_time'} = undef;
-	$static_class_info->{'list_cache_time'} = undef;
+	my $info = $class->SUPER::static_class_info();
 	
-	return $static_class_info;
+	$info->set(
+		{
+			'list_cache_time'   => undef,
+			'object_cache_time' => undef,
+		}
+	);
+	
+	return $info;
 }
+
 
 # Return a known value to make it easy to determine if retrieve_list_cache()
 # was called by retrieve_list().
@@ -269,6 +276,7 @@ sub retrieve_list_cache
 {
 	return 'retrieve_list_cache';
 }
+
 
 # Return a known value to make it easy to determine if retrieve_list_nocache()
 # was called by retrieve_list().

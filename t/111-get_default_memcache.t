@@ -83,14 +83,20 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		# We're not going to use the memcache object, we just need to
-		# be able to make sure that get_memcache() returns this value,
-		# so it's easier here to set it here to a known value than to
-		# compare memory addresses.
-		'memcache' => "TESTMEMCACHE",
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	# We're not going to use the memcache object, we just need to be able to make
+	# sure that get_memcache() returns this value, so it's easier here to set it
+	# here to a known value than to compare memory addresses.
+	$info->set(
+		{
+			'memcache' => "TESTMEMCACHE",
+		}
+	);
+	
+	return $info;
 }
 
 1;

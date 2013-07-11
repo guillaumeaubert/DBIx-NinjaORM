@@ -47,6 +47,7 @@ use LocalTest;
 
 use base 'DBIx::NinjaORM';
 
+
 sub static_class_info
 {
 	my ( $class ) = @_;
@@ -60,9 +61,13 @@ sub static_class_info
 	bless( $dbh, 'DBI::db::Test' );
 	
 	# Regular setup.
-	$info->{'default_dbh'} = $dbh;
-	$info->{'table_name'} = 'tests';
-	$info->{'primary_key_name'} = 'test_id';
+	$info->set(
+		{
+			'default_dbh'      => $dbh,
+			'table_name'       => 'tests',
+			'primary_key_name' => 'test_id',
+		}
+	);
 	
 	return $info;
 }

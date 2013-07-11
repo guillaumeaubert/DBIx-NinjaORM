@@ -69,11 +69,16 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
+	
 	my $info = $class->SUPER::static_class_info();
 	
-	$info->{'default_dbh'} = LocalTest::get_database_handle();
-	$info->{'table_name'} = 'tests';
-	$info->{'primary_key_name'} = 'test_id';
+	$info->set(
+		{
+			default_dbh       => LocalTest::get_database_handle(),
+			table_name        => 'tests',
+			primary_key_name  => 'test_id',
+		}
+	);
 	
 	return $info;
 }

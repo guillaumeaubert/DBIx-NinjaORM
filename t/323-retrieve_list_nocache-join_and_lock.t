@@ -153,9 +153,13 @@ sub static_class_info
 	
 	my $info = $class->SUPER::static_class_info();
 	
-	$info->{'default_dbh'} = LocalTest::get_database_handle();
-	$info->{'table_name'} = 'accounts';
-	$info->{'primary_key_name'} = 'account_id';
+	$info->set(
+		{
+			'table_name'       => 'accounts',
+			'primary_key_name' => 'account_id',
+			'default_dbh'      => LocalTest::get_database_handle(),
+		}
+	);
 	
 	return $info;
 }

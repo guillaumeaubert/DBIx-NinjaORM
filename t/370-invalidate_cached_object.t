@@ -149,11 +149,15 @@ sub static_class_info
 	
 	my $info = $class->SUPER::static_class_info();
 	
-	$info->{'default_dbh'} = LocalTest::get_database_handle();
-	$info->{'table_name'} = 'tests';
-	$info->{'primary_key_name'} = 'test_id';
-	$info->{'object_cache_time'} = 10;
-	$info->{'memcache'} = LocalTest::get_memcache();
+	$info->set(
+		{
+			default_dbh       => LocalTest::get_database_handle(),
+			table_name        => 'tests',
+			primary_key_name  => 'test_id',
+			object_cache_time => 10,
+			memcache          => LocalTest::get_memcache(),
+		}
+	);
 	
 	return $info;
 }

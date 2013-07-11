@@ -88,12 +88,18 @@ use LocalTest;
 
 use base 'DBIx::NinjaORM';
 
+
 sub static_class_info
 {
 	my ( $class ) = @_;
+	
 	my $info = $class->SUPER::static_class_info();
 	
-	$info->{'memcache'} = LocalTest::get_memcache();
+	$info->set(
+		{
+			'memcache' => LocalTest::get_memcache(),
+		}
+	);
 	
 	return $info;
 }

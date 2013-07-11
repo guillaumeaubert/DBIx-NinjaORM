@@ -88,10 +88,17 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'cache_key_field' => 'TEST_CACHE_KEY_FIELD',
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			'cache_key_field' => 'TEST_CACHE_KEY_FIELD',
+		}
+	);
+	
+	return $info;
 }
 
 1;

@@ -81,10 +81,17 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'primary_key_name' => "TEST_PRIMARY_KEY_NAME",
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			'primary_key_name' => "TEST_PRIMARY_KEY_NAME",
+		}
+	);
+	
+	return $info;
 }
 
 1;

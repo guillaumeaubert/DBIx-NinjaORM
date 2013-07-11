@@ -88,10 +88,17 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		'list_cache_time' => 20,
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	$info->set(
+		{
+			'list_cache_time' => 20,
+		}
+	);
+	
+	return $info;
 }
 
 1;

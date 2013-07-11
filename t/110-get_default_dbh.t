@@ -81,13 +81,20 @@ use base 'DBIx::NinjaORM';
 
 sub static_class_info
 {
-	return
-	{
-		# We're not going to use the database handle, we just need to
-		# be able to compare the value, so it's easier here to set it
-		# to a known value.
-		'default_dbh' => "TESTDBH",
-	};
+	my ( $class ) = @_;
+	
+	my $info = $class->SUPER::static_class_info();
+	
+	# We're not going to use the database handle, we just need to
+	# be able to compare the value, so it's easier here to set it
+	# to a known value.
+	$info->set(
+		{
+			'default_dbh' => "TESTDBH",
+		}
+	);
+	
+	return $info;
 }
 
 1;
