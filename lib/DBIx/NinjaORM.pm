@@ -10,10 +10,10 @@ use DBIx::NinjaORM::StaticClassInfo;
 use Data::Dumper;
 use Data::Validate::Type;
 use Digest::SHA1 qw();
+use Log::Any qw( $log );
 use MIME::Base64 qw();
 use Storable;
 use Try::Tiny;
-use Log::Any qw( $log );
 
 
 =head1 NAME
