@@ -6,6 +6,7 @@ use warnings;
 use strict;
 
 use Carp;
+use DBIx::NinjaORM::StaticClassInfo;
 use Data::Dumper;
 use Data::Validate::Type;
 use Digest::SHA1 qw();
@@ -71,6 +72,7 @@ would start C<My::Model::Book> with the following code:
 	
 	use DBI;
 	
+	
 	sub static_class_info
 	{
 		my ( $class ) = @_;
@@ -78,18 +80,22 @@ would start C<My::Model::Book> with the following code:
 		# Retrieve defaults from DBIx::Ninja->static_class_info().
 		my $info = $class->SUPER::static_class_info();
 		
-		# Set mandatory defaults.
-		$info->{'table_name'} = 'books';
-		$info->{'primary_key_name'} = 'book_id';
-		$info->{'default_dbh'} = DBI->connect(
-			"dbi:mysql:[database_name]:localhost:3306",
-			"[user]",
-			"[password]",
+		$info->set(
+			{
+				# Set mandatory defaults.
+				table_name       => 'books',
+				primary_key_name => 'book_id',
+				default_dbh      => DBI->connect(
+					"dbi:mysql:[database_name]:localhost:3306",
+					"[user]",
+					"[password]",
+				),
+				
+				# Add optional information.
+				# Allow filtering SELECTs on books.name.
+				filtering_fields => [ 'name' ],
+			}
 		);
-		
-		# Add optional information.
-		# Allow filtering SELECTs on books.name.
-		$info->{'filtering_fields'} = [ 'name' ];
 		
 		return $info;
 	}
@@ -117,6 +123,7 @@ C<My::Model> to hold the defaults and then inherits from that main class.
 	use DBI;
 	use Cache::Memcached::Fast;
 	
+	
 	sub static_class_info
 	{
 		my ( $class ) = @_;
@@ -125,17 +132,21 @@ C<My::Model> to hold the defaults and then inherits from that main class.
 		my $info = $class->SUPER::static_class_info();
 		
 		# Set defaults common to all your objects.
-		$info->{'default_dbh'} = DBI->connect(
-			"dbi:mysql:[database_name]:localhost:3306",
-			"[user]",
-			"[password]",
-		);
-		$info->{'memcache'} = Cache::Memcached::Fast->new(
+		$info->set(
 			{
-				servers =>
-				[
-					'localhost:11211',
-				],
+				default_dbh => DBI->connect(
+					"dbi:mysql:[database_name]:localhost:3306",
+					"[user]",
+					"[password]",
+				),
+				memcache    => Cache::Memcached::Fast->new(
+					{
+						servers =>
+						[
+							'localhost:11211',
+						],
+					}
+				),
 			}
 		);
 		
@@ -162,13 +173,17 @@ defaults will make C<static_class_info()> shorter in the other classes:
 		# Retrieve defaults from My::Model.
 		my $info = $class->SUPER::static_class_info();
 		
-		# Set mandatory defaults for this class.
-		$info->{'table_name'} = 'books';
-		$info->{'primary_key_name'} = 'book_id';
-		
-		# Add optional information.
-		# Allow filtering SELECTs on books.name.
-		$info->{'filtering_fields'} = [ 'name' ];
+		$info->set(
+			{
+				# Set mandatory defaults for this class.
+				table_name       => 'books',
+				primary_key_name => 'book_id',
+				
+				# Add optional information.
+				# Allow filtering SELECTs on books.name.
+				filtering_fields => [ 'name' ],
+			}
+		);
 		
 		return $info;
 	}
@@ -1032,8 +1047,10 @@ sub set ## no critic (NamingConventions::ProhibitAmbiguousNames, Subroutines::Re
 =head2 static_class_info()
 
 This methods sets defaults as well as general information for a specific class.
+
 It allows for example indicating what table the objects will be related to, or
-what database handle to use.
+what database handle to use. See L<DBIx::NinjaORM::StaticClassInfo> for the
+full list of options that can be set or overridden.
 
 Here's what a typical subclassed C<static_class_info()> would look like:
 
@@ -1046,192 +1063,27 @@ Here's what a typical subclassed C<static_class_info()> would look like:
 		my $info = $class->SUPER::static_class_info();
 		
 		# Set or override information.
-		$info->{'table_name'} = 'books';
-		$info->{'primary_key_name'} = 'book_id';
-		$info->{'default_dbh'} = DBI->connect(
-			"dbi:mysql:[database_name]:localhost:3306",
-			"[user]",
-			"[password]",
+		$info->set(
+			{
+				table_name       => 'books',
+				primary_key_name => 'book_id',
+				default_dbh      => DBI->connect(
+					"dbi:mysql:[database_name]:localhost:3306",
+					"[user]",
+					"[password]",
+				),
+			}
 		);
 		
 		# Return the updated information hashref.
 		return $info;
 	}
 
-Here's the full list of the options that can be set or overridden:
-
-=over 4
-
-=item * default_dbh
-
-The database handle to use when performing queries. The methods that interact
-with the database always provide a C<dbh> argument to allow using a specific
-database handle, but setting it here means you won't have to systematically
-pass that argument.
-
-	$info->{'default_dbh'} = DBI->connect(
-		"dbi:mysql:[database_name]:localhost:3306",
-		"[user]",
-		"[password]",
-	);
-
-=item * memcache
-
-Optionally, C<DBIx::NinjaORM> uses memcache to cache objects and queries,
-in conjunction with the C<list_cache_time> and C<object_cache_time> arguments.
-
-If you want to enable the cache features, you can set this to a valid
-C<Cache::Memcached> object (or a compatible module, such as
-C<Cache::Memcached::Fast>).
-
-	$info->{'memcache'} = Cache::Memcached::Fast->new(
-		{
-			servers =>
-			[
-				'localhost:11211',
-			],
-		}
-	);
-
-=item * table_name
-
-Mandatory, the name of the table that this class will be the interface for.
-
-	# Interface with a 'books' table.
-	$info->{'table_name'} = 'books';
-
-=item * primary_key_name
-
-The name of the primary key on the table specified with C<table_name>.
-
-	$info->{'primary_key_name'} = 'book_id';
-
-=item * list_cache_time
-
-Control the list cache, which is an optional cache system in
-C<retrieve_list()> to store how search criteria translate into object IDs.
-
-By default it is disabled (with C<undef>), but it is activated by setting it to
-an integer that represents the cache time in seconds.
-
-	# Cache for 10 seconds.
-	$info->{'list_cache_time'} = 10;
-	
-	# Don't cache.
-	$info->{'list_cache_time'} = undef;
-
-A good use case for this would be retrieving a list of books for a given author.
-We would pass the author ID as a search criteria, and the resulting list of book
-objects does not change often. Provided that you can tolerate a 1 hour delay
-for a new book to show up associated with a given author, then it makes sense
-to set the list_cache_time to 3600 and save most of the queries to find what
-book otherwise belongs to the author.
-
-=item * object_cache_time
-
-Control the object cache, which is an optional cache system in
-C<retrieve_list()> to store the objects returned and be able to look them up
-by object ID.
-
-By default it is disabled (with C<undef>), but it is activated by setting it to
-an integer that represents the cache time in seconds.
-
-	# Cache for 10 seconds.
-	$info->{'object_cache_time'} = 10;
-	
-	# Don't cache.
-	$info->{'object_cache_time'} = undef;
-
-A good use case for this are objects that are expensive to build. You will see
-more in C<retrieve_list()> on how to cache objects.
-
-=item * unique_fields
-
-The list of unique fields on the object.
-
-Note: L<DBIx::NinjaORM> does not support unique indexes made of more than one
-field. If you add more than one field in this arrayref, the ORM will treat them
-as separate unique indexes.
-
-	# Declare books.isbn as unique.
-	$info->{'unique_fields'} = [ 'isbn' ];
-	
-	# Declare books.isbn and books.upc as unique.
-	$info->{'unique_fields'} = [ 'isbn', 'upc' ];
-
-=item * filtering_fields
-
-The list of fields that can be used to filter on in C<retrieve_list()>.
-
-	# Allow filtering based on the book name and author ID.
-	$info->{'unique_fields'} = [ 'name', 'author_id' ];
-
-=item * readonly_fields
-
-The list of fields that cannot be set directly. They will be populated in
-C<retrieve_list>, but you won't be able to insert / update / set them directly.
-
-=item * has_created_field
-
-Indicate whether the table has a field name C<created> to store the UNIX time
-at which the row was created. Default: 1.
-
-	# The table doesn't have a 'created' field.
-	$info->{'has_created_field'} = 0;
-
-=item * has_modified_field
-
-Indicate whether the table has a field name C<modified> to store the UNIX time
-at which the row was modified. Default: 1.
-
-	# The table doesn't have a 'modified' field.
-	$info->{'has_modified_field'} = 0;
-	
-=item * cache_key_field
-
-By default, the object cache uses the primary key value to make cached objects
-available to look up, but this allows specifying a different field for that
-purpose.
-
-For example, you may want to use books.isbn instead of books.book_id to cache
-objects:
-
-	$info->{'cache_key_field'} = 'isbn';
-
-=item * verbose
-
-Add debugging and tracing information, 0 by default.
-
-	# Show debugging information for operations on this class.
-	$info->{'verbose'} = 1;
-
-=item * verbose_cache_operations
-
-Add information in the logs regarding cache operations and uses.
-
-=back
-
 =cut
 
 sub static_class_info
 {
-	return
-	{
-		'default_dbh'              => undef,
-		'memcache'                 => undef,
-		'table_name'               => undef,
-		'primary_key_name'         => undef,
-		'list_cache_time'          => undef,
-		'object_cache_time'        => undef,
-		'unique_fields'            => [],
-		'filtering_fields'         => [],
-		'readonly_fields'          => [],
-		'has_created_field'        => 1,
-		'has_modified_field'       => 1,
-		'cache_key_field'          => undef,
-		'verbose'                  => 0,
-		'verbose_cache_operations' => 0,
-	};
+	return DBIx::NinjaORM::StaticClassInfo->new();
 }
 
 
@@ -1917,7 +1769,7 @@ sub get_cache_key_field
 {
 	my ( $self ) = @_;
 	
-	my $cache_key_field = $self->cached_static_class_info()->{'cache_key_field'};
+	my $cache_key_field = $self->cached_static_class_info()->get('cache_key_field');
 	
 	# If the subclass specifies a field to use for the cache key name, use it.
 	# Otherwise, we fall back on the primary key if it exists.
@@ -1940,7 +1792,7 @@ sub get_default_dbh
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->{'default_dbh'};
+	return $self->cached_static_class_info()->get('default_dbh');
 }
 
 
@@ -1970,8 +1822,8 @@ sub get_filtering_fields
 	my %fields = (
 		map { $_ => undef }
 		(
-			@{ $self->cached_static_class_info()->{'filtering_fields'} },
-			@{ $self->cached_static_class_info()->{'unique_fields'} },
+			@{ $self->cached_static_class_info()->get('filtering_fields') },
+			@{ $self->cached_static_class_info()->get('unique_fields') },
 		)
 	);
 	return [ keys %fields ];
@@ -1992,7 +1844,7 @@ sub get_list_cache_time
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->{'list_cache_time'};
+	return $self->cached_static_class_info()->get('list_cache_time');
 }
 
 
@@ -2009,7 +1861,7 @@ sub get_memcache
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->{'memcache'};
+	return $self->cached_static_class_info()->get('memcache');
 }
 
 
@@ -2026,7 +1878,7 @@ sub get_object_cache_time
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->{'object_cache_time'}
+	return $self->cached_static_class_info()->get('object_cache_time');
 }
 
 
@@ -2043,7 +1895,7 @@ sub get_primary_key_name
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->{'primary_key_name'};
+	return $self->cached_static_class_info()->get('primary_key_name');
 }
 
 
@@ -2061,7 +1913,7 @@ sub get_readonly_fields
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->{'readonly_fields'} || [];
+	return $self->cached_static_class_info()->get('readonly_fields') || [];
 }
 
 
@@ -2078,7 +1930,7 @@ sub get_table_name
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->{'table_name'};
+	return $self->cached_static_class_info()->get('table_name');
 }
 
 
@@ -2098,7 +1950,7 @@ sub get_unique_fields
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->{'unique_fields'} || [];
+	return $self->cached_static_class_info()->get('unique_fields') || [];
 }
 
 
@@ -2116,7 +1968,7 @@ sub has_created_field
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->{'has_created_field'};
+	return $self->cached_static_class_info()->get('has_created_field');
 }
 
 
@@ -2134,7 +1986,7 @@ sub has_modified_field
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->{'has_modified_field'};
+	return $self->cached_static_class_info()->get('has_modified_field');
 }
 
 
@@ -2209,11 +2061,11 @@ sub is_verbose
 		croak "'$specific_area' is not valid"
 			if ! exists( $cached_static_class_info->{ $info_key } );
 		
-		return $cached_static_class_info->{ $info_key };
+		return $cached_static_class_info->get( $info_key );
 	}
 	else
 	{
-		return $cached_static_class_info->{'verbose'};
+		return $cached_static_class_info->get('verbose');
 	}
 }
 
