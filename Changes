@@ -1,7 +1,15 @@
 Revision history for DBIx-NinjaORM
 
+v2.5.1  2013-07-11
+        * Fixed retrieve_list() when a 'created' field is not present.
+          Thanks Kate Kirby!
+        * Added tests for retrieve_list() and update() without created/modified
+          fields.
+        * Documented pagination for retrieve_list().
+        * Added release tests for file encoding.
+
 v2.5.0  2013-05-22
-        * Added 'like' and 'not_like' operators to retrieve_list()
+        * Added 'like' and 'not_like' operators to retrieve_list().
           Thanks Brian Voorhes!
 
 v2.4.4  2013-03-30
