@@ -26,6 +26,9 @@ provides:
   DBIx::NinjaORM:
     file: lib/DBIx/NinjaORM.pm
     version: v2.5.1
+  DBIx::NinjaORM::StaticClassInfo:
+    file: lib/DBIx/NinjaORM/StaticClassInfo.pm
+    version: v2.5.1
 requires:
   Carp: 0
   Data::Dumper: 0
