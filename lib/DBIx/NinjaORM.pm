@@ -31,17 +31,9 @@ our $VERSION = '2.5.0';
 
 =head1 DESCRIPTION
 
-Caveat: if you're starting a new project, L<DBIx::NinjaORM> is probably not the
-right ORM to use. Look instead at L<DBIx::Class> for example, which has a more
-abstract model and can leverage a nicely normalized database schema.
-
 L<DBIx::NinjaORM> was designed with a few goals in mind:
 
 =over 4
-
-=item *
-
-Allow a progressive introduction of a separate Model layer in a legacy codebase.
 
 =item *
 
@@ -51,6 +43,14 @@ prevent lazy-loading of ancillary information.
 =item *
 
 Have a short learning curve.
+
+=item *
+
+Provide advanced caching features and manage cache expiration upon database changes.
+
+=item *
+
+Allow a progressive introduction of a separate Model layer in a legacy codebase.
 
 =back
 
