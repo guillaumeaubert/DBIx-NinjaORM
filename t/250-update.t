@@ -18,6 +18,7 @@ use Test::More tests => 9;
 use Test::Type;
 use TestSubclass::NoPK;
 use TestSubclass::NoTableName;
+use TestSubclass::TestTable;
 
 
 # Verify that the main class supports the method.
@@ -28,7 +29,7 @@ can_ok(
 
 # Verify inheritance.
 can_ok(
-	'DBIx::NinjaORM::Test',
+	'TestSubclass::TestTable',
 	'update',
 );
 
@@ -44,7 +45,7 @@ subtest(
 	sub
 	{
 		ok(
-			$object = DBIx::NinjaORM::Test->new(),
+			$object = TestSubclass::TestTable->new(),
 			'Create new object.',
 		);
 		
@@ -190,31 +191,3 @@ ok(
 	( time() - $object->{'modified'} ) < 2,
 	"The 'modified' field was set in the last two seconds.",
 ) || diag( explain( $object ) );
-
-
-# Test subclass with enough information to update rows.
-package DBIx::NinjaORM::Test;
-
-use strict;
-use warnings;
-
-use lib 't/lib';
-use LocalTest;
-
-use base 'DBIx::NinjaORM';
-
-
-sub static_class_info
-{
-	my ( $class ) = @_;
-	
-	my $info = $class->SUPER::static_class_info();
-	
-	$info->{'default_dbh'} = LocalTest::get_database_handle();
-	$info->{'table_name'} = 'tests';
-	$info->{'primary_key_name'} = 'test_id';
-	
-	return $info;
-}
-
-1;

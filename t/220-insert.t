@@ -18,6 +18,7 @@ use Test::More tests => 9;
 use Test::Type;
 use TestSubclass::NoPK;
 use TestSubclass::NoTableName;
+use TestSubclass::TestTable;
 
 
 # Verify that the main class supports the method.
@@ -28,7 +29,7 @@ can_ok(
 
 # Verify inheritance.
 can_ok(
-	'DBIx::NinjaORM::Test',
+	'TestSubclass::TestTable',
 	'insert',
 );
 
@@ -37,7 +38,7 @@ subtest(
 	sub
 	{
 		ok(
-			my $object = DBIx::NinjaORM::Test->new(),
+			my $object = TestSubclass::TestTable->new(),
 			'Create new object.',
 		);
 		
@@ -105,7 +106,7 @@ subtest(
 	sub
 	{
 		ok(
-			$object = DBIx::NinjaORM::Test->new(),
+			$object = TestSubclass::TestTable->new(),
 			'Create new object.',
 		);
 		
@@ -138,35 +139,3 @@ isnt(
 	undef,
 	'The auto-increment field was populated.',
 );
-
-
-# Test subclass with enough information to insert rows.
-package DBIx::NinjaORM::Test;
-
-use strict;
-use warnings;
-
-use lib 't/lib';
-use LocalTest;
-
-use base 'DBIx::NinjaORM';
-
-
-sub static_class_info
-{
-	my ( $class ) = @_;
-	
-	my $info = $class->SUPER::static_class_info();
-	
-	$info->set(
-		{
-			default_dbh      => LocalTest::get_database_handle(),
-			table_name       => 'tests',
-			primary_key_name => 'test_id',
-		}
-	);
-	
-	return $info;
-}
-
-1;
