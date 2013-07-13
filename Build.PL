@@ -83,6 +83,7 @@ my $builder = $class->new(
 			file        =>
 			[
 				't/lib/LocalTest.pm',
+				't/lib/TestSubclass/NoPK.pm',
 			],
 		},
 	},

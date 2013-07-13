@@ -9,11 +9,14 @@ Test the C<update()> method on C<DBIx::NinjaORM> objects.
 use strict;
 use warnings;
 
+use lib 't/lib';
+
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::FailWarnings -allow_deps => 1;
 use Test::More tests => 9;
 use Test::Type;
+use TestSubclass::NoPK;
 
 
 # Verify that the main class supports the method.
@@ -145,7 +148,7 @@ subtest(
 		ok(
 			bless(
 				$object_copy,
-				'DBIx::NinjaORM::TestNoPK',
+				'TestSubclass::NoPK',
 			),
 			'Re-bless the object with a class that has no primary key name defined.',
 		);
@@ -232,34 +235,6 @@ sub static_class_info
 	{
 		'primary_key_name' => 'test_id',
 	};
-}
-
-1;
-
-
-# Test subclass without a primary key name defined, which should not allow
-# updating rows.
-package DBIx::NinjaORM::TestNoPK;
-
-use strict;
-use warnings;
-
-use base 'DBIx::NinjaORM';
-
-
-sub static_class_info
-{
-	my ( $class ) = @_;
-	
-	my $info = $class->SUPER::static_class_info();
-	
-	$info->set(
-		{
-			'table_name' => 'tests',
-		}
-	);
-	
-	return $info;
 }
 
 1;

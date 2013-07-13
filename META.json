@@ -15,7 +15,8 @@
    "name" : "DBIx-NinjaORM",
    "no_index" : {
       "file" : [
-         "t/lib/LocalTest.pm"
+         "t/lib/LocalTest.pm",
+         "t/lib/TestSubclass/NoPK.pm"
       ]
    },
    "prereqs" : {

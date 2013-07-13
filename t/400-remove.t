@@ -9,11 +9,14 @@ Test removing rows via the objects.
 use strict;
 use warnings;
 
+use lib 't/lib';
+
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::FailWarnings -allow_deps => 1;
 use Test::More tests => 7;
 use Test::Type;
+use TestSubclass::NoPK;
 
 
 # Verify that the main class supports the method.
@@ -55,7 +58,7 @@ subtest(
 	sub
 	{
 		ok(
-			my $object = DBIx::NinjaORM::TestNoPK->new(),
+			my $object = TestSubclass::NoPK->new(),
 			'Create new object.',
 		);
 		
@@ -64,7 +67,7 @@ subtest(
 			{
 				$object->remove();
 			},
-			qr/Missing primary key name for class 'DBIx::NinjaORM::TestNoPK', cannot delete safely/,
+			qr/Missing primary key name for class 'TestSubclass::NoPK', cannot delete safely/,
 			'Insert fails.',
 		);
 	}
@@ -180,34 +183,6 @@ sub static_class_info
 	$info->set(
 		{
 			primary_key_name => 'test_id',
-		}
-	);
-	
-	return $info;
-}
-
-1;
-
-
-# Test subclass without a primary key name defined, which should not allow
-# inserting rows.
-package DBIx::NinjaORM::TestNoPK;
-
-use strict;
-use warnings;
-
-use base 'DBIx::NinjaORM';
-
-
-sub static_class_info
-{
-	my ( $class ) = @_;
-	
-	my $info = $class->SUPER::static_class_info();
-	
-	$info->set(
-		{
-			table_name => 'tests',
 		}
 	);
 	
