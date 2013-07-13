@@ -17,6 +17,7 @@ use Test::FailWarnings -allow_deps => 1;
 use Test::More tests => 9;
 use Test::Type;
 use TestSubclass::NoPK;
+use TestSubclass::NoTableName;
 
 
 # Verify that the main class supports the method.
@@ -109,7 +110,7 @@ subtest(
 		ok(
 			bless(
 				$object_copy,
-				'DBIx::NinjaORM::TestNoTableName',
+				'TestSubclass::NoTableName',
 			),
 			'Re-bless the object with a class that has no table name defined.',
 		);
@@ -214,27 +215,6 @@ sub static_class_info
 	$info->{'primary_key_name'} = 'test_id';
 	
 	return $info;
-}
-
-1;
-
-
-# Test subclass without a table name defined, which should not allow updating
-# rows.
-package DBIx::NinjaORM::TestNoTableName;
-
-use strict;
-use warnings;
-
-use base 'DBIx::NinjaORM';
-
-
-sub static_class_info
-{
-	return
-	{
-		'primary_key_name' => 'test_id',
-	};
 }
 
 1;
