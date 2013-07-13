@@ -51,8 +51,8 @@ my $builder = $class->new(
 	},
 	requires             =>
 	{
-		'perl'                 => 5.010,
 		'Carp'                 => 0,
+		'DBIx::Inspector'      => 0,
 		'Data::Dumper'         => 0,
 		'Data::Validate::Type' => 0,
 		'Digest::SHA1'         => 0,
@@ -60,6 +60,7 @@ my $builder = $class->new(
 		'MIME::Base64'         => 0,
 		'Storable'             => 0,
 		'Try::Tiny'            => 0,
+		'perl'                 => 5.010,
 	},
 	add_to_cleanup       =>
 	[
