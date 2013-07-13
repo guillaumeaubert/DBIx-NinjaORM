@@ -10,11 +10,14 @@ DBIx::NinjaORM->update() are caught and propagated properly.
 use strict;
 use warnings;
 
+use lib 't/lib';
+
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::FailWarnings -allow_deps => 1;
 use Test::More tests => 2;
 use Test::Type;
+use TestSubclass::TestTable;
 
 
 # Insert a test object.
@@ -24,7 +27,7 @@ subtest(
 	sub
 	{
 		ok(
-			$object = DBIx::NinjaORM::Test->new(),
+			$object = TestSubclass::TestTable->new(),
 			'Create new object.',
 		);
 		
@@ -59,38 +62,6 @@ throws_ok(
 	qr/\A\QUpdate failed: died in prepare()\E/,
 	'Caught update failure.',
 );
-
-
-# Test subclass with enough information to insert rows.
-package DBIx::NinjaORM::Test;
-
-use strict;
-use warnings;
-
-use lib 't/lib';
-use LocalTest;
-
-use base 'DBIx::NinjaORM';
-
-
-sub static_class_info
-{
-	my ( $class ) = @_;
-	
-	my $info = $class->SUPER::static_class_info();
-	
-	$info->set(
-		{
-			'default_dbh'      => LocalTest::get_database_handle(),
-			'table_name'       => 'tests',
-			'primary_key_name' => 'test_id',
-		}
-	);
-	
-	return $info;
-}
-
-1;
 
 
 # Subclass DBI::db and override prepare() to make it die.

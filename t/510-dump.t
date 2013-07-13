@@ -9,12 +9,15 @@ Test the dump() method.
 use strict;
 use warnings;
 
+use lib 't/lib';
+
 use DBIx::NinjaORM;
 use Test::Deep;
 use Test::Exception;
 use Test::FailWarnings -allow_deps => 1;
 use Test::More tests => 6;
 use Test::Type;
+use TestSubclass::TestTable;
 
 
 # Verify that the main class supports the method.
@@ -25,7 +28,7 @@ can_ok(
 
 # Verify inheritance.
 can_ok(
-	'DBIx::NinjaORM::Test',
+	'TestSubclass::TestTable',
 	'dump',
 );
 
@@ -39,7 +42,7 @@ subtest(
 		
 		ok(
 			defined(
-				my $object = DBIx::NinjaORM::Test->new()
+				my $object = TestSubclass::TestTable->new()
 			),
 			'Create new object.',
 		);
@@ -63,7 +66,7 @@ subtest(
 # Retrieve object.
 ok(
 	defined(
-		my $object = DBIx::NinjaORM::Test->new(
+		my $object = TestSubclass::TestTable->new(
 			{ id => $object_id },
 		)
 	),
@@ -86,36 +89,3 @@ like(
 	qr/account_id/,
 	"The output includes the object's account ID.",
 ) || diag( $output );
-
-
-# Test subclass with enough information to insert rows.
-package DBIx::NinjaORM::Test;
-
-use strict;
-use warnings;
-
-use lib 't/lib';
-use LocalTest;
-
-use base 'DBIx::NinjaORM';
-
-
-sub static_class_info
-{
-	my ( $class ) = @_;
-	
-	my $info = $class->SUPER::static_class_info();
-	
-	$info->set(
-		{
-			default_dbh      => LocalTest::get_database_handle(),
-			table_name       => 'tests',
-			primary_key_name => 'test_id',
-		}
-	);
-	
-	return $info;
-}
-
-1;
-
