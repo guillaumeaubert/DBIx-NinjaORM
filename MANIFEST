@@ -89,6 +89,7 @@ t/lib/TestSubclass/NoPK.pm
 t/lib/TestSubclass/NoTableName.pm
 t/lib/TestSubclass/TestTable.pm
 t/lib/TestSubclass/Accessors.pm
+t/lib/TestSubclass/Memcache.pm
 xt/changes.t
 xt/kwalitee.t
 xt/manifest.t

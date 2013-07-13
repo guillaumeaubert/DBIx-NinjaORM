@@ -16,6 +16,7 @@ use DBIx::NinjaORM;
 use Test::Exception;
 use Test::FailWarnings -allow_deps => 1;
 use Test::More;
+use TestSubclass::Memcache;
 
 
 LocalTest::ok_memcache();
@@ -25,7 +26,7 @@ plan( tests => 7 );
 dies_ok(
 	sub
 	{
-		DBIx::NinjaORM::Test->delete_cache();
+		TestSubclass::Memcache->delete_cache();
 	},
 	'The "key" argument cannot be undefined.'
 );
@@ -33,7 +34,7 @@ dies_ok(
 dies_ok(
 	sub
 	{
-		DBIx::NinjaORM::Test->delete_cache( key => '' );
+		TestSubclass::Memcache->delete_cache( key => '' );
 	},
 	'The "key" argument cannot be empty.'
 );
@@ -41,7 +42,7 @@ dies_ok(
 dies_ok(
 	sub
 	{
-		DBIx::NinjaORM::Test->delete_cache( invalid_argument => 1 );
+		TestSubclass::Memcache->delete_cache( invalid_argument => 1 );
 	},
 	'Invalid argument names are detected properly.'
 );
@@ -51,7 +52,7 @@ my $test_value = time() + 10;
 lives_ok(
 	sub
 	{
-		DBIx::NinjaORM::Test->set_cache(
+		TestSubclass::Memcache->set_cache(
 			key         => $test_key,
 			value       => $test_value,
 			expire_time => time() + 100,
@@ -69,7 +70,7 @@ subtest(
 		lives_ok(
 			sub
 			{
-				$retrieved_value = DBIx::NinjaORM::Test->get_cache(
+				$retrieved_value = TestSubclass::Memcache->get_cache(
 					key => $test_key,
 				);
 			},
@@ -87,7 +88,7 @@ subtest(
 lives_ok(
 	sub
 	{
-		DBIx::NinjaORM::Test->delete_cache(
+		TestSubclass::Memcache->delete_cache(
 			key => $test_key,
 		);
 	},
@@ -103,7 +104,7 @@ subtest(
 		lives_ok(
 			sub
 			{
-				$retrieved_value = DBIx::NinjaORM::Test->get_cache(
+				$retrieved_value = TestSubclass::Memcache->get_cache(
 					key => $test_key,
 				);
 			},
@@ -117,33 +118,3 @@ subtest(
 		);
 	}
 );
-
-
-# Test subclass, with the memcache object to use.
-package DBIx::NinjaORM::Test;
-
-use strict;
-use warnings;
-
-use lib 't/lib';
-use LocalTest;
-
-use base 'DBIx::NinjaORM';
-
-
-sub static_class_info
-{
-	my ( $class ) = @_;
-	
-	my $info = $class->SUPER::static_class_info();
-	
-	$info->set(
-		{
-			'memcache' => LocalTest::get_memcache(),
-		}
-	);
-	
-	return $info;
-}
-
-1;
