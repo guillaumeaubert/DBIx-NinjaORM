@@ -83,8 +83,11 @@ my $builder = $class->new(
 			file        =>
 			[
 				't/lib/LocalTest.pm',
-				't/lib/TestSubclass/NoPK.pm',
 			],
+			namespace   =>
+			[
+				'TestSubclass',
+			]
 		},
 	},
 	recursive_test_files => 1,

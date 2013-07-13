@@ -22,7 +22,8 @@ name: DBIx-NinjaORM
 no_index:
   file:
     - t/lib/LocalTest.pm
-    - t/lib/TestSubclass/NoPK.pm
+  namespace:
+    - TestSubclass
 provides:
   DBIx::NinjaORM:
     file: lib/DBIx/NinjaORM.pm

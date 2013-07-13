@@ -86,6 +86,7 @@ t/SQL/setup_SQLite.sql
 t/SQL/setup_mysql.sql
 t/lib/LocalTest.pm
 t/lib/TestSubclass/NoPK.pm
+t/lib/TestSubclass/NoTableName.pm
 xt/changes.t
 xt/kwalitee.t
 xt/manifest.t
