@@ -10,11 +10,14 @@ specified in the static class information.
 use strict;
 use warnings;
 
+use lib 't/lib';
+
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::FailWarnings -allow_deps => 1;
 use Test::More tests => 4;
 use Test::Type;
+use TestSubclass::Accessors;
 
 
 # Verify that the main class supports the method.
@@ -25,7 +28,7 @@ can_ok(
 
 # Verify inheritance.
 can_ok(
-	'DBIx::NinjaORM::Test',
+	'TestSubclass::Accessors',
 	'get_primary_key_name',
 );
 
@@ -34,11 +37,11 @@ my $tests =
 [
 	{
 		name => 'Test calling get_primary_key_name() on the class',
-		ref  => 'DBIx::NinjaORM::Test',
+		ref  => 'TestSubclass::Accessors',
 	},
 	{
 		name => 'Test calling get_primary_key_name() on an object',
-		ref  => bless( {}, 'DBIx::NinjaORM::Test' ),
+		ref  => bless( {}, 'TestSubclass::Accessors' ),
 	},
 ];
 
@@ -68,30 +71,3 @@ foreach my $test ( @$tests )
 		}
 	);
 }
-
-
-# Test subclass with a primary key name.
-package DBIx::NinjaORM::Test;
-
-use strict;
-use warnings;
-
-use base 'DBIx::NinjaORM';
-
-
-sub static_class_info
-{
-	my ( $class ) = @_;
-	
-	my $info = $class->SUPER::static_class_info();
-	
-	$info->set(
-		{
-			'primary_key_name' => "TEST_PRIMARY_KEY_NAME",
-		}
-	);
-	
-	return $info;
-}
-
-1;

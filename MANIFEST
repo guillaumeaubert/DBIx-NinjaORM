@@ -88,6 +88,7 @@ t/lib/LocalTest.pm
 t/lib/TestSubclass/NoPK.pm
 t/lib/TestSubclass/NoTableName.pm
 t/lib/TestSubclass/TestTable.pm
+t/lib/TestSubclass/Accessors.pm
 xt/changes.t
 xt/kwalitee.t
 xt/manifest.t

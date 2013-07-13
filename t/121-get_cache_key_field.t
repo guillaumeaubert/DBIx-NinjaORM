@@ -10,11 +10,14 @@ class information.
 use strict;
 use warnings;
 
+use lib 't/lib';
+
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::FailWarnings -allow_deps => 1;
 use Test::More tests => 5;
 use Test::Type;
+use TestSubclass::Accessors;
 
 
 # Verify that the main class supports the method.
@@ -25,7 +28,7 @@ can_ok(
 
 # Verify inheritance.
 can_ok(
-	'DBIx::NinjaORM::Test',
+	'TestSubclass::Accessors',
 	'get_cache_key_field',
 );
 
@@ -38,13 +41,13 @@ my $tests =
 		expected => undef,
 	},
 	{
-		name     => 'Test calling get_cache_key_field() on DBIx::NinjaORM::Test',
-		ref      => 'DBIx::NinjaORM::Test',
+		name     => 'Test calling get_cache_key_field() on TestSubclass::Accessors',
+		ref      => 'TestSubclass::Accessors',
 		expected => 'TEST_CACHE_KEY_FIELD',
 	},
 	{
 		name     => 'Test calling get_cache_key_field() on an object',
-		ref      => bless( {}, 'DBIx::NinjaORM::Test' ),
+		ref      => bless( {}, 'TestSubclass::Accessors' ),
 		expected => 'TEST_CACHE_KEY_FIELD',
 	},
 ];
@@ -75,30 +78,3 @@ foreach my $test ( @$tests )
 		}
 	);
 }
-
-
-# Test subclass with a 'cache_key_field' set.
-package DBIx::NinjaORM::Test;
-
-use strict;
-use warnings;
-
-use base 'DBIx::NinjaORM';
-
-
-sub static_class_info
-{
-	my ( $class ) = @_;
-	
-	my $info = $class->SUPER::static_class_info();
-	
-	$info->set(
-		{
-			'cache_key_field' => 'TEST_CACHE_KEY_FIELD',
-		}
-	);
-	
-	return $info;
-}
-
-1;
