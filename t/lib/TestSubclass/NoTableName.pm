@@ -8,7 +8,7 @@ use base 'DBIx::NinjaORM';
 
 =head1 NAME
 
-TestSubclass::NoTableName - Test L<DBIx::NinjaORM> subclass without a table name.
+TestSubclass::NoTableName - Test subclass without a table name.
 
 
 =head1 VERSION
@@ -28,8 +28,8 @@ our $VERSION = '2.5.1';
 
 =head1 DESCRIPTION
 
-Test subclass without a primary key name defined, which should not allow
-inserting rows.
+Test subclass without a table name defined, which should not allow ORM
+operations.
 
 
 =head1 FUNCTIONS
