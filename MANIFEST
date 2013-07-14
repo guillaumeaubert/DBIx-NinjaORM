@@ -13,6 +13,7 @@ README.md
 examples/examples.txt
 ignore.txt
 lib/DBIx/NinjaORM.pm
+lib/DBIx/NinjaORM/Schema/Table.pm
 lib/DBIx/NinjaORM/StaticClassInfo.pm
 t/000-load.t
 t/010-LocalTest/00-load.t
