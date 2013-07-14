@@ -7,6 +7,7 @@ WriteMakefile
           'VERSION_FROM' => 'lib/DBIx/NinjaORM.pm',
           'PREREQ_PM' => {
                            'Carp' => 0,
+                           'Class::Load' => 0,
                            'DBD::SQLite' => 0,
                            'DBI' => 0,
                            'DBIx::Inspector' => 0,

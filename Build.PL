@@ -52,6 +52,7 @@ my $builder = $class->new(
 	requires             =>
 	{
 		'Carp'                 => 0,
+		'Class::Load'          => 0,
 		'DBIx::Inspector'      => 0,
 		'Data::Dumper'         => 0,
 		'Data::Validate::Type' => 0,
