@@ -28,7 +28,7 @@ WriteMakefile
           'EXE_FILES' => [],
           'PL_FILES' => {},
           'test' => {
-                      'TESTS' => 't/*.t t/lib/*.t t/lib/TestSubclass/*.t t/010-LocalTest/*.t t/SQL/*.t'
+                      'TESTS' => 't/*.t t/030-Schema-Table/*.t t/lib/*.t t/lib/TestSubclass/*.t t/010-LocalTest/*.t t/SQL/*.t'
                     }
         )
 ;

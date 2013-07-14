@@ -21,6 +21,14 @@ t/010-LocalTest/10-get_database_handle.t
 t/010-LocalTest/20-get_database_type.t
 t/010-LocalTest/30-get_memcache.t
 t/020-setup.t
+t/030-Schema-Table/00-load.t
+t/030-Schema-Table/10-new.t
+t/030-Schema-Table/20-get_name.t
+t/030-Schema-Table/25-get_dbh.t
+t/030-Schema-Table/30-get_inspector.t
+t/030-Schema-Table/35-get_table.t
+t/030-Schema-Table/40-get_columns.t
+t/030-Schema-Table/45-get_column_names.t
 t/100-static_class_info.t
 t/101-cached_static_class_info.t
 t/110-get_default_dbh.t
