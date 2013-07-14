@@ -59,6 +59,10 @@
          "file" : "lib/DBIx/NinjaORM.pm",
          "version" : "v2.5.1"
       },
+      "DBIx::NinjaORM::Schema::Table" : {
+         "file" : "lib/DBIx/NinjaORM/Schema/Table.pm",
+         "version" : "v2.5.1"
+      },
       "DBIx::NinjaORM::StaticClassInfo" : {
          "file" : "lib/DBIx/NinjaORM/StaticClassInfo.pm",
          "version" : "v2.5.1"
