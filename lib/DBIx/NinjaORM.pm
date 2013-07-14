@@ -6,6 +6,7 @@ use warnings;
 use strict;
 
 use Carp;
+use Class::Load qw();
 use DBIx::NinjaORM::StaticClassInfo;
 use Data::Dumper;
 use Data::Validate::Type;
@@ -2092,6 +2093,44 @@ Return a cached version of the information retrieved by C<static_class_info()>.
 		$CACHE->{ $class } ||= $class->static_class_info();
 		
 		return $CACHE->{ $class }
+	}
+}
+
+
+=head2 get_table_schema()
+
+Return the schema corresponding to the underlying table.
+
+	my $table_schema = $class->get_table_schema();
+	my $table_schema = $object->get_table_schema();
+
+=cut
+
+{
+	my $TABLE_SCHEMAS_CACHE = {};
+	sub get_table_schema
+	{
+		my ( $self ) = @_;
+		my $class = ref( $self ) || $self;
+		
+		if ( !defined( $TABLE_SCHEMAS_CACHE->{ $class } ) )
+		{
+			my $dbh = $class->assert_dbh();
+			my $table_name = $self->get_table_name();
+			
+			Class::Load::load_class( 'DBIx::NinjaORM::Schema::Table' );
+			my $table_schema = DBIx::NinjaORM::Schema::Table->new(
+				name => $table_name,
+				dbh  => $self->assert_dbh(),
+			);
+			$table_schema->get_columns();
+			$TABLE_SCHEMAS_CACHE->{ $class } = $table_schema;
+			
+			croak "Failed to load schema for '$table_name'"
+				if !defined( $TABLE_SCHEMAS_CACHE->{ $class } );
+		}
+		
+		return $TABLE_SCHEMAS_CACHE->{ $class };
 	}
 }
 
