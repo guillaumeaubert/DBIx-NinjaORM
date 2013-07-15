@@ -2492,10 +2492,20 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 				join( ', ', keys %$objects_to_retrieve_from_database ),
 			) if $class->is_verbose('cache_operations');
 			
+			# We don't want to pass %args, which has a lot of information that may
+			# actually conflict with what we're trying to do here. However, some of
+			# the arguments are important, such as 'dbh' to connect to the correct
+			# database. We filter here the relevant arguments.
+			my %local_args =
+				map { $_ => $args{ $_ } }
+				grep { defined( $args{ $_ } ) }
+				qw( dbh show_queries );
+			
 			$objects = $class->retrieve_list_nocache(
 				{
 					$search_field => [ keys %$objects_to_retrieve_from_database ],
 				},
+				%local_args,
 			);
 		}
 		
