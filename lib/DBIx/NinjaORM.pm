@@ -206,6 +206,7 @@ our $RETRIEVE_LIST_VALID_ARGUMENTS =
 		query_extensions
 		show_queries
 		skip_cache
+		exclude_fields
 	)
 };
 
@@ -765,18 +766,56 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 			? "ORDER BY " . $dbh->quote_identifier( $table_name ) . ".created ASC"
 			: "ORDER BY " . $dbh->quote_identifier( $table_name ) . '.' . $class->get_primary_key_name();
 	
+	# Prepare quoted identifiers.
+	my $primary_key_name = $class->get_primary_key_name();
+	my $quoted_primary_key_name = $dbh->quote_identifier( $primary_key_name );
+	my $quoted_table_name = $dbh->quote_identifier( $table_name );
+	
 	# Prepare the SQL request elements.
 	my $where = scalar( @$where_clauses ) != 0
 		? 'WHERE ( ' . join( ' ) AND ( ', @$where_clauses ) . ' )'
 		: '';
 	my $joins = $args{'query_extensions'}->{'joins'} || '';
-	my $fields = $dbh->quote_identifier( $table_name ) . '.*';
-	$fields .= defined( $args{'query_extensions'}->{'joined_fields'} )
-		? ', ' . $args{'query_extensions'}->{'joined_fields'}
-		: '';
 	my $limit = defined( $args{'limit'} ) && ( $args{'limit'} =~ m/^\d+$/ )
 		? 'LIMIT ' . $args{'limit'}
 		: '';
+	
+	# Prepare the list of fields to retrieve.
+	my $fields;
+	if ( defined( $args{'exclude_fields'} ) )
+	{
+		my $table_schema = $class->get_table_schema();
+		croak "Failed to retrieve schema for table '$table_name'"
+			if !defined( $table_schema );
+		my $column_names = $table_schema->get_column_names();
+		croak "Failed to retrieve column names for table '$table_name'"
+			if !defined( $column_names );
+		
+		my @filtered_fields = ();
+		my %excluded_fields = map { $_ => 1 } @{ $args{'exclude_fields'} };
+		foreach my $field ( @$column_names )
+		{
+			$excluded_fields{ $field }
+				? delete( $excluded_fields{ $field } )
+				: push( @filtered_fields, $field );
+		}
+		croak "The following excluded fields are not valid: " . join( ', ', keys %excluded_fields )
+			if scalar( keys %excluded_fields ) != 0;
+		croak "No fields left after filtering out the excluded fields"
+			if scalar( @filtered_fields ) == 0;
+		
+		$fields = join(
+			', ',
+			map { "$quoted_table_name.$_" } @filtered_fields
+		);
+	}
+	else
+	{
+		$fields = $quoted_table_name . '.*';
+	}
+	
+	$fields .= ', ' . $args{'query_extensions'}->{'joined_fields'}
+		if defined( $args{'query_extensions'}->{'joined_fields'} );
 	
 	# We need to make an exception for lock=1 when using SQLite, since
 	# SQLite doesn't support FOR UPDATE.
@@ -799,11 +838,6 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 			$lock = 'FOR UPDATE';
 		}
 	}
-	
-	# Prepare quoted identifiers.
-	my $primary_key_name = $class->get_primary_key_name();
-	my $quoted_primary_key_name = $dbh->quote_identifier( $primary_key_name );
-	my $quoted_table_name = $dbh->quote_identifier( $table_name );
 	
 	# Check if we need to paginate.
 	my $pagination_info = {};
@@ -978,6 +1012,11 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 		# Add cache debugging information.
 		$object->{'_debug'}->{'list_cache_used'} = 0;
 		$object->{'_debug'}->{'object_cache_used'} = 0;
+		
+		# Store if we've excluded any fields, as it will impact caching in
+		# retrieve_list().
+		$object->{'_excluded_fields'} = $args{'exclude_fields'}
+			if defined( $args{'exclude_fields'} );
 		
 		push( @$object_list, $object );
 	}
@@ -2378,7 +2417,7 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 	{
 		# Those arguments don't have an impact on the filters to IDs translation,
 		# so we can exclude them from the unique cache key.
-		next if $arg =~ /^(?:dbh|lock|show_queries|skip_cache)$/x;
+		next if $arg =~ /^(?:dbh|lock|show_queries|skip_cache|exclude_fields)$/x;
 		
 		# Force all arguments into lower case for purposes of caching.
 		push( @$list_cache_keys, [ lc( $arg ), $args{ $arg } ] );
@@ -2499,7 +2538,7 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 			my %local_args =
 				map { $_ => $args{ $_ } }
 				grep { defined( $args{ $_ } ) }
-				qw( dbh show_queries );
+				qw( dbh show_queries exclude_fields );
 			
 			$objects = $class->retrieve_list_nocache(
 				{
@@ -2569,6 +2608,12 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 		);
 		
 		$database_objects->{ $hash_key } = $object;
+	
+		# If the caller forced excluding fields, we can't cache the objects here.
+		# Otherwise, we would serve incomplete objects the next time a caller
+		# requests objects without specifying the same excluded fields.
+		next
+			if exists( $object->{'_excluded_fields'} );
 		
 		my $object_cache_key = $cache_field eq 'id'
 			? $object->get_object_cache_key()
