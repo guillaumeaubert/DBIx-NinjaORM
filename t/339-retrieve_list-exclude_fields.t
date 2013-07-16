@@ -2,8 +2,8 @@
 
 =head1 PURPOSE
 
-Test retrieving objects by non-unique field via retrieve_list(), with different
-cache options.
+Test retrieving objects and excluding some fields from the main underlying
+table.
 
 =cut
 
