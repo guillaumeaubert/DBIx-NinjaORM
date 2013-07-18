@@ -207,6 +207,7 @@ our $RETRIEVE_LIST_VALID_ARGUMENTS =
 		show_queries
 		skip_cache
 		exclude_fields
+		select_fields
 	)
 };
 
@@ -782,7 +783,7 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 	
 	# Prepare the list of fields to retrieve.
 	my $fields;
-	if ( defined( $args{'exclude_fields'} ) )
+	if ( defined( $args{'exclude_fields'} ) || defined( $args{'select_fields'} ) )
 	{
 		my $table_schema = $class->get_table_schema();
 		croak "Failed to retrieve schema for table '$table_name'"
@@ -792,16 +793,40 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 			if !defined( $column_names );
 		
 		my @filtered_fields = ();
-		my %excluded_fields = map { $_ => 1 } @{ $args{'exclude_fields'} };
-		foreach my $field ( @$column_names )
+		if ( defined( $args{'exclude_fields'} ) && !defined( $args{'select_fields'} ) )
 		{
-			$excluded_fields{ $field }
-				? delete( $excluded_fields{ $field } )
-				: push( @filtered_fields, $field );
+			my %excluded_fields = map { $_ => 1 } @{ $args{'exclude_fields'} };
+			foreach my $field ( @$column_names )
+			{
+				$excluded_fields{ $field }
+					? delete( $excluded_fields{ $field } )
+					: push( @filtered_fields, $field );
+			}
+			croak "The following excluded fields are not valid: " . join( ', ', keys %excluded_fields )
+				if scalar( keys %excluded_fields ) != 0;
 		}
-		croak "The following excluded fields are not valid: " . join( ', ', keys %excluded_fields )
-			if scalar( keys %excluded_fields ) != 0;
-		croak "No fields left after filtering out the excluded fields"
+		elsif ( !defined( $args{'exclude_fields'} ) && defined( $args{'select_fields'} ) )
+		{
+			my %selected_fields = map { $_ => 1 } @{ $args{'select_fields'} };
+			croak 'The primary key must be in the list of selected fields'
+				if defined( $primary_key_name ) && !$selected_fields{ $primary_key_name };
+			
+			foreach my $field ( @$column_names )
+			{
+				next if !$selected_fields{ $field };
+				push( @filtered_fields, $field );
+				delete( $selected_fields{ $field } );
+			}
+			
+			croak "The following restricted fields are not valid: " . join( ', ', keys %selected_fields )
+				if scalar( keys %selected_fields ) != 0;
+		}
+		else
+		{
+			croak "The 'exclude_fields' and 'select_fields' options are not compatible, use one or the other";
+		}
+		
+		croak "No fields left after filtering out the excluded/restricted fields"
 			if scalar( @filtered_fields ) == 0;
 		
 		$fields = join(
@@ -1017,6 +1042,11 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 		# retrieve_list().
 		$object->{'_excluded_fields'} = $args{'exclude_fields'}
 			if defined( $args{'exclude_fields'} );
+		
+		# Store if we've restricted to any fields, as it will impact caching in
+		# retrieve_list().
+		$object->{'_selected_fields'} = $args{'select_fields'}
+			if defined( $args{'select_fields'} );
 		
 		push( @$object_list, $object );
 	}
@@ -2417,7 +2447,7 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 	{
 		# Those arguments don't have an impact on the filters to IDs translation,
 		# so we can exclude them from the unique cache key.
-		next if $arg =~ /^(?:dbh|lock|show_queries|skip_cache|exclude_fields)$/x;
+		next if $arg =~ /^(?:dbh|lock|show_queries|skip_cache|exclude_fields|select_fields)$/x;
 		
 		# Force all arguments into lower case for purposes of caching.
 		push( @$list_cache_keys, [ lc( $arg ), $args{ $arg } ] );
@@ -2538,7 +2568,7 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 			my %local_args =
 				map { $_ => $args{ $_ } }
 				grep { defined( $args{ $_ } ) }
-				qw( dbh show_queries exclude_fields );
+				qw( dbh show_queries exclude_fields select_fields );
 			
 			$objects = $class->retrieve_list_nocache(
 				{
@@ -2612,8 +2642,9 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 		# If the caller forced excluding fields, we can't cache the objects here.
 		# Otherwise, we would serve incomplete objects the next time a caller
 		# requests objects without specifying the same excluded fields.
+		# Same goes for explicit fields restrictions.
 		next
-			if exists( $object->{'_excluded_fields'} );
+			if exists( $object->{'_excluded_fields'} ) || exists( $object->{'_selected_fields'} );
 		
 		my $object_cache_key = $cache_field eq 'id'
 			? $object->get_object_cache_key()
