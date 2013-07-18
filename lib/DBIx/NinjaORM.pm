@@ -2651,9 +2651,17 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 			{
 				push( @$sorted_objects, $cached_objects->{ lc( $search_value ) } );
 			}
-			else
+			elsif ( exists( $database_objects->{ lc( $search_value ) } ) )
 			{
 				push( @$sorted_objects, $database_objects->{ lc( $search_value ) } );
+			}
+			else
+			{
+				$log->debugf(
+					'Failed to retrieve object for %s=%s',
+					$cache_field,
+					$search_value,
+				);
 			}
 		}
 	}
