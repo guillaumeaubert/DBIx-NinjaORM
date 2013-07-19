@@ -10,6 +10,7 @@ META.json
 META.yml
 Makefile.PL
 README.md
+UpgradeInstructions.pod
 examples/examples.txt
 ignore.txt
 lib/DBIx/NinjaORM.pm
