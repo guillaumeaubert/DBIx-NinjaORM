@@ -10,7 +10,7 @@ C<static_class_info()>.
 It is therefore strongly recommended to modify C<static_class_info()> in your
 subclasses as follows:
 
-=over4
+=over 4
 
 =item * Before:
 
