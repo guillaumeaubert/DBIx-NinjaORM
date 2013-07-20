@@ -1794,6 +1794,31 @@ set C<allow_subclassing> to C<1> in subclassed method's call to its parent,
 to indicate that you've carefully considered the impact of this and that it
 is safe.
 
+=item * select_fields / exclude_fields (optional)
+
+By default, C<retrieve_list()> will select all the fields that exist on the
+table associated with the class. In some rare cases, it is however desirable to
+either select only or to exclude explicitely some fields from the table, and
+you can pass an arrayref with C<select_fields> and C<exclude_fields>
+(respectively) to specify those.
+
+Important cache consideration: when this option is used, the cache will be used
+to retrieve objects without polling the database when possible, but any objects
+retrieved from the database will not be stashed in the cache as they will not
+have the complete information for that object. If you have other
+C<retrieve_list()> calls warming the cache this most likely won't be an issue,
+but if you exclusively run C<retrieve_list()> calls with C<select_fields> and
+C<exclude_fields>, then you may be better off creating a view and tieing the
+class to that view.
+
+	# To display an index of our library, we want all the book properties but not
+	# the book content, which is a huge field that we won't use in the template.
+	my $books = My::Model::Book->retrieve_list(
+		{},
+		allow_all => 1,
+		exclude_fields => [ 'full_text' ],
+	);
+
 =back
 
 =cut
