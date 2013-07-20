@@ -193,22 +193,23 @@ defaults will make C<static_class_info()> shorter in the other classes:
 
 =cut
 
+# This hash indicates what argument names are valid in retrieve_list() calls,
+# and for each argument it specifies whether it should be included (1) or
+# ignored (0) when building the list cache keys that associate the arguments
+# passed to the result IDs.
 our $RETRIEVE_LIST_VALID_ARGUMENTS =
 {
-	map { $_ => 1 }
-	qw(
-		allow_all
-		dbh
-		limit
-		lock
-		order_by
-		pagination
-		query_extensions
-		show_queries
-		skip_cache
-		exclude_fields
-		select_fields
-	)
+	allow_all        => 1,
+	dbh              => 0,
+	limit            => 1,
+	lock             => 0,
+	order_by         => 1,
+	pagination       => 1,
+	query_extensions => 1,
+	show_queries     => 0,
+	skip_cache       => 0,
+	exclude_fields   => 0,
+	select_fields    => 0,
 };
 
 
@@ -2447,7 +2448,10 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 	{
 		# Those arguments don't have an impact on the filters to IDs translation,
 		# so we can exclude them from the unique cache key.
-		next if $arg =~ /^(?:dbh|lock|show_queries|skip_cache|exclude_fields|select_fields)$/x;
+		my $has_impact = $RETRIEVE_LIST_VALID_ARGUMENTS->{ $arg };
+		croak "The argument '$arg' is not valid"
+			if !defined( $has_impact );
+		next if !$has_impact;
 		
 		# Force all arguments into lower case for purposes of caching.
 		push( @$list_cache_keys, [ lc( $arg ), $args{ $arg } ] );
