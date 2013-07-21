@@ -292,11 +292,6 @@ sub set ## no critic (NamingConventions::ProhibitAmbiguousNames, Subroutines::Re
 }
 
 
-=head1 AUTHOR
-
-Guillaume Aubert, C<< <aubertg at cpan.org> >>.
-
-
 =head1 BUGS
 
 Please report any bugs or feature requests through the web interface at
@@ -333,6 +328,11 @@ L<http://cpanratings.perl.org/d/DBIx-NinjaORM>
 L<https://metacpan.org/release/DBIx-NinjaORM>
 
 =back
+
+
+=head1 AUTHOR
+
+Guillaume Aubert, C<< <aubertg at cpan.org> >>.
 
 
 =head1 COPYRIGHT & LICENSE

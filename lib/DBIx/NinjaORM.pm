@@ -3138,11 +3138,6 @@ sub reorganize_non_native_fields
 }
 
 
-=head1 AUTHOR
-
-Guillaume Aubert, C<< <aubertg at cpan.org> >>.
-
-
 =head1 BUGS
 
 Please report any bugs or feature requests through the web interface at
@@ -3181,20 +3176,32 @@ L<https://metacpan.org/release/DBIx-NinjaORM>
 =back
 
 
+=head1 AUTHOR
+
+L<Guillaume Aubert|https://metacpan.org/author/AUBERTG>, C<< <aubertg at cpan.org> >>.
+
+
+=head1 CONTRIBUTORS
+
+=over 4
+
+=item * L<Brian Voorhes|https://metacpan.org/author/BRETHIR>
+
+=item * Jamie McCarthy
+
+=item * L<Jennifer Pinkham|https://metacpan.org/author/JPINKHAM>
+
+=item * L<Kate Kirby|https://metacpan.org/author/KATE>
+
+=back
+
+
 =head1 ACKNOWLEDGEMENTS
 
-Thanks to ThinkGeek (L<http://www.thinkgeek.com/>) and its corporate overlords
-at Geeknet (L<http://www.geek.net/>), for footing the bill while I write code
-for them!
+I originally developed this project for ThinkGeek
+(L<http://www.thinkgeek.com/>). Thanks for allowing me to open-source it!
 
-Thanks to Kate Kirby C< <<kate at cpan.org>> > for her help with the design of
-this module, various additions, and pair programming C<retrieve_list_cache()>
-with me.
-
-Thanks to Jennifer Pinkham C< <<jpinkham at cpan.org >> > for creating separate
-cache times for objects and arguments to IDs translations.
-
-Thanks to Jamie McCarthy for adding the 'ignore' argument to C<insert()>.
+Special thanks to Kate Kirby for her help with the design of this module.
 
 
 =head1 COPYRIGHT & LICENSE
