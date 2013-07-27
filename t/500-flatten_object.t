@@ -80,7 +80,7 @@ ok(
 );
 
 # List of keys to flatten.
-my $flatten_keys = 
+my $flatten_keys =
 [
 	qw(
 		name
