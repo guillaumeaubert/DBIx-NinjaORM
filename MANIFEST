@@ -90,6 +90,7 @@ t/405-remove-dbi_failure.t
 t/415-commit.t
 t/440-retrieve_list-select_fields.t
 t/500-flatten_object.t
+t/501-flatten_object-no_pk.t
 t/510-dump.t
 t/520-clone.t
 t/530-reload.t
