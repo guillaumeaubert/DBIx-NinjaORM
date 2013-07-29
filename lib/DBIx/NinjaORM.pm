@@ -328,6 +328,46 @@ sub get
 }
 
 
+=head2 get_current_time()
+
+Return the current time, to use in SQL statements.
+
+	my $current_time = $class->get_current_time( $field_name );
+
+By default, DBIx::NinjaORM assumes that time is stored as unixtime (integer) in the database. If you are using a different field type for C<created> and C<modified>, you can subclass this method to return the current time in a different format.
+
+Arguments:
+
+=over 4
+
+=item * $field_name
+
+The name of the field that will be populated with the return value.
+
+=back
+
+Notes:
+
+=over 4
+
+=item *
+
+The return value of this method will be inserted directly into the database, so
+you can use C<NOW()> for example, and if you are inserting strings those should
+be quoted in the subclassed method.
+
+=back
+
+=cut
+
+sub get_current_time
+{
+	my ( $self, $field_name ) = @_;
+	
+	return time();
+}
+
+
 =head2 insert()
 
 Insert a row corresponding to the data passed as first parameter, and fill the
