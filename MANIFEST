@@ -50,6 +50,7 @@ t/140-get_table_schema.t
 t/150-set_cache.t
 t/151-get_cache.t
 t/152-delete_cache.t
+t/190-get_current_time.t
 t/200-new.t
 t/210-validate_data.t
 t/215-set.t
