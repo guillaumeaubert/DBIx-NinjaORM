@@ -53,5 +53,5 @@ CREATE TABLE date_tests
 	created TIMESTAMP DEFAULT NULL,
 	modified TIMESTAMP DEFAULT NULL,
 	PRIMARY KEY (test_id),
-	CONSTRAINT unq_no_modified_tests_name UNIQUE (name)
+	CONSTRAINT unq_date_tests_name UNIQUE (name)
 );
