@@ -60,15 +60,15 @@ sub static_class_info
 }
 
 
-=head2 get_current_date()
+=head2 get_current_time()
 
 Return the current date.
 
-	my $current_date = $class->get_current_date();
+	my $current_date = $class->get_current_time();
 
 =cut
 
-sub get_current_date
+sub get_current_time
 {
 	my ( $self, $field ) = @_;
 	
