@@ -1,4 +1,4 @@
-package TestSubclass::TestTable;
+package TestSubclass::DateTable;
 
 use strict;
 use warnings;
