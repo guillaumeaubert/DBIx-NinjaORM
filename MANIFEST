@@ -62,6 +62,7 @@ t/224-insert-dbh.t
 t/225-insert-no_created_field.t
 t/226-insert-no_modified_field.t
 t/227-insert-dbi_failure.t
+t/228-insert-timestamp.t
 t/230-id.t
 t/250-update.t
 t/255-update-dbi_failure.t
