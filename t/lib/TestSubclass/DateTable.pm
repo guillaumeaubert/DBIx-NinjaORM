@@ -81,7 +81,7 @@ sub get_current_time
 	}
 	elsif ( $database_type eq 'Pg' )
 	{
-		return 'now';
+		return 'now()';
 	}
 	else
 	{
