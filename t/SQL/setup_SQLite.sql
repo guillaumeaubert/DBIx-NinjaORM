@@ -41,3 +41,13 @@ CREATE TABLE no_modified_tests
 	UNIQUE (name)
 );
 
+-- Table with actual date fields --
+CREATE TABLE date_tests
+(
+	test_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name VARCHAR(64) NOT NULL,
+	value VARCHAR(128) DEFAULT NULL,
+	created TEXT DEFAULT NULL,
+	modified TEXT DEFAULT NULL,
+	UNIQUE (name)
+);

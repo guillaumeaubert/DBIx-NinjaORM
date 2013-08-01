@@ -43,3 +43,15 @@ CREATE TABLE no_modified_tests
 	PRIMARY KEY (test_id),
 	CONSTRAINT unq_no_modified_tests_name UNIQUE (name)
 );
+
+-- Table with actual date fields --
+CREATE TABLE date_tests
+(
+	test_id SERIAL,
+	name VARCHAR(64) NOT NULL,
+	value VARCHAR(128) DEFAULT NULL,
+	created TIMESTAMP DEFAULT NULL,
+	modified TIMESTAMP DEFAULT NULL,
+	PRIMARY KEY (test_id),
+	CONSTRAINT unq_no_modified_tests_name UNIQUE (name)
+);

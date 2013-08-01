@@ -43,3 +43,15 @@ CREATE TABLE no_modified_tests
 	PRIMARY KEY (test_id),
 	UNIQUE KEY idx_unique_name (name)
 );
+
+-- Table with actual date fields --
+CREATE TABLE date_tests
+(
+	test_id bigint(20) unsigned NOT NULL auto_increment,
+	name varchar(64) NOT NULL,
+	value varchar(128) DEFAULT NULL,
+	created datetime DEFAULT NULL,
+	modified datetime DEFAULT NULL,
+	PRIMARY KEY (test_id),
+	UNIQUE KEY idx_unique_name (name)
+);

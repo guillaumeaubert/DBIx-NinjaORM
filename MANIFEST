@@ -101,6 +101,7 @@ t/SQL/setup_SQLite.sql
 t/SQL/setup_mysql.sql
 t/lib/LocalTest.pm
 t/lib/TestSubclass/Accessors.pm
+t/lib/TestSubclass/DateTable.pm
 t/lib/TestSubclass/Memcache.pm
 t/lib/TestSubclass/NoPK.pm
 t/lib/TestSubclass/NoTableName.pm
