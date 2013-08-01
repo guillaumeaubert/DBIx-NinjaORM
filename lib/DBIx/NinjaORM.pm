@@ -456,25 +456,39 @@ sub insert ## no critic (Subroutines::RequireArgUnpacking)
 	# Set defaults.
 	if ( $self->has_created_field() )
 	{
-		$clean_data->{'created'} = defined( $args{'overwrite_created'} ) && $args{'overwrite_created'} =~ m/^\d+$/
+		$clean_data->{'created'} = defined( $args{'overwrite_created'} ) && $args{'overwrite_created'} ne ''
 			? $args{'overwrite_created'}
-			: time();
+			: $self->get_current_time();
 	}
-	$clean_data->{'modified'} = time()
+	$clean_data->{'modified'} = $self->get_current_time()
 		if $self->has_modified_field();
 	$clean_data->{ $primary_key_name } = $args{'generated_primary_key_value'}
 		if defined( $args{'generated_primary_key_value'} );
 	
 	# Prepare the query elements.
 	my $ignore = defined( $args{'ignore'} ) && $args{'ignore'} ? 1 : 0;
-	my @insert_fields = ();
-	my @insert_values = ();
+	my @sql_fields = ();
+	my @sql_values = ();
+	my @placeholder_values = ();
 	foreach my $key ( keys %$clean_data )
 	{
-		push( @insert_fields, $key );
-		push( @insert_values, $clean_data->{ $key } );
+		push( @sql_fields, $key );
+		
+		# 'created' and 'modified' support SQL keywords, so we don't use
+		# placeholders.
+		if ( $key =~ /^(?:created|modified)$/x )
+		{
+			push( @sql_values, $clean_data->{ $key } );
+		}
+		else
+		{
+			# All the other data need to be inserted using placeholders, for
+			# security purposes.
+			push( @sql_values, '?' );
+			push( @placeholder_values, $clean_data->{ $key } );
+		}
 	}
-	
+
 	my $query = sprintf(
 		q|
 			INSERT %s INTO %s( %s )
@@ -482,8 +496,8 @@ sub insert ## no critic (Subroutines::RequireArgUnpacking)
 		|,
 		$ignore ? 'IGNORE' : '',
 		$dbh->quote_identifier( $table_name ),
-		join( ', ', @insert_fields ),
-		join( ', ', ( ( '?' ) x scalar( @insert_fields ) ) ),
+		join( ', ', @sql_fields ),
+		join( ', ', @sql_values ),
 	);
 	
 	# Insert.
@@ -493,7 +507,7 @@ sub insert ## no critic (Subroutines::RequireArgUnpacking)
 		$dbh->do(
 			$query,
 			{},
-			@insert_values,
+			@placeholder_values,
 		);
 	}
 	catch
@@ -502,7 +516,7 @@ sub insert ## no critic (Subroutines::RequireArgUnpacking)
 			"Could not insert row: %s\nQuery: %s\nValues: %s",
 			$_,
 			$query,
-			\@insert_values,
+			\@placeholder_values,
 		);
 		croak "Insert failed: $_";
 	};
