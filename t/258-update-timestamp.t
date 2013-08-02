@@ -19,7 +19,9 @@ use Test::More tests => 4;
 use TestSubclass::DateTable;
 
 
-my $date_pattern = qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+# SQLite and MySQL will have 2013-08-02 04:22:02, while PostgreSQL will format
+# as 2013-08-02 04:22:02.161876.
+my $date_pattern = qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/;
 
 my $dbh = LocalTest::ok_database_handle();
 
