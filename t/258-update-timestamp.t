@@ -106,7 +106,7 @@ subtest(
 		
 		is(
 			$object->get('modified'),
-			"DATETIME('NOW')",
+			TestSubclass::DateTable->get_current_time(),
 			'The modified field on the non-reloaded object shows the SQL function string.',
 		);
 	}
