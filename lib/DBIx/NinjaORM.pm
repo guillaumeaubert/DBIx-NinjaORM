@@ -1297,7 +1297,7 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 		if !defined( $clean_data );
 	
 	# Set defaults
-	$clean_data->{'modified'} = time()
+	$clean_data->{'modified'} = $self->get_current_time()
 		if !$args{'skip_modified_update'} && $self->has_modified_field();
 	
 	# If there's nothing to update, bail out.
@@ -1333,8 +1333,19 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 	my @set_values = ();
 	foreach my $key ( keys %$clean_data )
 	{
-		push( @set_placeholders, $dbh->quote_identifier( $key ) . ' = ?' );
-		push( @set_values, $clean_data->{ $key } );
+		if ( $key eq 'modified' )
+		{
+			# 'created' supports SQL keywords and is quoted by get_current_time() if
+			# needed, so we don't use placeholders.
+			push( @set_placeholders, $dbh->quote_identifier( $key ) . ' = ' . $clean_data->{ $key } );
+		}
+		else
+		{
+			# All the other data need to be inserted using placeholders, for
+			# security purposes.
+			push( @set_placeholders, $dbh->quote_identifier( $key ) . ' = ?' );
+			push( @set_values, $clean_data->{ $key } );
+		}
 	}
 	if ( defined( $args{'set'} ) )
 	{
