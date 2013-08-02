@@ -12,15 +12,11 @@ use warnings;
 
 use lib 't/lib';
 
-use Class::Load qw();
 use Test::Exception;
 use Test::FailWarnings -allow_deps => 1;
 use Test::More tests => 4;
 use TestSubclass::DateTable;
 
-
-Class::Load::try_load_class( 'POSIX' )
-	|| plan( skip_all => 'POSIX is not available on this system.' );
 
 my $object_id;
 subtest(
@@ -58,16 +54,16 @@ ok(
 	'Retrieve the object.',
 );
 
-my $now = POSIX::strftime( '%Y-%m-%d %H:%M:%S', gmtime() );
+my $date_pattern = qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
 
 like(
 	$object->get('created'),
-	qr/$now/,
+	$date_pattern,
 	'The created field is correctly formatted.',
 );
 
 like(
 	$object->get('modified'),
-	qr/$now/,
+	$date_pattern,
 	'The modified field is correctly formatted.',
 );
