@@ -68,6 +68,7 @@ t/250-update.t
 t/255-update-dbi_failure.t
 t/256-update-no_created_field.t
 t/257-update-no_modified_field.t
+t/258-update-timestamp.t
 t/290-get.t
 t/300-build_filtering_clause.t
 t/305-parse_filtering_criteria.t
