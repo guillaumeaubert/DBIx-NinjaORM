@@ -130,7 +130,7 @@ subtest(
 		like(
 			$object->get('modified'),
 			$date_pattern,
-			'The modified field on the non-reloaded object is correctly formatted.',
+			'The modified field on the reloaded object is correctly formatted.',
 		);
 	}
 );
