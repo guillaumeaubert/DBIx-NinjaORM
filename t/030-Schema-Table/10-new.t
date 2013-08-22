@@ -23,7 +23,7 @@ can_ok(
 throws_ok(
 	sub
 	{
-		$table_schema = DBIx::NinjaORM::Schema::Table->new();
+		my $table_schema = DBIx::NinjaORM::Schema::Table->new();
 	},
 	qr/\QThe argument "name" is mandatory\E/,
 	'The argument "name" is mandatory.',
@@ -32,7 +32,7 @@ throws_ok(
 throws_ok(
 	sub
 	{
-		$table_schema = DBIx::NinjaORM::Schema::Table->new(
+		my $table_schema = DBIx::NinjaORM::Schema::Table->new(
 			name => 'tests',
 		);
 	},
