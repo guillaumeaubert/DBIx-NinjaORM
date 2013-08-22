@@ -6,6 +6,9 @@ Test creating a new L<DBIx::NinjaORM::Schema::Table> object.
 
 =cut
 
+use strict;
+use warnings;
+
 use lib 't/lib';
 
 use DBIx::NinjaORM::Schema::Table;

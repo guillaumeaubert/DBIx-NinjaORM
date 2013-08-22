@@ -6,6 +6,9 @@ Test the C<get_name()> method on L<DBIx::NinjaORM::Schema::Table> objects.
 
 =cut
 
+use strict;
+use warnings;
+
 use lib 't/lib';
 
 use DBIx::NinjaORM::Schema::Table;

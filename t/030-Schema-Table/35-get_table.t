@@ -6,6 +6,9 @@ Test the C<get_table()> method on L<DBIx::NinjaORM::Schema::Table> objects.
 
 =cut
 
+use strict;
+use warnings;
+
 use lib 't/lib';
 
 use DBIx::NinjaORM::Schema::Table;
