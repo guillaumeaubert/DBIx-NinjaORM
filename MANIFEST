@@ -32,6 +32,7 @@ t/030-Schema-Table/40-get_columns.t
 t/030-Schema-Table/45-get_column_names.t
 t/050-StaticClassInfo/00-load.t
 t/050-StaticClassInfo/10-new.t
+t/050-StaticClassInfo/20-get.t
 t/100-static_class_info.t
 t/101-cached_static_class_info.t
 t/110-get_default_dbh.t
