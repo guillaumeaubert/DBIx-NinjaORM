@@ -2057,6 +2057,9 @@ sub get_memcache
 
 =head2 get_object_cache_time()
 
+WARNING: this method will be removed soon. Use C<get_info('object_cache_time')>
+instead.
+
 Return the duration for which an object of the current class can be cached.
 
 	my $object_cache_time = $class->get_object_cache_time();
@@ -2068,7 +2071,9 @@ sub get_object_cache_time
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->get('object_cache_time');
+	carp "get_object_cache_time() has been deprecated, please change the method call to get_info('object_cache_time')";
+	
+	return $self->get_info('object_cache_time');
 }
 
 
