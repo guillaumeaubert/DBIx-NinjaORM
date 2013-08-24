@@ -53,6 +53,58 @@ subclasses as follows:
 
 =back
 
+=head3 Deprecated methods
+
+The following methods have been deprecated:
+
+=over 4
+
+=item * get_default_dbh()
+
+Replaced by C<get_info('default_dbh')>.
+
+=item * get_list_cache_time()
+
+Replaced by C<get_info('list_cache_time')>.
+
+=item * get_memcache()
+
+Replaced by C<get_info('memcache')>.
+
+=item * get_object_cache_time()
+
+Replaced by C<get_info('object_cache_time')>.
+
+=item * get_primary_key_name()
+
+Replaced by C<get_info('primary_key_name')>.
+
+=item * get_readonly_fields()
+
+Replaced by C<get_info('readonly_fields')>.
+
+=item * get_table_name()
+
+Replaced by C<get_info('table_name')>.
+
+=item * get_unique_fields()
+
+Replaced by C<get_info('unique_fields')>.
+
+=item * has_created_field()
+
+Replaced by C<get_info('created_field')>.
+
+=item * has_modified_field()
+
+Replaced by C<get_info('modified_field')>.
+
+=back
+
+Those methods will still work for this release, but they will be removed in the
+next. In the meantime, they will print out a warning regarding the need to
+convert the caller to use the new C<get_info> method.
+
 
 =head1 AUTHOR
 
