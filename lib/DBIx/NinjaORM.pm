@@ -2036,6 +2036,8 @@ sub get_list_cache_time
 
 =head2 get_memcache()
 
+WARNING: this method will be removed soon. Use C<get_info('memcache')> instead.
+
 Return the memcache object to use with this class.
 
 	my $memcache = $class->get_memcache();
@@ -2047,7 +2049,9 @@ sub get_memcache
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->get('memcache');
+	carp "get_memcache() has been deprecated, please change the method call to get_info('memcache')";
+	
+	return $self->get_info('memcache');
 }
 
 
