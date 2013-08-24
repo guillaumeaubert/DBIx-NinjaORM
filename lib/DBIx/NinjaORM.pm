@@ -2168,6 +2168,9 @@ sub get_unique_fields
 
 =head2 has_created_field()
 
+WARNING: this method will be removed soon. Use C<get_info('has_created_field')>
+instead.
+
 Return a boolean to indicate whether the underlying table has a 'created'
 field.
 
@@ -2180,7 +2183,9 @@ sub has_created_field
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->get('has_created_field');
+	carp "has_created_field() has been deprecated, please change the method call to get_info('has_created_field')";
+	
+	return $self->get_info('has_created_field');
 }
 
 
