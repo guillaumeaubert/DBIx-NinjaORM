@@ -6,6 +6,7 @@ use strict;
 use warnings;
 
 use Carp;
+use Data::Validate::Type;
 
 
 =head1 NAME
