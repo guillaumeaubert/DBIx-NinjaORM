@@ -1942,6 +1942,8 @@ sub get_cache_key_field
 
 =head2 get_default_dbh()
 
+WARNING: this method will be removed soon. Use C<get_info('default_dbh')> instead.
+
 Return the default database handle to use with this class.
 
 	my $default_dbh = $class->get_default_dbh();
@@ -1953,7 +1955,9 @@ sub get_default_dbh
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->get('default_dbh');
+	carp "get_default_dbh() has been deprecated, please change the method call to get_info('default_dbh')";
+	
+	return $self->get_info('default_dbh');
 }
 
 
