@@ -2191,6 +2191,8 @@ sub has_created_field
 
 =head2 has_modified_field()
 
+WARNING: this method will be removed soon. Use C<get_info('has_modified_field')> instead.
+
 Return a boolean to indicate whether the underlying table has a 'modified'
 field.
 
@@ -2203,7 +2205,9 @@ sub has_modified_field
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->get('has_modified_field');
+	carp "has_modified_field() has been deprecated, please change the method call to get_info('has_modified_field')";
+	
+	return $self->get_info('has_modified_field');
 }
 
 
