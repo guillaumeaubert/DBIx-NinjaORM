@@ -2079,6 +2079,8 @@ sub get_object_cache_time
 
 =head2 get_primary_key_name()
 
+WARNING: this method will be removed soon. Use C<get_info('primary_key_name')> instead.
+
 Return the underlying primary key name for the current class or object.
 
 	my $primary_key_name = $class->get_primary_key_name();
@@ -2090,7 +2092,9 @@ sub get_primary_key_name
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->get('primary_key_name');
+	carp "get_primary_key_name() has been deprecated, please change the method call to get_info('primary_key_name')";
+	
+	return $self->get_info('primary_key_name');
 }
 
 
