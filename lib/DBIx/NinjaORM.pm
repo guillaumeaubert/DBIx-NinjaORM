@@ -2143,6 +2143,9 @@ sub get_table_name
 
 =head2 get_unique_fields()
 
+WARNING: this method will be removed soon. Use C<get_info('unique_fields')>
+instead.
+
 Return an arrayref of fields that are unique for the underlying table.
 
 Important: this doesn't include the primary key name. To retrieve the name
@@ -2157,7 +2160,9 @@ sub get_unique_fields
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->get('unique_fields') || [];
+	carp "get_unique_fields() has been deprecated, please change the method call to get_info('unique_fields')";
+	
+	return $self->get_info('unique_fields');
 }
 
 
