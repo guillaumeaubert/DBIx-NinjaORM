@@ -2100,6 +2100,8 @@ sub get_primary_key_name
 
 =head2 get_readonly_fields()
 
+WARNING: this method will be removed soon. Use C<get_info('readonly_fields')> instead.
+
 Return an arrayref of fields that cannot be modified via C<set()>, C<update()>,
 or C<insert()>.
 
@@ -2112,7 +2114,9 @@ sub get_readonly_fields
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->get('readonly_fields') || [];
+	carp "get_readonly_fields() has been deprecated, please change the method call to get_info('readonly_fields')";
+	
+	return $self->get_info('readonly_fields');
 }
 
 
