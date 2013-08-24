@@ -2122,6 +2122,8 @@ sub get_readonly_fields
 
 =head2 get_table_name()
 
+WARNING: this method will be removed soon. Use C<get_info('table_name')> instead.
+
 Returns the underlying table name for the current class or object.
 
 	my $table_name = $class->get_table_name();
@@ -2133,7 +2135,9 @@ sub get_table_name
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->get('table_name');
+	carp "get_table_name() has been deprecated, please change the method call to get_info('table_name')";
+	
+	return $self->get_info('table_name');
 }
 
 
