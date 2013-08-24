@@ -36,6 +36,7 @@ t/050-StaticClassInfo/20-get.t
 t/050-StaticClassInfo/30-set.t
 t/100-static_class_info.t
 t/101-cached_static_class_info.t
+t/109-get_info.t
 t/110-get_default_dbh.t
 t/111-get_default_memcache.t
 t/112-get_table_name.t
