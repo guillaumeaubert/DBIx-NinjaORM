@@ -2013,6 +2013,9 @@ sub get_info {
 
 =head2 get_list_cache_time()
 
+WARNING: this method will be removed soon. Use C<get_info('list_cache_time')>
+instead.
+
 Return the duration for which a list of objects of the current class can be
 cached.
 
@@ -2025,7 +2028,9 @@ sub get_list_cache_time
 {
 	my ( $self ) = @_;
 	
-	return $self->cached_static_class_info()->get('list_cache_time');
+	carp "get_list_cache_time() has been deprecated, please change the method call to get_info('list_cache_time')";
+	
+	return $self->get_info('list_cache_time');
 }
 
 
