@@ -1991,6 +1991,22 @@ sub get_filtering_fields
 }
 
 
+=head2 get_info()
+
+Return cached static class information for the current object or class.
+
+	my $info = $class->get_info();
+	my $info = $object->get_info();
+
+=cut
+
+sub get_info {
+	my ( $self, $key ) = @_;
+	
+	return $self->cached_static_class_info()->get( $key );
+}
+
+
 =head2 get_list_cache_time()
 
 Return the duration for which a list of objects of the current class can be
