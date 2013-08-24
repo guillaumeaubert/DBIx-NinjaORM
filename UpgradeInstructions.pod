@@ -1,6 +1,6 @@
 =head1 UPGRADE INSTRUCTIONS
 
-=head2 Upgrading to v2.6.0
+=head2 Upgrading to v3.0.0
 
 v2.6.0 introduces a separate class for the static class information. In theory,
 this change is backwards-compatible, but future evolutions of DBIx::NinjaORM
