@@ -44,7 +44,7 @@ subtest(
 
 # Re-bless the database connection as a DBI::db::Test object, which is the
 # same as DBI::db except that it overrides do() to make it die.
-my $dbh = $object->get_default_dbh();
+my $dbh = $object->get_info('default_dbh');
 bless( $dbh, 'DBI::db::Test' );
 
 throws_ok(

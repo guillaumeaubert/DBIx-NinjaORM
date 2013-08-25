@@ -14,9 +14,9 @@ use lib 't/lib';
 
 use DBIx::NinjaORM;
 use Test::Deep;
-use Test::Exception;
 use Test::FailWarnings -allow_deps => 1;
 use Test::More tests => 5;
+use Test::Warn;
 use TestSubclass::Accessors;
 
 
@@ -62,12 +62,13 @@ foreach my $test ( @$tests )
 			plan( tests => 2 );
 			
 			my $unique_fields;
-			lives_ok(
+			warning_like(
 				sub
 				{
 					$unique_fields = $test->{'ref'}->get_unique_fields();
 				},
-				'Retrieve the list cache time.',
+				{ carped => qr/has been deprecated/ },
+				'The method is deprecated.',
 			);
 			
 			is_deeply(

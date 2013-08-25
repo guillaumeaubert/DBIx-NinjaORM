@@ -13,10 +13,10 @@ use warnings;
 use lib 't/lib';
 
 use DBIx::NinjaORM;
-use Test::Exception;
 use Test::FailWarnings -allow_deps => 1;
 use Test::More tests => 4;
 use Test::Type;
+use Test::Warn;
 use TestSubclass::Accessors;
 
 
@@ -55,12 +55,13 @@ foreach my $test ( @$tests )
 			plan( tests => 2 );
 			
 			my $primary_key_name;
-			lives_ok(
+			warning_like(
 				sub
 				{
 					$primary_key_name = $test->{'ref'}->get_primary_key_name();
 				},
-				'Retrieve the primary key name.',
+				{ carped => qr/has been deprecated/ },
+				'The method is deprecated.',
 			);
 			
 			is(
