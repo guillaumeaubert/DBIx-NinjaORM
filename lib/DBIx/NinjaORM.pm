@@ -279,7 +279,7 @@ sub commit
 	{
 		# If id() is defined, we have a value for the primary key name
 		# and we need to delete it from the data to update.
-		my $primary_key_name = $self->get_primary_key_name();
+		my $primary_key_name = $self->get_info('primary_key_name');
 		delete( $data->{ $primary_key_name } );
 		
 		return $self->update( $data );
@@ -445,23 +445,23 @@ sub insert ## no critic (Subroutines::RequireArgUnpacking)
 	
 	# Retrieve the metadata for that table.
 	my $class = ref( $self );
-	my $table_name = $self->get_table_name();
+	my $table_name = $self->get_info('table_name');
 	croak "The table name for class '$class' is not defined"
 		if !defined( $table_name );
 	
-	my $primary_key_name = $self->get_primary_key_name();
+	my $primary_key_name = $self->get_info('primary_key_name');
 	croak "Missing primary key name for class '$class', cannot force primary key value"
 		if !defined( $primary_key_name ) && defined( $args{'generated_primary_key_value'} );
 	
 	# Set defaults.
-	if ( $self->has_created_field() )
+	if ( $self->get_info('has_created_field') )
 	{
 		$clean_data->{'created'} = defined( $args{'overwrite_created'} ) && $args{'overwrite_created'} ne ''
 			? $args{'overwrite_created'}
 			: $self->get_current_time();
 	}
 	$clean_data->{'modified'} = $self->get_current_time()
-		if $self->has_modified_field();
+		if $self->get_info('has_modified_field');
 	$clean_data->{ $primary_key_name } = $args{'generated_primary_key_value'}
 		if defined( $args{'generated_primary_key_value'} );
 	
@@ -634,7 +634,7 @@ sub new
 	# Note: passing an ID is a subcase of passing field defined as unique, but
 	# unique_fields() doesn't include the primary key name.
 	my $unique_field;
-	foreach my $field ( 'id', @{ $class->get_unique_fields() } )
+	foreach my $field ( 'id', @{ $class->get_info('unique_fields') // [] } )
 	{
 		next
 			if ! exists( $filters->{ $field } );
@@ -713,11 +713,11 @@ sub remove
 	
 	# Retrieve the metadata for that table.
 	my $class = ref( $self );
-	my $table_name = $self->get_table_name();
+	my $table_name = $self->get_info('table_name');
 	croak "The table name for class '$class' is not defined"
 		if ! defined( $table_name );
 	
-	my $primary_key_name = $self->get_primary_key_name();
+	my $primary_key_name = $self->get_info('primary_key_name');
 	croak "Missing primary key name for class '$class', cannot delete safely"
 		if !defined( $primary_key_name );
 	
@@ -815,15 +815,15 @@ sub retrieve_list_nocache ## no critic (Subroutines::ProhibitExcessComplexity)
 		if !$args{'allow_all'} && !$filtering_field_keys_passed && scalar( @$where_clauses ) == 0;
 	
 	# Prepare the ORDER BY.
-	my $table_name = $class->get_table_name();
+	my $table_name = $class->get_info('table_name');
 	my $order_by = defined( $args{'order_by'} ) && ( $args{'order_by'} ne '' )
 		? "ORDER BY $args{'order_by'}"
-		: $class->has_created_field()
+		: $class->get_info('has_created_field')
 			? "ORDER BY " . $dbh->quote_identifier( $table_name ) . ".created ASC"
-			: "ORDER BY " . $dbh->quote_identifier( $table_name ) . '.' . $class->get_primary_key_name();
+			: "ORDER BY " . $dbh->quote_identifier( $table_name ) . '.' . $class->get_info('primary_key_name');
 	
 	# Prepare quoted identifiers.
-	my $primary_key_name = $class->get_primary_key_name();
+	my $primary_key_name = $class->get_info('primary_key_name');
 	my $quoted_primary_key_name = $dbh->quote_identifier( $primary_key_name );
 	my $quoted_table_name = $dbh->quote_identifier( $table_name );
 	
@@ -1298,7 +1298,7 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 	
 	# Set defaults
 	$clean_data->{'modified'} = $self->get_current_time()
-		if !$args{'skip_modified_update'} && $self->has_modified_field();
+		if !$args{'skip_modified_update'} && $self->get_info('has_modified_field');
 	
 	# If there's nothing to update, bail out.
 	if ( scalar( keys %$clean_data ) == 0 )
@@ -1311,11 +1311,11 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 	# Retrieve the meta-data for that table.
 	my $class = ref( $self );
 	
-	my $table_name = $self->get_table_name();
+	my $table_name = $self->get_info('table_name');
 	croak "The table name for class '$class' is not defined"
 		if ! defined( $table_name );
 	
-	my $primary_key_name = $self->get_primary_key_name();
+	my $primary_key_name = $self->get_info('primary_key_name');
 	croak "Missing primary key name for class '$class', cannot force primary key value"
 		if !defined( $primary_key_name ) && defined( $args{'generated_primary_key_value'} );
 	
@@ -1396,7 +1396,7 @@ sub update ## no critic (Subroutines::RequireArgUnpacking)
 	croak 'Could not execute update: ' . $dbh->errstr()
 		if $rows_updated_count < 0;
 	
-	my $object_cache_time = $self->get_object_cache_time();
+	my $object_cache_time = $self->get_info('object_cache_time');
 	# This needs to be before the set() below, so we invalidate the cache based on the
 	# old object. We don't need to do it twice, because you can't change primary IDs, and
 	# you can't change unique fields to ones that are taken, and that's all that we set
@@ -1444,7 +1444,7 @@ sub validate_data
 	my $data = Storable::dclone( $original_data );
 	
 	# Protect read-only fields.
-	foreach my $field ( @{ $self->get_readonly_fields() } )
+	foreach my $field ( @{ $self->get_info('readonly_fields') // [] } )
 	{
 		next if ! exists( $data->{ $field } );
 		
@@ -1464,7 +1464,7 @@ sub validate_data
 	}
 	
 	# Allow inserting the primary key, but not updating it.
-	my $primary_key_name = $self->get_primary_key_name();
+	my $primary_key_name = $self->get_info('primary_key_name');
 	if ( defined( $primary_key_name ) && defined( $self->{ $primary_key_name } ) && exists( $data->{ $primary_key_name } ) )
 	{
 		croak "'$primary_key_name' with a value of '" . ( $data->{ $primary_key_name } || 'undef' ) . "' ",
@@ -1536,7 +1536,7 @@ sub flatten_object
 		}
 		elsif ( $field eq 'id' )
 		{
-			if ( defined( $self->get_primary_key_name() ) )
+			if ( defined( $self->get_info('primary_key_name') ) )
 			{
 				$data{'id'} = $self->id();
 			}
@@ -1581,7 +1581,7 @@ sub reload
 	
 	# Verify that we can reload the object.
 	croak 'Cannot reload an object for which a primary key name has not been defined at the class level.'
-		if ! defined( $self->get_primary_key_name() );
+		if ! defined( $self->get_info('primary_key_name') );
 	croak 'Cannot reload an object with no ID value for its primary key'
 		if ! defined( $self->id() );
 	
@@ -1907,7 +1907,7 @@ sub retrieve_list
 		}
 	}
 	
-	my $any_cache_time = $class->get_list_cache_time() || $class->get_object_cache_time();
+	my $any_cache_time = $class->get_info('list_cache_time') || $class->get_info('object_cache_time');
 	return defined( $any_cache_time ) && !$args{'skip_cache'} && !$args{'lock'}
 		? $class->retrieve_list_cache( $filters, %args )
 		: $class->retrieve_list_nocache( $filters, %args );
@@ -1936,7 +1936,7 @@ sub get_cache_key_field
 	# Otherwise, we fall back on the primary key if it exists.
 	return defined( $cache_key_field )
 		? $cache_key_field
-		: $self->get_primary_key_name();
+		: $self->get_info('primary_key_name');
 }
 
 
@@ -2223,7 +2223,7 @@ sub id
 {
 	my ( $self ) = @_;
 	
-	my $primary_key_name = $self->get_primary_key_name();
+	my $primary_key_name = $self->get_info('primary_key_name');
 	return defined( $primary_key_name )
 		? $self->{ $primary_key_name }
 		: undef;
@@ -2336,7 +2336,7 @@ Return the schema corresponding to the underlying table.
 		if ( !defined( $TABLE_SCHEMAS_CACHE->{ $class } ) )
 		{
 			my $dbh = $class->assert_dbh();
-			my $table_name = $self->get_table_name();
+			my $table_name = $self->get_info('table_name');
 			
 			Class::Load::load_class( 'DBIx::NinjaORM::Schema::Table' );
 			my $table_schema = DBIx::NinjaORM::Schema::Table->new(
@@ -2374,7 +2374,7 @@ sub delete_cache
 	croak 'The parameter "key" is mandatory'
 		if !defined( $key ) || $key !~ /\w/;
 	
-	my $memcache = $self->get_memcache();
+	my $memcache = $self->get_info('memcache');
 	return undef
 		if !defined( $memcache );
 	
@@ -2401,7 +2401,7 @@ sub get_cache
 	croak 'The parameter "key" is mandatory'
 		if !defined( $key ) || $key !~ /\w/;
 	
-	my $memcache = $self->get_memcache();
+	my $memcache = $self->get_info('memcache');
 	return undef
 		if !defined( $memcache );
 	
@@ -2433,7 +2433,7 @@ sub get_object_cache_key
 	croak 'No cache key found for class'
 		if !defined( $cache_key_field );
 	
-	my $table_name = $self->get_table_name();
+	my $table_name = $self->get_info('table_name');
 	if ( defined( $unique_field ) )
 	{
 		if ( !defined( $value ) )
@@ -2448,7 +2448,7 @@ sub get_object_cache_key
 		}
 		
 		# 'id' is only an alias and needs to be expanded to its actual name.
-		$unique_field = $self->get_primary_key_name()
+		$unique_field = $self->get_info('primary_key_name')
 			if $unique_field eq 'id';
 	}
 	else
@@ -2542,7 +2542,7 @@ sub invalidate_cached_object
 {
 	my ( $self ) = @_;
 	
-	my $primary_key_name = $self->get_primary_key_name();
+	my $primary_key_name = $self->get_info('primary_key_name');
 	if ( defined( $primary_key_name ) )
 	{
 		my $cache_key = $self->get_object_cache_key(
@@ -2553,7 +2553,7 @@ sub invalidate_cached_object
 			if defined( $cache_key );
 	}
 	
-	foreach my $field ( @{ $self->get_unique_fields() } )
+	foreach my $field ( @{ $self->get_info('unique_fields') // [] } )
 	{
 		# If the object has no value for the unique field, it wasn't
 		# cached for this key/value pair and we can't build a cache key
@@ -2583,9 +2583,9 @@ See C<retrieve_list()> for the parameters this method accepts.
 sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 {
 	my ( $class, $filters, %args ) = @_;
-	my $list_cache_time = $class->get_list_cache_time();
-	my $object_cache_time = $class->get_object_cache_time();
-	my $primary_key_name = $class->get_primary_key_name();
+	my $list_cache_time = $class->get_info('list_cache_time');
+	my $object_cache_time = $class->get_info('object_cache_time');
+	my $primary_key_name = $class->get_info('primary_key_name');
 	
 	# Create a unique cache key.
 	my $list_cache_keys = [];
@@ -2614,7 +2614,7 @@ sub retrieve_list_cache ## no critic (Subroutines::ProhibitExcessComplexity)
 	# Find out if the parameters are searching by ID or using a unique field.
 	my $search_field;
 	my $list_of_search_values;
-	foreach my $field ( 'id', @{ $class->get_unique_fields() } )
+	foreach my $field ( 'id', @{ $class->get_info('unique_fields') // [] } )
 	{
 		next
 			unless exists( $filters->{ $field } );
@@ -2896,7 +2896,7 @@ sub set_cache
 	croak 'The argument "value" is mandatory'
 		if !defined( $value );
 	
-	my $memcache = $self->get_memcache();
+	my $memcache = $self->get_info('memcache');
 	return
 		if !defined( $memcache );
 	
@@ -2943,7 +2943,7 @@ sub assert_dbh
 	}
 	else
 	{
-		$dbh = $class->get_default_dbh();
+		$dbh = $class->get_info('default_dbh');
 		$type = 'default';
 	}
 	
@@ -3123,7 +3123,7 @@ sub parse_filtering_criteria
 		@{ $class->get_filtering_fields() || [] }
 	};
 	
-	my $primary_key_name = $class->get_primary_key_name();
+	my $primary_key_name = $class->get_info('primary_key_name');
 	if ( defined( $primary_key_name ) )
 	{
 		# If there's a primary key name, allow 'id' as an alias.
@@ -3147,7 +3147,7 @@ sub parse_filtering_criteria
 	
 	# Find the table name to prefix it to the field names when we create where
 	# clauses.
-	my $table_name = $class->get_table_name();
+	my $table_name = $class->get_info('table_name');
 	croak "No table name found for the class >" . ( ref( $class ) || $class ) . "<"
 		if !defined( $table_name );
 	
