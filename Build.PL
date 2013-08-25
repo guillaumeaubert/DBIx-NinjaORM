@@ -45,8 +45,8 @@ my $builder = $class->new(
 		'DBI'                  => 0,
 		'Test::Deep'           => 0,
 		'Test::Exception'      => 0,
-		'Test::More'           => 0.94, # subtest()
 		'Test::FailWarnings'   => 0,
+		'Test::More'           => 0.94, # subtest()
 		'Test::Type'           => 0,
 	},
 	requires             =>
