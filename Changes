@@ -1,5 +1,29 @@
 Revision history for DBIx-NinjaORM
 
+v3.0.0  2013-08-25
+        * SEE UPGRADE NOTES: refactored class configuration into
+          DBIx::NinjaORM::StaticClassInfo (GH-15).
+        * SEE UPGRADE NOTES: added get_info() and deprecated some accessors
+          which will be removed in a next version (GH-19).
+        * Added document to gather upgrade instructions between versions.
+        * Added ability to use real date types for 'created' and 'modified'
+          fields (GH-2).
+        * Set up mechanism to retrieve and cache schema information, to power
+          new features of NinjaORM that rely on knowing the table structures (GH-16).
+        * Added the ability to select explicitely or exclude fields from the
+          underlying table as part of retrieve_list(), as opposed to table.* (GH-14).
+        * Fixed bug where an object ID would exist in the list cache but have
+          been deleted from the database and return undef instead of being
+          skipped in the results of retrieve_list().
+        * Fixed bug when retrieving cache misses by ID, now passing the correct
+          arguments for dbh/show_queries.
+        * Refactored retrieve_list() argument handling for list cache key
+          generation.
+        * Code cleanup.
+        * Better test coverage (including GH-10, GH-18).
+				* Massive tests cleanup, reusable test classes are now in
+          t/lib/TestSubclass/.
+
 v2.5.1  2013-07-11
         * Fixed retrieve_list() when a 'created' field is not present (GH-17).
           Thanks Kate Kirby!

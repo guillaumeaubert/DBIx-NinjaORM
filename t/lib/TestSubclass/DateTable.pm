@@ -15,11 +15,11 @@ TestSubclass::DateTable - Interface to the 'date_tests' table.
 
 =head1 VERSION
 
-Version 2.5.1
+Version 3.0.0
 
 =cut
 
-our $VERSION = '2.5.1';
+our $VERSION = '3.0.0';
 
 
 =head1 SYNOPSIS
