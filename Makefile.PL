@@ -22,6 +22,7 @@ WriteMakefile
                            'Test::FailWarnings' => 0,
                            'Test::More' => '0.94',
                            'Test::Type' => 0,
+                           'Test::Warn' => 0,
                            'Try::Tiny' => 0
                          },
           'INSTALLDIRS' => 'site',
