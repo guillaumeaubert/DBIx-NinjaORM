@@ -16,11 +16,13 @@ use LocalTest;
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::FailWarnings -allow_deps => 1;
-use Test::More tests => 5;
+use Test::More;
 use Data::Dumper;
 
 
 LocalTest::ok_memcache();
+
+plan( tests => 5 );
 
 # Insert row.
 my $value = 'select_fields_' . time();

@@ -16,10 +16,12 @@ use LocalTest;
 use DBIx::NinjaORM;
 use Test::Exception;
 use Test::FailWarnings -allow_deps => 1;
-use Test::More tests => 5;
+use Test::More;
 
 
 LocalTest::ok_memcache();
+
+plan( tests => 5 );
 
 # Insert row.
 my $value = 'exclude_fields_' . time();
