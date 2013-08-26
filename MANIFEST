@@ -90,13 +90,13 @@ t/332-retrieve_list-by_unique_field.t
 t/333-retrieve_list-by_non_unique_field.t
 t/337-retrieve_list_cache-partial_id_cache.t
 t/339-retrieve_list-exclude_fields.t
+t/340-retrieve_list-select_fields.t
 t/345-retrieve_list-no_subclass.t
 t/350-retrieve_list-pagination.t
 t/370-invalidate_cached_object.t
 t/400-remove.t
 t/405-remove-dbi_failure.t
 t/415-commit.t
-t/440-retrieve_list-select_fields.t
 t/500-flatten_object.t
 t/501-flatten_object-no_pk.t
 t/510-dump.t
