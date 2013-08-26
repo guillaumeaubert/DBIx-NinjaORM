@@ -1,5 +1,9 @@
 Revision history for DBIx-NinjaORM
 
+v3.0.1  2013-08-25
+        * Fixed double-planning tests when memcache isn't running (GH-21).
+        * Reordered new tests.
+
 v3.0.0  2013-08-25
         * SEE UPGRADE NOTES: refactored class configuration into
           DBIx::NinjaORM::StaticClassInfo (GH-15).

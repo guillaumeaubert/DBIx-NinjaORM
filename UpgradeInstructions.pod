@@ -1,10 +1,10 @@
 =head1 UPGRADE INSTRUCTIONS
 
-=head2 Upgrading to v3.0.0
+=head2 Upgrading to v3.0.1
 
 =head3 static_class_info() changes
 
-v3.0.0 introduces a separate class for the static class information. In theory,
+v3.0.1 introduces a separate class for the static class information. In theory,
 this change is backwards-compatible, but future evolutions of DBIx::NinjaORM
 may change the internals of C<DBIx::NinjaORM> and break your implementations of
 C<static_class_info()>.
