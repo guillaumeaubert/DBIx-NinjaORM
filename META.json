@@ -67,6 +67,10 @@
       "DBIx::NinjaORM::StaticClassInfo" : {
          "file" : "lib/DBIx/NinjaORM/StaticClassInfo.pm",
          "version" : "v3.0.1"
+      },
+      "DBIx::NinjaORM::Utils" : {
+         "file" : "lib/DBIx/NinjaORM/Utils.pm",
+         "version" : "v3.0.1"
       }
    },
    "release_status" : "stable",
