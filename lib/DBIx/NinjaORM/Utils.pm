@@ -5,6 +5,16 @@ use 5.010;
 use strict;
 use warnings;
 
+use Carp;
+use Data::Dumper ();
+use Data::Validate::Type;
+
+use base 'Exporter';
+
+our @EXPORT_OK = qw(
+	dumper
+);
+
 
 =head1 NAME
 
@@ -28,8 +38,51 @@ ancillary tasks.
 
 =head1 SYNOPSIS
 
+	use DBIx::NinjaORM::Utils qw( dumper );
+	
+	my $string = dumper( $data_structure );
+
 
 =head1 FUNCTIONS
+
+=head2 dumper()
+
+Utility to stringify data structures.
+
+	my $string = DBIx::NinjaORM::Utils::dumper( @data );
+
+Internally, this uses Data::Dumper::Dumper, but you can switch it to a custom
+dumper with the following code:
+
+	local $DBIx::NinjaORM::Utils::DUMPER = sub
+	{
+		my ( @refs ) = @_;
+		
+		# Create a stringified version.
+		
+		return $string;
+	};
+
+=cut
+
+our $DUMPER = undef;
+
+sub dumper
+{
+	my ( @data ) = @_;
+	
+	if ( defined( $DUMPER ) )
+	{
+		carp "The custom dumper function is not a valid code reference"
+			if !Data::Validate::Type::is_coderef( $DUMPER );
+		
+		return $DUMPER->( @data );
+	}
+	else
+	{
+		return Data::Dumper::Dumper( @data );
+	}
+} 
 
 
 =head1 BUGS

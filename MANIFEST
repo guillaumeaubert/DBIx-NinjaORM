@@ -24,6 +24,7 @@ t/010-LocalTest/20-get_database_type.t
 t/010-LocalTest/30-get_memcache.t
 t/020-setup.t
 t/025-Utils/00-load.t
+t/025-Utils/10-dumper.t
 t/030-Schema-Table/00-load.t
 t/030-Schema-Table/10-new.t
 t/030-Schema-Table/20-get_name.t
