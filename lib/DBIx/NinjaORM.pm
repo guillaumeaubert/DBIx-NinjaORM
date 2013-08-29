@@ -8,7 +8,7 @@ use strict;
 use Carp;
 use Class::Load qw();
 use DBIx::NinjaORM::StaticClassInfo;
-use Data::Dumper;
+use DBIx::NinjaORM::Utils qw( dumper );
 use Data::Validate::Type;
 use Digest::SHA1 qw();
 use Log::Any qw( $log );
@@ -529,7 +529,7 @@ sub insert ## no critic (Subroutines::RequireArgUnpacking)
 	}
 	
 	# Check that the object was correctly inserted.
-	croak "Could not insert into table '$table_name': " . Dumper( $data )
+	croak "Could not insert into table '$table_name': " . dumper( $data )
 		if defined( $primary_key_name ) && !defined( $clean_data->{ $primary_key_name } );
 	
 	# Make sure that the object reflects the changes in the database.
@@ -676,7 +676,7 @@ sub new
 		}
 		else
 		{
-			croak "Called new() with a set of non-unique arguments that returned $objects_count objects: " . Dumper( \%args );
+			croak "Called new() with a set of non-unique arguments that returned $objects_count objects: " . dumper( \%args );
 		}
 	}
 	else
@@ -1488,7 +1488,7 @@ sub validate_data
 
 =head2 dump()
 
-Return a Dumper( ) of the current object.
+Return a string representation of the current object.
 
 	my $string = $book->dump();
 
@@ -1498,7 +1498,7 @@ sub dump ## no critic (Subroutines::ProhibitBuiltinHomonyms)
 {
 	my ( $self ) = @_;
 	
-	return Dumper( $self );
+	return dumper( $self );
 }
 
 
@@ -3035,7 +3035,7 @@ sub build_filtering_clause
 			}
 			else
 			{
-				croak 'Could not find max of the following list: ' . Dumper( $values );
+				croak 'Could not find max of the following list: ' . dumper( $values );
 			}
 		}
 		elsif ( $operator eq '<' || $operator eq '<=' )
@@ -3050,7 +3050,7 @@ sub build_filtering_clause
 			}
 			else
 			{
-				croak 'Could not find min of the following list: ' . Dumper( $values );
+				croak 'Could not find min of the following list: ' . dumper( $values );
 			}
 		}
 		elsif ( $operator eq 'like' )
