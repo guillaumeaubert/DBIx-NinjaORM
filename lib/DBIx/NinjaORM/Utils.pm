@@ -82,7 +82,7 @@ sub dumper
 	{
 		return Data::Dumper::Dumper( @data );
 	}
-} 
+}
 
 
 =head1 BUGS
