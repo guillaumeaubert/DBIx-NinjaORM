@@ -73,19 +73,61 @@ ok(
 	'Retrieve the object previously inserted.',
 );
 
-# Dump the object.
-my $output;
-lives_ok(
+# Dump the object using the default dumper.
+subtest(
+	'Test default dumper.',
 	sub
 	{
-		$output = $object->dump();
-	},
-	'Dump the object.',
+		plan( tests => 2 );
+		
+		my $output;
+		lives_ok(
+			sub
+			{
+				$output = $object->dump();
+			},
+			'Dump the object.',
+		);
+
+		# Make sure the output isn't empty.
+		like(
+			$output,
+			qr/account_id/,
+			"The output includes the object's account ID.",
+		) || diag( $output );
+	}
 );
 
-# Make sure the output isn't empty.
-like(
-	$output,
-	qr/account_id/,
-	"The output includes the object's account ID.",
-) || diag( $output );
+# Dump the object using a custom dumper.
+subtest(
+	'Test custom dumper.',
+	sub
+	{
+		plan( tests => 3 );
+		
+		ok(
+			local $DBIx::NinjaORM::Utils::DUMPER = sub
+			{
+				my ( $ref ) = @_;
+				return $ref->id();
+			},
+			'Set up custom dumper.',
+		);
+		
+		my $output;
+		lives_ok(
+			sub
+			{
+				$output = $object->dump();
+			},
+			'Dump the object.',
+		);
+		
+		# Verify output.
+		is(
+			$output,
+			$object->id(),
+			'dump() used the custom dumper.',
+		);
+	}
+);
