@@ -64,7 +64,7 @@ subtest(
 	sub
 	{
 		plan( tests => scalar( @$mandatory_keys ) );
-		
+
 		foreach my $key ( @$mandatory_keys )
 		{
 			ok(

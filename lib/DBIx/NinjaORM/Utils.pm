@@ -39,7 +39,7 @@ ancillary tasks.
 =head1 SYNOPSIS
 
 	use DBIx::NinjaORM::Utils qw( dumper );
-	
+
 	my $string = dumper( $data_structure );
 
 
@@ -57,9 +57,9 @@ dumper with the following code:
 	local $DBIx::NinjaORM::Utils::DUMPER = sub
 	{
 		my ( @refs ) = @_;
-		
+
 		# Create a stringified version.
-		
+
 		return $string;
 	};
 
@@ -70,12 +70,12 @@ our $DUMPER = undef;
 sub dumper
 {
 	my ( @data ) = @_;
-	
+
 	if ( defined( $DUMPER ) )
 	{
 		carp "The custom dumper function is not a valid code reference"
 			if !Data::Validate::Type::is_coderef( $DUMPER );
-		
+
 		return $DUMPER->( @data );
 	}
 	else

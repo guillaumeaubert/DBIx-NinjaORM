@@ -36,12 +36,12 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		ok(
 			$object = DBIx::NinjaORM::Test->new(),
 			'Create new object.',
 		);
-		
+
 		lives_ok(
 			sub
 			{
@@ -64,7 +64,7 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		ok(
 			defined(
 				$test = DBIx::NinjaORM::Test->new(
@@ -73,7 +73,7 @@ subtest(
 			),
 			'Retrieve the object.',
 		);
-		
+
 		is(
 			$test->get('value'),
 			1,
@@ -99,7 +99,7 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		ok(
 			defined(
 				my $test = DBIx::NinjaORM::Test->new(
@@ -108,7 +108,7 @@ subtest(
 			),
 			'Retrieve the object.',
 		);
-		
+
 		is(
 			$test->get('value'),
 			$updated_value,
@@ -133,9 +133,9 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			'default_dbh'       => LocalTest::get_database_handle(),
@@ -146,7 +146,7 @@ sub static_class_info
 			'object_cache_time' => undef,
 		}
 	);
-	
+
 	return $info;
 }
 

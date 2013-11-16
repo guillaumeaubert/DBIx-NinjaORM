@@ -28,7 +28,7 @@ our $VERSION = '3.0.1';
 
 	use lib 't/lib';
 	use LocalTest;
-	
+
 	my $dbh = LocalTest::ok_database_handle();
 
 
@@ -45,9 +45,9 @@ Create a database handle.
 sub get_database_handle
 {
 	$ENV{'NINJAORM_DATABASE'} ||= 'dbi:SQLite:dbname=t/test_database||';
-	
+
 	my ( $database_dsn, $database_user, $database_password ) = split( /\|/, $ENV{'NINJAORM_DATABASE'} );
-	
+
 	my $database_handle = DBI->connect(
 		$database_dsn,
 		$database_user,
@@ -56,7 +56,7 @@ sub get_database_handle
 			RaiseError => 1,
 		}
 	);
-	
+
 	# If it's SQLite, we need to turn on foreign keys support.
 	if ( defined( $database_handle ) )
 	{
@@ -66,7 +66,7 @@ sub get_database_handle
 			$database_handle->do( 'PRAGMA foreign_keys = ON' );
 		}
 	}
-	
+
 	return $database_handle
 }
 
@@ -87,10 +87,10 @@ sub ok_database_handle
 		),
 		'Create connection to a database.',
 	);
-	
+
 	my $database_type = $database_handle->{'Driver'}->{'Name'} || '';
 	note( "Testing $database_type database." );
-	
+
 	return $database_handle;
 }
 
@@ -106,10 +106,10 @@ Return the name of the driver used by the database handle.
 sub get_database_type
 {
 	my ( $dbh ) = @_;
-	
+
 	croak 'The first argument of get_database_type() must be a database handle'
 		if ! Data::Validate::Type::is_instance( $dbh, class => 'DBI::db' );
-	
+
 	return $dbh->{'Driver'}->{'Name'};
 }
 
@@ -125,15 +125,15 @@ Verify that the database type is supported, and return it.
 sub ok_database_type
 {
 	my ( $dbh ) = @_;
-	
+
 	my $type = get_database_type( $dbh ) || '';
-	
+
 	like(
 		$type,
 		qr/^(?:mysql|SQLite|Pg)$/,
 		"Database type '$type' is supported.",
 	);
-	
+
 	return $type;
 }
 
@@ -154,7 +154,7 @@ sub get_memcache
 			eval 'use Cache::Memcached::Fast';
 			die 'Cache::Memcached::Fast is not installed on this system'
 				if $@;
-			
+
 			return Cache::Memcached::Fast->new(
 				{
 					servers =>
@@ -185,13 +185,13 @@ sub ok_memcache
 	eval 'use Cache::Memcached::Fast';
 	plan( skip_all => 'Cache::Memcached::Fast required to test cache-related features.' ) && exit
 		if $@;
-	
+
 	my $memcache = LocalTest::get_memcache();
-	
+
 	# Verify that memcache is configured and running.
 	plan( skip_all => 'Memcache is not running or configured on this machine, cannot test.' ) && exit
 		if !defined( $memcache) || !$memcache->set( 'test_ninja_orm', 1, time() + 10 );
-	
+
 	return $memcache;
 }
 

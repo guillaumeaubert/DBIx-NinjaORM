@@ -87,7 +87,7 @@ an integer that represents the cache time in seconds.
 
 	# Cache for 10 seconds.
 	$info->{'list_cache_time'} = 10;
-	
+
 	# Don't cache.
 	$info->{'list_cache_time'} = undef;
 
@@ -109,7 +109,7 @@ an integer that represents the cache time in seconds.
 
 	# Cache for 10 seconds.
 	$info->{'object_cache_time'} = 10;
-	
+
 	# Don't cache.
 	$info->{'object_cache_time'} = undef;
 
@@ -126,7 +126,7 @@ as separate unique indexes.
 
 	# Declare books.isbn as unique.
 	$info->{'unique_fields'} = [ 'isbn' ];
-	
+
 	# Declare books.isbn and books.upc as unique.
 	$info->{'unique_fields'} = [ 'isbn', 'upc' ];
 
@@ -157,7 +157,7 @@ at which the row was modified. Default: 1.
 
 	# The table doesn't have a 'modified' field.
 	$info->{'has_modified_field'} = 0;
-	
+
 =item * cache_key_field
 
 By default, the object cache uses the primary key value to make cached objects
@@ -186,7 +186,7 @@ Add information in the logs regarding cache operations and uses.
 =head1 SYNOPSIS
 
 	my $static_class_info = $class->SUPER::static_class_info();
-	
+
 	# Set or override information.
 	$static_class_info->set(
 		{
@@ -199,7 +199,7 @@ Add information in the logs regarding cache operations and uses.
 			),
 		}
 	);
-	
+
 	# Retrieve information.
 	my $table_name = $static_class_info->get('table_name');
 
@@ -217,7 +217,7 @@ Create a new L<DBIx::NinjaORM::StaticClassInfo> object.
 sub new
 {
 	my ( $class ) = @_;
-	
+
 	return bless(
 		{
 			'default_dbh'              => undef,
@@ -251,12 +251,12 @@ Retrieve the value of one of the configuration variables.
 sub get
 {
 	my ( $self, $key ) = @_;
-	
+
 	croak "The key name must be defined"
 		if !defined( $key );
 	croak "The key '$key' is not valid"
 		if !exists( $self->{ $key } );
-	
+
 	return $self->{ $key };
 }
 
@@ -278,17 +278,17 @@ sub set ## no critic (NamingConventions::ProhibitAmbiguousNames, Subroutines::Re
 {
 	croak 'The first argument passed must be a hashref'
 		if !Data::Validate::Type::is_hashref( $_[1] );
-	
+
 	my ( $self, $values ) = @_;
-	
+
 	foreach my $key ( keys %$values )
 	{
 		croak "The key '$key' is not valid"
 			if !exists( $self->{ $key } );
-		
+
 		$self->{ $key } = $values->{ $key };
 	}
-	
+
 	return;
 }
 

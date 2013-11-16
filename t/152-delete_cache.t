@@ -76,7 +76,7 @@ subtest(
 			},
 			'Retrieve the value associated with the test cache key.',
 		);
-		
+
 		is(
 			$retrieved_value,
 			$test_value,
@@ -110,7 +110,7 @@ subtest(
 			},
 			'Retrieve the value associated with the test cache key.',
 		);
-		
+
 		is(
 			$retrieved_value,
 			undef,

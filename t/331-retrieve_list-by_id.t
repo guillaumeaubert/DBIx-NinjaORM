@@ -58,13 +58,13 @@ foreach my $test ( @$tests )
 {
 	$count++;
 	my $skip_cache = $test->{'skip_cache'};
-	
+
 	subtest(
 		'Test with skip_cache=' . ( $skip_cache // 'undef' ). '.',
 		sub
 		{
 			plan( tests => 11 );
-			
+
 			# Insert the row.
 			ok(
 				defined(
@@ -72,7 +72,7 @@ foreach my $test ( @$tests )
 				),
 				'Create DBIx::NinjaORM::Test object.',
 			);
-			
+
 			lives_ok(
 				sub
 				{
@@ -84,13 +84,13 @@ foreach my $test ( @$tests )
 				},
 				'Insert new row.',
 			);
-			
+
 			isnt(
 				$insert_test->id(),
 				undef,
 				'The inserted row has a valid ID.',
 			);
-			
+
 			# Retrieve the corresponding object for the first time. It obviously
 			# can't/shouldn't be in the cache at this stage, since it was just
 			# inserted.
@@ -103,27 +103,27 @@ foreach my $test ( @$tests )
 				),
 				'Retrieve rows by ID.',
 			);
-			
+
 			is(
 				scalar( @$tests1 ),
 				1,
 				'Found one row.',
 			);
-			
+
 			my $test1 = $tests1->[0];
-			
+
 			is(
 				$test1->{'_debug'}->{'list_cache_used'},
 				0,
 				'The list cache is not used.',
 			) || diag( explain( $test1->{'_debug'} ) );
-			
+
 			is(
 				$test1->{'_debug'}->{'object_cache_used'},
 				0,
 				'The object cache is not used.',
 			) || diag( explain( $test1->{'_debug'} ) );
-			
+
 			# Retrieve the corresponding object a second time. If cache options are
 			# set accordingly and we're not explicitely skipping the cache, we should
 			# have it in the cache.
@@ -136,22 +136,22 @@ foreach my $test ( @$tests )
 				),
 				'Retrieve rows by ID.',
 			);
-			
+
 			is(
 				scalar( @$tests2 ),
 				1,
 				'Found one row.',
 			);
-			
+
 			my $test2 = $tests2->[0];
-			
+
 			my $expected_list_cache = $test->{'second_retrieve_list'}->{'list_cache_used'};
 			is(
 				$test2->{'_debug'}->{'list_cache_used'},
 				$expected_list_cache,
 				'The list cache is ' . ( $expected_list_cache ? 'used' : 'not used' ) . '.',
 			) || diag( explain( $test2->{'_debug'} ) );
-			
+
 			my $expected_object_cache = $test->{'second_retrieve_list'}->{'object_cache_used'};
 			is(
 				$test2->{'_debug'}->{'object_cache_used'},
@@ -179,9 +179,9 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			default_dbh       => LocalTest::get_database_handle(),
@@ -192,7 +192,7 @@ sub static_class_info
 			memcache          => LocalTest::get_memcache(),
 		}
 	);
-	
+
 	return $info;
 }
 

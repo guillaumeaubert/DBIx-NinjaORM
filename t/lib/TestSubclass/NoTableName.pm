@@ -43,15 +43,15 @@ Configure static class information.
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			primary_key_name => 'test_id',
 		}
 	);
-	
+
 	return $info;
 }
 

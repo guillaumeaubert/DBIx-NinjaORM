@@ -39,7 +39,7 @@ lives_ok(
 	sub
 	{
 		my $dbh = $object->assert_dbh();
-		
+
 		$row = $dbh->selectrow_hashref(
 			q|
 				SELECT *
@@ -49,7 +49,7 @@ lives_ok(
 			{},
 			$name,
 		);
-		
+
 		die 'No row'
 			if !defined( $row );
 	},
@@ -78,9 +78,9 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			'default_dbh'        => LocalTest::get_database_handle(),
@@ -89,7 +89,7 @@ sub static_class_info
 			'has_modified_field' => 0,
 		}
 	);
-	
+
 	return $info;
 }
 

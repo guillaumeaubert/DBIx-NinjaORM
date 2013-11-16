@@ -50,7 +50,7 @@ dies_ok(
 			{},
 			$id,
 		);
-		
+
 		die 'No row'
 			if !defined( $row );
 	},
@@ -86,7 +86,7 @@ lives_ok(
 			{},
 			$id,
 		);
-		
+
 		die 'No row'
 			if !defined( $row );
 	},

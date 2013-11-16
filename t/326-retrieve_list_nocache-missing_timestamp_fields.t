@@ -31,27 +31,27 @@ plan( tests => 2 );
 foreach my $test ( @$tests )
 {
 	my $class = $test->{'class'};
-	
+
 	subtest(
 		$test->{'name'},
 		sub
 		{
 			plan( tests => 3 );
-			
+
 			my $test_name = 'test_rl_nofield' . time();
-			
+
 			# Insert the object we'll use next for testing.
 			subtest(
 				"Insert test object.",
 				sub
 				{
 					plan( tests => 2 );
-					
+
 					ok(
 						my $object = $class->new(),
 						'Create new object.',
 					);
-					
+
 					lives_ok(
 						sub
 						{
@@ -65,7 +65,7 @@ foreach my $test ( @$tests )
 					);
 				}
 			);
-			
+
 			# Retrieve the objects we just inserted.
 			my $objects;
 			lives_ok(
@@ -79,14 +79,14 @@ foreach my $test ( @$tests )
 				},
 				'Retrieve the objects matching the names.',
 			);
-			
+
 			SKIP:
 			{
 				skip(
 					'retrieve_list() failed.',
 					1,
 				) if !defined( $objects );
-				
+
 				is(
 					scalar( @$objects ),
 					1,
@@ -114,9 +114,9 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			'default_dbh'       => LocalTest::get_database_handle(),
@@ -126,7 +126,7 @@ sub static_class_info
 			'has_created_field' => 0,
 		}
 	);
-	
+
 	return $info;
 }
 
@@ -149,9 +149,9 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			'default_dbh'        => LocalTest::get_database_handle(),
@@ -161,7 +161,7 @@ sub static_class_info
 			'has_modified_field' => 0,
 		}
 	);
-	
+
 	return $info;
 }
 

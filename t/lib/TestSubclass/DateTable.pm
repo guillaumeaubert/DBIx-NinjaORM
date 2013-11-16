@@ -45,9 +45,9 @@ Configure static class information.
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			default_dbh      => LocalTest::get_database_handle(),
@@ -55,7 +55,7 @@ sub static_class_info
 			primary_key_name => 'test_id',
 		}
 	);
-	
+
 	return $info;
 }
 
@@ -71,10 +71,10 @@ Return the current date.
 sub get_current_time
 {
 	my ( $self, $field ) = @_;
-	
+
 	my $database_handle = $self->assert_dbh();
 	my $database_type = $database_handle->{'Driver'}->{'Name'} || '';
-	
+
 	if ( $database_type eq 'mysql' )
 	{
 		return 'NOW()';

@@ -46,15 +46,15 @@ foreach my $context ( @$contexts )
 		sub
 		{
 			my $caller = $context->{'ref'};
-			
+
 			plan( tests => 2 );
-			
+
 			# Make sure the call is supported.
 			can_ok(
 				$caller,
 				'get_info',
 			);
-			
+
 			# Make sure the primary key name is correct.
 			is(
 				$caller->get_info('primary_key_name'),

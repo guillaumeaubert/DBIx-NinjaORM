@@ -39,7 +39,7 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		my $validated_data;
 		lives_ok(
 			sub
@@ -52,18 +52,18 @@ subtest(
 			},
 			'Validate data.',
 		);
-		
-		my $expected = 
+
+		my $expected =
 		{
 			test_pk => 1,
 		};
-		
+
 		is_deeply(
 			$validated_data,
 			$expected,
 			'Setting the primary key on an object without one is valid.',
 		) || diag( explain( 'Retrieved: ', $validated_data, 'Expected: ', $expected ) );
-	}                 
+	}
 );
 
 # Test setting the primary key value when it's already set on the object.
@@ -72,12 +72,12 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		ok(
 			$object->{'test_pk'} = 2,
 			'Set primary key value internally.',
 		);
-		
+
 		my $validated_data;
 		dies_ok(
 			sub
@@ -101,7 +101,7 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		my $validated_data;
 		lives_ok(
 			sub
@@ -115,12 +115,12 @@ subtest(
 			},
 			'Validate data.',
 		);
-		
-		my $expected = 
+
+		my $expected =
 		{
 			field1 => 'value1',
 		};
-		
+
 		is_deeply(
 			$validated_data,
 			$expected,
@@ -157,16 +157,16 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			'readonly_fields'  => [ 'readonly_field' ],
 			'primary_key_name' => 'test_pk',
 		}
 	);
-	
+
 	return $info;
 }
 

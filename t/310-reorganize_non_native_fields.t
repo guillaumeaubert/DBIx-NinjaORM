@@ -66,20 +66,20 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		ok(
 			exists(
 				$test->{'_table'}->{'field'}
 			),
 			'"_table->field" exists.',
 		);
-		
+
 		is(
 			$test->{'_table'}->{'field'},
 			'value',
 			'The value matches.',
 		);
-		
+
 		ok(
 			!exists(
 				$test->{'_table_field'}
@@ -95,20 +95,20 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		ok(
 			exists(
 				$test->{'_account'}->{'account_id'}
 			),
 			'"_account->account_id" exists.',
 		);
-		
+
 		is(
 			$test->{'_account'}->{'account_id'},
 			1,
 			'The value matches.',
 		);
-		
+
 		ok(
 			!exists(
 				$test->{'_account_account_id'}

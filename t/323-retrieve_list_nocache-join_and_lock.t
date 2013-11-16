@@ -99,14 +99,14 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->{'default_dbh'} = LocalTest::get_database_handle();
 	$info->{'table_name'} = 'tests';
 	$info->{'primary_key_name'} = 'test_id';
 	$info->{'filtering_fields'} = [ 'name' ];
-	
+
 	return $info;
 }
 
@@ -114,7 +114,7 @@ sub static_class_info
 sub retrieve_list_nocache
 {
 	my ( $class, $filters, %args ) = @_;
-	
+
 	return $class->SUPER::retrieve_list_nocache(
 		$filters,
 		%args,
@@ -150,9 +150,9 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			'table_name'       => 'accounts',
@@ -160,7 +160,7 @@ sub static_class_info
 			'default_dbh'      => LocalTest::get_database_handle(),
 		}
 	);
-	
+
 	return $info;
 }
 

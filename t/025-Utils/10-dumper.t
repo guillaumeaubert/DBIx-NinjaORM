@@ -30,7 +30,7 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		my $output;
 		lives_ok(
 			sub
@@ -39,7 +39,7 @@ subtest(
 			},
 			'Call dumper().',
 		);
-		
+
 		like(
 			$output,
 			qr/key1/,
@@ -53,7 +53,7 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		ok(
 			local $DBIx::NinjaORM::Utils::DUMPER = sub
 			{
@@ -62,7 +62,7 @@ subtest(
 			},
 			'Set up custom dumper.',
 		);
-		
+
 		my $output;
 		lives_ok(
 			sub
@@ -71,7 +71,7 @@ subtest(
 			},
 			'Call dumper().',
 		);
-		
+
 		is(
 			$output,
 			'key1,key2',

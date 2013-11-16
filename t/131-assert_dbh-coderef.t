@@ -34,7 +34,7 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		my $dbh;
 		lives_ok(
 			sub
@@ -43,7 +43,7 @@ subtest(
 			},
 			'Retrieve database handle.',
 		);
-		
+
 		isa_ok(
 			$dbh,
 			'DBI::db',
@@ -59,7 +59,7 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		my $dbh;
 		lives_ok(
 			sub
@@ -73,7 +73,7 @@ subtest(
 			},
 			'Retrieve database handle.',
 		);
-		
+
 		isa_ok(
 			$dbh,
 			'DBI::db',
@@ -98,14 +98,14 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->{'default_dbh'} = sub
 	{
 		return LocalTest::get_database_handle();
 	};
-	
+
 	return $info;
 }
 
@@ -124,16 +124,16 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			# Not a DBI::db object.
 			'default_dbh' => "INVALID",
 		}
 	);
-	
+
 	return $info;
 }
 

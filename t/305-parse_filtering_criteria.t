@@ -40,7 +40,7 @@ my $tests =
 		input    => 'test',
 		expected => undef,
 	},
-	
+
 	# Parse with one field.
 	{
 		name     => 'Parse with one field.',
@@ -61,7 +61,7 @@ my $tests =
 			keys_passed => 1,
 		},
 	},
-	
+
 	# Parse with two fields.
 	{
 		name     => 'Parse with two fields.',
@@ -85,7 +85,7 @@ my $tests =
 			keys_passed => 1,
 		},
 	},
-	
+
 	# Parse the field's values being an arrayref.
 	{
 		name     => 'Parse the field\'s values being an arrayref.',
@@ -106,7 +106,7 @@ my $tests =
 			keys_passed => 1,
 		},
 	},
-	
+
 	# Parse non implicit operator.
 	{
 		name     => 'Parse a non-implicit operator.',
@@ -154,7 +154,7 @@ my $tests =
 			keys_passed => 1,
 		},
 	},
-	
+
 	# Verify that only supported operators are accepted.
 	{
 		name     => 'Verify that only supported operators are accepted.',
@@ -183,7 +183,7 @@ foreach my $test ( @$tests )
 {
 	my $input = $test->{'input'};
 	my $expected = $test->{'expected'};
-	
+
 	if ( defined( $expected ) )
 	{
 		# If we're expected a return, test the returned values.
@@ -192,7 +192,7 @@ foreach my $test ( @$tests )
 			sub
 			{
 				plan( tests => 4 );
-				
+
 				my ( $where_clauses, $where_values, $filtering_field_keys_passed );
 				lives_ok(
 					sub
@@ -206,19 +206,19 @@ foreach my $test ( @$tests )
 					},
 					'Parse the filtering criteria.',
 				);
-				
+
 				is_deeply(
 					$where_clauses,
 					$expected->{'clauses'},
 					'The clause matches.',
 				) || diag( explain( 'Retrieved: ', $where_clauses, 'Expected: ', $expected->{'clauses'} ) );
-				
+
 				is_deeply(
 					$where_values,
 					$expected->{'values'},
 					'The values match.',
 				) || diag( explain( 'Retrieved: ', $where_values, 'Expected: ', $expected->{'values'} ) );
-				
+
 				is(
 					$filtering_field_keys_passed,
 					$expected->{'keys_passed'},
@@ -259,9 +259,9 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			'table_name'       => 'tests',
@@ -270,7 +270,7 @@ sub static_class_info
 			'filtering_fields' => [ 'field1', 'field2' ],
 		}
 	);
-	
+
 	return $info;
 }
 

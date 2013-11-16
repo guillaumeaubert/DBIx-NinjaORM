@@ -37,7 +37,7 @@ can_ok(
 # able to make sure that calls to update() leave the 'created' field
 # unaffected.
 my $created_time = time() - 10;
-				
+
 # Insert a test object.
 my $object;
 subtest(
@@ -48,7 +48,7 @@ subtest(
 			$object = TestSubclass::TestTable->new(),
 			'Create new object.',
 		);
-		
+
 		lives_ok(
 			sub
 			{
@@ -69,7 +69,7 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		# Copy the test object, to leave the original intact and prevent
 		# bleeding between tests.
 		ok(
@@ -78,7 +78,7 @@ subtest(
 			),
 			'Copy the test object.',
 		);
-		
+
 		dies_ok(
 			sub
 			{
@@ -96,7 +96,7 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		# Copy the test object, to leave the original intact and prevent
 		# bleeding between tests.
 		ok(
@@ -105,7 +105,7 @@ subtest(
 			),
 			'Copy the test object.',
 		);
-		
+
 		# Re-bless the object with the class that has no table name
 		# defined.
 		ok(
@@ -115,7 +115,7 @@ subtest(
 			),
 			'Re-bless the object with a class that has no table name defined.',
 		);
-		
+
 		dies_ok(
 			sub
 			{
@@ -135,7 +135,7 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		# Copy the test object, to leave the original intact and prevent
 		# bleeding between tests.
 		ok(
@@ -144,7 +144,7 @@ subtest(
 			),
 			'Copy the test object.',
 		);
-		
+
 		# Re-bless the object with the class that has no primary key
 		# name defined.
 		ok(
@@ -154,7 +154,7 @@ subtest(
 			),
 			'Re-bless the object with a class that has no primary key name defined.',
 		);
-		
+
 		dies_ok(
 			sub
 			{

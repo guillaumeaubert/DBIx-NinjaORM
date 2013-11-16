@@ -34,14 +34,14 @@ subtest(
 	sub
 	{
 		plan( tests => 5 );
-		
+
 		ok(
 			defined(
 				my $object = DBIx::NinjaORM::Test->new(),
 			),
 			'Create object.',
 		);
-		
+
 		lives_ok(
 			sub
 			{
@@ -53,7 +53,7 @@ subtest(
 			},
 			'Set data on the object.',
 		);
-		
+
 		my $output;
 		lives_ok(
 			sub
@@ -62,13 +62,13 @@ subtest(
 			},
 			'Commit.',
 		);
-		
+
 		is(
 			$output->{'action'},
 			'insert',
 			'commit() called insert().',
 		);
-		
+
 		is_deeply(
 			$output->{'data'},
 			{
@@ -85,14 +85,14 @@ subtest(
 	sub
 	{
 		plan( tests => 6 );
-		
+
 		ok(
 			defined(
 				my $object = DBIx::NinjaORM::Test->new(),
 			),
 			'Create object.',
 		);
-		
+
 		lives_ok(
 			sub
 			{
@@ -104,12 +104,12 @@ subtest(
 			},
 			'Set data on the object.',
 		);
-		
+
 		ok(
 			$object->{'test_id'} = 1,
 			'Override primary key value.',
 		);
-		
+
 		my $output;
 		lives_ok(
 			sub
@@ -118,13 +118,13 @@ subtest(
 			},
 			'Commit.',
 		);
-		
+
 		is(
 			$output->{'action'},
 			'update',
 			'commit() called update().',
 		);
-		
+
 		is_deeply(
 			$output->{'data'},
 			{
@@ -151,9 +151,9 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			default_dbh      => LocalTest::get_database_handle(),
@@ -161,14 +161,14 @@ sub static_class_info
 			primary_key_name => 'test_id',
 		}
 	);
-	
+
 	return $info;
 }
 
 sub insert
 {
 	my ( $self, $data ) = @_;
-	
+
 	return
 	{
 		action => 'insert',
@@ -179,7 +179,7 @@ sub insert
 sub update
 {
 	my ( $self, $data ) = @_;
-	
+
 	return
 	{
 		action => 'update',

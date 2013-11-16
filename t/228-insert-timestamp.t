@@ -28,7 +28,7 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		ok(
 			my $object = TestSubclass::DateTable->new(),
 			'Create new object.',
@@ -46,7 +46,7 @@ subtest(
 			},
 			'Insert succeeds.',
 		);
-		
+
 		$object_id = $object->id();
 	}
 );

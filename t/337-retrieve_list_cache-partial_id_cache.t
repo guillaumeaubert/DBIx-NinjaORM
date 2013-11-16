@@ -34,7 +34,7 @@ subtest(
 	sub
 	{
 		plan( tests => 10 );
-		
+
 		foreach my $i ( 1..10 )
 		{
 			lives_ok(
@@ -104,21 +104,21 @@ foreach my $i ( 2, 4, 6 )
 		sub
 		{
 			plan( tests => 3 );
-			
+
 			ok(
 				defined(
 					my $object = $objects_by_value->{ "$time-$i" }
 				),
 				"Get object for value=$time-$i.",
 			);
-			
+
 			ok(
 				defined(
 					my $object_cache_key = $object->get_object_cache_key()
 				),
 				'Retrieve the object cache key.',
 			);
-			
+
 			ok(
 				DBIx::NinjaORM::Test->delete_cache( key => $object_cache_key ),
 				'Expire the object cache',
@@ -157,12 +157,12 @@ subtest(
 	sub
 	{
 		plan( tests => 6 );
-		
+
 		my $i = 0;
 		foreach my $test ( @$tests )
 		{
 			$i++;
-			
+
 			is(
 				$test->get('value'),
 				"$time-$i",
@@ -200,7 +200,7 @@ subtest(
 			"partial_cache_5_$time" => 1,
 			"partial_cache_6_$time" => 0,
 		};
-		
+
 		foreach my $test ( @$tests )
 		{
 			if ( $expected_object_cache_use->{ $test->get('name') } )
@@ -289,9 +289,9 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			default_dbh       => LocalTest::get_database_handle(),
@@ -303,7 +303,7 @@ sub static_class_info
 			memcache          => LocalTest::get_memcache(),
 		}
 	);
-	
+
 	return $info;
 }
 

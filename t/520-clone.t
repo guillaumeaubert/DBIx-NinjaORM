@@ -39,14 +39,14 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		ok(
 			defined(
 				my $object = TestSubclass::TestTable->new()
 			),
 			'Create new object.',
 		);
-		
+
 		lives_ok(
 			sub
 			{
@@ -58,7 +58,7 @@ subtest(
 			},
 			'Insert succeeds.',
 		);
-		
+
 		$object_id = $object->id();
 	}
 );

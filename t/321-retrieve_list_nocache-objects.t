@@ -29,7 +29,7 @@ foreach my $count ( 1..3 )
 				my $object = DBIx::NinjaORM::Test->new(),
 				'Create new object.',
 			);
-			
+
 			lives_ok(
 				sub
 				{
@@ -71,7 +71,7 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		foreach my $object ( @$objects )
 		{
 			isa_ok(
@@ -98,9 +98,9 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			'table_name'       => 'tests',
@@ -109,7 +109,7 @@ sub static_class_info
 			'filtering_fields' => [ 'name' ],
 		}
 	);
-	
+
 	return $info;
 }
 

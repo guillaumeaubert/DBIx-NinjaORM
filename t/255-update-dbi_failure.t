@@ -30,7 +30,7 @@ subtest(
 			$object = TestSubclass::TestTable->new(),
 			'Create new object.',
 		);
-		
+
 		lives_ok(
 			sub
 			{

@@ -37,14 +37,14 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		ok(
 			defined(
 				my $object = TestSubclass::TestTable->new()
 			),
 			'Create new object.',
 		);
-		
+
 		lives_ok(
 			sub
 			{
@@ -56,13 +56,13 @@ subtest(
 			},
 			'Insert succeeds.',
 		);
-		
+
 		isnt(
 			$object->id(),
 			undef,
 			'id() returns a defined value.',
 		);
-		
+
 		$object_id = $object->id();
 	}
 );
@@ -72,7 +72,7 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		ok(
 			defined(
 				my $objects = TestSubclass::TestTable->retrieve_list(
@@ -83,13 +83,13 @@ subtest(
 			),
 			'Retrieve the object previously inserted.',
 		);
-		
+
 		is(
 			scalar( @$objects ),
 			1,
 			'Found object.',
 		);
-		
+
 		is(
 			$objects->[0]->id(),
 			$object_id,

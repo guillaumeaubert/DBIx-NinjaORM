@@ -49,12 +49,12 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		ok(
 			!exists( $object->{'readonly_field'} ),
 			'"readonly_field" does not exist on the object.',
 		);
-		
+
 		dies_ok(
 			sub
 			{
@@ -75,12 +75,12 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		ok(
 			!exists( $object->{'readonly_field'} ),
 			'"readonly_field" does not exist on the object.',
 		);
-		
+
 		dies_ok(
 			sub
 			{
@@ -103,12 +103,12 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		ok(
 			!exists( $object->{'readonly_field'} ),
 			'"readonly_field" does not exist on the object.',
 		);
-		
+
 		lives_ok(
 			sub
 			{
@@ -121,7 +121,7 @@ subtest(
 			},
 			'Set value.',
 		);
-		
+
 		is(
 			$object->{'readonly_field'},
 			'value',
@@ -143,16 +143,16 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			'readonly_fields'  => [ 'readonly_field' ],
 			'primary_key_name' => 'test_pk',
 		}
 	);
-	
+
 	return $info;
 }
 

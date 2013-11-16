@@ -42,7 +42,7 @@ subtest(
 			my $object = TestSubclass::NoTableName->new(),
 			'Create new object.',
 		);
-		
+
 		throws_ok(
 			sub
 			{
@@ -63,7 +63,7 @@ subtest(
 			my $object = TestSubclass::NoPK->new(),
 			'Create new object.',
 		);
-		
+
 		throws_ok(
 			sub
 			{
@@ -86,7 +86,7 @@ subtest(
 			),
 			'Create new object.',
 		);
-		
+
 		throws_ok(
 			sub
 			{
@@ -108,7 +108,7 @@ subtest(
 			$object = TestSubclass::TestTable->new(),
 			'Create new object.',
 		);
-		
+
 		lives_ok(
 			sub
 			{

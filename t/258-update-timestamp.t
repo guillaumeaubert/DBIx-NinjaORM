@@ -31,7 +31,7 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		ok(
 			my $object = TestSubclass::DateTable->new(),
 			'Create new object.',
@@ -50,9 +50,9 @@ subtest(
 			},
 			'Insert succeeds.',
 		);
-		
+
 		$object_id = $object->id();
-		
+
 		# Forge the created and modified date, so that when we update the record we
 		# can check if the modified date was properly changed.
 		lives_ok(
@@ -80,20 +80,20 @@ subtest(
 	sub
 	{
 		plan( tests => 4 );
-		
+
 		ok(
 			defined(
 				my $object = TestSubclass::DateTable->new( { id => $object_id } )
 			),
 			'Retrieve the object.',
 		);
-		
+
 		is(
 			$object->get('modified'),
 			'2010-01-01 00:00:01',
 			'The modified date has been correctly set in the past.',
 		);
-		
+
 		lives_ok(
 			sub
 			{
@@ -105,7 +105,7 @@ subtest(
 			},
 			'Update the object.',
 		);
-		
+
 		is(
 			$object->get('modified'),
 			TestSubclass::DateTable->get_current_time(),
@@ -119,14 +119,14 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		ok(
 			defined(
 				my $object = TestSubclass::DateTable->new( { id => $object_id } )
 			),
 			'Retrieve the object.',
 		);
-		
+
 		like(
 			$object->get('modified'),
 			$date_pattern,

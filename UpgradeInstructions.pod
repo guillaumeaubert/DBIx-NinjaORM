@@ -19,14 +19,14 @@ subclasses as follows:
 	sub static_class_info
 	{
 		my ( $class ) = @_;
-		
+
 		# Load defaults.
 		my $info = $class->SUPER::static_class_info();
-		
+
 		# Values specific to this class.
 		$info->{'key'} = 'value';
 		$info->{'...'} = '...';
-		
+
 		return $info;
 	}
 
@@ -35,10 +35,10 @@ subclasses as follows:
 	sub static_class_info
 	{
 		my ( $class ) = @_;
-		
+
 		# Load defaults.
 		my $info = $class->SUPER::static_class_info();
-		
+
 		# Values specific to this class.
 		# IMPORTANT: now set using set() instead of using a hash assignation.
 		$info->set(
@@ -47,7 +47,7 @@ subclasses as follows:
 				'...' => '...',
 			}
 		);
-		
+
 		return $info;
 	}
 

@@ -37,9 +37,9 @@ lives_ok(
 	{
 		open( my $fh, '<', $schema_file )
 			|| die "Failed to open $schema_file: $!";
-		
+
 		$schema = do { local $/ = undef; <$fh> };
-		
+
 		close( $fh );
 	},
 	'Retrieve the SQL schema.',
@@ -60,7 +60,7 @@ subtest(
 	sub
 	{
 		plan( tests => scalar( @$statements ) );
-		
+
 		foreach my $statement ( @$statements )
 		{
 			# If the statement begins with -- [something] --, then it indicates
@@ -68,7 +68,7 @@ subtest(
 			my ( $name, $sql ) = $statement =~ /^--\s+(.*?)\s+--\s*(.*)$/s;
 			$name ||= 'Run statement.';
 			$sql ||= $statement;
-			
+
 			note( $sql );
 			lives_ok(
 				sub

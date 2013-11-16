@@ -24,7 +24,7 @@ my $dbh = LocalTest::ok_database_handle();
 my $quoted_field = $dbh->quote_identifier( 'test_field' );
 
 # Tests.
-my $tests = 
+my $tests =
 [
 	# Operator "between".
 	{
@@ -51,7 +51,7 @@ my $tests =
 		},
 		expected => undef,
 	},
-	
+
 	# Operator "not_null".
 	{
 		name     => 'Test operator="not_null" with correct input.',
@@ -81,7 +81,7 @@ my $tests =
 			values => [],
 		},
 	},
-	
+
 	# Operator "null".
 	{
 		name     => 'Test operator="null" with correct input.',
@@ -111,7 +111,7 @@ my $tests =
 			values => [],
 		},
 	},
-	
+
 	# Operator "=".
 	{
 		name     => 'Test operator="=" with values=scalar.',
@@ -141,7 +141,7 @@ my $tests =
 			values => [ 1, 'a' ],
 		},
 	},
-	
+
 	# Operator "not".
 	{
 		name     => 'Test operator="not" with values=scalar.',
@@ -171,7 +171,7 @@ my $tests =
 			values => [ 1, 'a' ],
 		},
 	},
-	
+
 	# Operator ">".
 	{
 		name     => 'Test operator=">" with values=scalar.',
@@ -201,7 +201,7 @@ my $tests =
 			values => [ 3 ],
 		},
 	},
-	
+
 	# Operator ">=".
 	{
 		name     => 'Test operator=">" with values=scalar.',
@@ -231,7 +231,7 @@ my $tests =
 			values => [ 3 ],
 		},
 	},
-	
+
 	# Operator "<".
 	{
 		name     => 'Test operator="<" with values=scalar.',
@@ -261,7 +261,7 @@ my $tests =
 			values => [ 1 ],
 		},
 	},
-	
+
 	# Operator "<=".
 	{
 		name     => 'Test operator="<=" with values=scalar.',
@@ -363,7 +363,7 @@ foreach my $test ( @$tests )
 {
 	my $input = $test->{'input'};
 	my $expected = $test->{'expected'};
-	
+
 	if ( defined( $expected ) )
 	{
 		subtest(
@@ -371,7 +371,7 @@ foreach my $test ( @$tests )
 			sub
 			{
 				plan( tests => 3 );
-				
+
 				my ( $clause, $values );
 				lives_ok(
 					sub
@@ -382,13 +382,13 @@ foreach my $test ( @$tests )
 					},
 					'Create the filtering clause.',
 				);
-				
+
 				is(
 					$clause,
 					$expected->{'clause'},
 					'The clause matches.',
 				);
-				
+
 				is_deeply(
 					$values,
 					$expected->{'values'},
@@ -428,15 +428,15 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			'default_dbh' => LocalTest::get_database_handle(),
 		}
 	);
-	
+
 	return $info;
 }
 

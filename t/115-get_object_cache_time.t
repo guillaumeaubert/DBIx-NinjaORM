@@ -60,7 +60,7 @@ foreach my $test ( @$tests )
 		sub
 		{
 			plan( tests => 2 );
-			
+
 			my $object_cache_time;
 			warning_like(
 				sub
@@ -70,7 +70,7 @@ foreach my $test ( @$tests )
 				{ carped => qr/has been deprecated/ },
 				'The method is deprecated.',
 			);
-			
+
 			is(
 				$object_cache_time,
 				$test->{'expected'},

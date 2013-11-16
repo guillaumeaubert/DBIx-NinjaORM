@@ -30,14 +30,14 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		ok(
 			defined(
 				my $object = DBIx::NinjaORM::Test->new()
 			),
 			'Create DBIx::NinjaORM::Test object.',
 		);
-		
+
 		lives_ok(
 			sub
 			{
@@ -60,7 +60,7 @@ subtest(
 	sub
 	{
 		plan( tests => 6 );
-		
+
 		ok(
 			my $objects = DBIx::NinjaORM::Test->retrieve_list(
 				{
@@ -73,13 +73,13 @@ subtest(
 			),
 			'Retrieve rows',
 		);
-		
+
 		is(
 			scalar( @$objects ),
 			1,
 			'Found one row.',
 		);
-		
+
 		my $object = $objects->[0];
 		is(
 			$object->{'_debug'}->{'list_cache_used'},
@@ -113,7 +113,7 @@ subtest(
 	sub
 	{
 		plan( tests => 6 );
-		
+
 		ok(
 			my $objects = DBIx::NinjaORM::Test->retrieve_list(
 				{
@@ -126,13 +126,13 @@ subtest(
 			),
 			'Retrieve rows',
 		);
-		
+
 		is(
 			scalar( @$objects ),
 			1,
 			'Found one row.',
 		);
-		
+
 		my $object = $objects->[0];
 		is(
 			$object->{'_debug'}->{'list_cache_used'},
@@ -164,7 +164,7 @@ subtest(
 	sub
 	{
 		plan( tests => 6 );
-		
+
 		ok(
 			my $objects = DBIx::NinjaORM::Test->retrieve_list(
 				{
@@ -173,13 +173,13 @@ subtest(
 			),
 			'Retrieve rows',
 		);
-		
+
 		is(
 			scalar( @$objects ),
 			1,
 			'Found one row.',
 		);
-		
+
 		my $object = $objects->[0];
 		is(
 			$object->{'_debug'}->{'list_cache_used'},
@@ -210,7 +210,7 @@ subtest(
 	sub
 	{
 		plan( tests => 6 );
-		
+
 		ok(
 			my $objects = DBIx::NinjaORM::Test->retrieve_list(
 				{
@@ -223,13 +223,13 @@ subtest(
 			),
 			'Retrieve rows',
 		);
-		
+
 		is(
 			scalar( @$objects ),
 			1,
 			'Found one row.',
 		);
-		
+
 		my $object = $objects->[0];
 		is(
 			$object->{'_debug'}->{'list_cache_used'},
@@ -271,9 +271,9 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			default_dbh       => LocalTest::get_database_handle(),
@@ -285,7 +285,7 @@ sub static_class_info
 			memcache          => LocalTest::get_memcache(),
 		}
 	);
-	
+
 	return $info;
 }
 

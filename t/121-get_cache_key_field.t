@@ -60,7 +60,7 @@ foreach my $test ( @$tests )
 		sub
 		{
 			plan( tests => 2 );
-			
+
 			my $cache_key_field;
 			lives_ok(
 				sub
@@ -69,7 +69,7 @@ foreach my $test ( @$tests )
 				},
 				'Retrieve the list cache time.',
 			);
-			
+
 			is(
 				$cache_key_field,
 				$test->{'expected'},

@@ -51,15 +51,15 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	# Get a regular database connection DBI::db object, then
 	# re-bless it as DBI::db::Test which overrides the do() method
 	# to make it die.
 	my $dbh = LocalTest::get_database_handle();
 	bless( $dbh, 'DBI::db::Test' );
-	
+
 	# Regular setup.
 	$info->set(
 		{
@@ -68,7 +68,7 @@ sub static_class_info
 			'primary_key_name' => 'test_id',
 		}
 	);
-	
+
 	return $info;
 }
 

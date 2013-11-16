@@ -24,7 +24,7 @@ subtest(
 	sub
 	{
 		plan( tests => 25 );
-		
+
 		foreach my $i ( 1 .. 25 )
 		{
 			my $test = DBIx::NinjaORM::Test->new();
@@ -74,7 +74,7 @@ my $tests =
 			},
 		},
 	},
-	
+
 	# Make sure that 10 objects on pages of 5 only make 2 pages.
 	{
 		name     => 'Retrieve page 2 of 2 out of 10.',
@@ -103,7 +103,7 @@ my $tests =
 			},
 		},
 	},
-	
+
 	# If no page is specified, this should default to page 1.
 	{
 		name     => 'Retrieve default page.',
@@ -131,7 +131,7 @@ my $tests =
 			},
 		},
 	},
-	
+
 	# If no number of results per page is specified, this should default to 20.
 	{
 		name     => 'Retrieve default page count.',
@@ -159,7 +159,7 @@ my $tests =
 			},
 		},
 	},
-	
+
 	# We allow "pagination => 1" as a shortcut for the default pagination
 	# settings.
 	{
@@ -194,7 +194,7 @@ foreach my $test ( @$tests )
 		sub
 		{
 			plan( tests => 4 );
-			
+
 			my ( $objects, $pagination );
 			lives_ok(
 				sub
@@ -205,20 +205,20 @@ foreach my $test ( @$tests )
 				},
 				'Retrieve objects and pagination information.',
 			);
-			
+
 			is(
 				scalar( @$objects ),
 				$test->{'expected'}->{'objects_count'},
 				'Retrieved the correct number of objects.',
 			);
-			
+
 			my $expected_pagination = $test->{'expected'}->{'pagination'};
 			is_deeply(
 				$pagination,
 				$expected_pagination,
 				'The pagination information is correct.',
 			) || diag( explain( [ "Got:", $pagination, "Expected:", $expected_pagination ] ) );
-			
+
 			my $expected_names = $test->{'expected'}->{'object_names'};
 			my $names = [ map { $_->get('name') } @$objects ];
 			is_deeply(
@@ -246,9 +246,9 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			default_dbh       => LocalTest::get_database_handle(),
@@ -257,7 +257,7 @@ sub static_class_info
 			filtering_fields  => [ 'name' ],
 		}
 	);
-	
+
 	return $info;
 }
 

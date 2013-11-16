@@ -73,7 +73,7 @@ lives_ok(
 			{},
 			$name,
 		);
-		
+
 		die 'No row'
 			if !defined( $row );
 	},

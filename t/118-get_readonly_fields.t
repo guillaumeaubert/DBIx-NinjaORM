@@ -60,7 +60,7 @@ foreach my $test ( @$tests )
 		sub
 		{
 			plan( tests => 2 );
-			
+
 			my $readonly_fields;
 			warning_like(
 				sub
@@ -70,7 +70,7 @@ foreach my $test ( @$tests )
 				{ carped => qr/has been deprecated/ },
 				'The method is deprecated.',
 			);
-			
+
 			is_deeply(
 				$readonly_fields,
 				$test->{'expected'},

@@ -44,7 +44,7 @@ subtest(
 	sub
 	{
 		plan( tests => 5 );
-		
+
 		is(
 			DBIx::NinjaORM::NoCache->get_info('object_cache_time'),
 			undef,
@@ -56,13 +56,13 @@ subtest(
 			undef,
 			'The list cache time for the class is undef.',
 		);
-		
+
 		is(
 			DBIx::NinjaORM::NoCache->retrieve_list(),
 			'retrieve_list_nocache',
 			'Calling retrieve_list() with no arguments falls back to the non-cached version.',
 		);
-		
+
 		is(
 			DBIx::NinjaORM::NoCache->retrieve_list(
 				{},
@@ -71,7 +71,7 @@ subtest(
 			'retrieve_list_nocache',
 			'Calling retrieve_list() with skip_cache=0 uses the non-cached version.',
 		);
-		
+
 		is(
 			DBIx::NinjaORM::NoCache->retrieve_list(
 				{},
@@ -88,7 +88,7 @@ subtest(
 	sub
 	{
 		plan( tests => 5 );
-		
+
 		is(
 			DBIx::NinjaORM::ObjectCache->get_info('object_cache_time'),
 			3,
@@ -100,13 +100,13 @@ subtest(
 			undef,
 			'The list cache time for the class is properly set.',
 		);
-		
+
 		is(
 			DBIx::NinjaORM::ObjectCache->retrieve_list(),
 			'retrieve_list_cache',
 			'Calling retrieve_list() with no arguments falls back to the cached version.',
 		);
-		
+
 		is(
 			DBIx::NinjaORM::ObjectCache->retrieve_list(
 				{},
@@ -115,7 +115,7 @@ subtest(
 			'retrieve_list_cache',
 			'Calling retrieve_list() with skip_cache=0 uses the cached version.',
 		);
-		
+
 		is(
 			DBIx::NinjaORM::ObjectCache->retrieve_list(
 				{},
@@ -132,7 +132,7 @@ subtest(
 	sub
 	{
 		plan( tests => 5 );
-		
+
 		is(
 			DBIx::NinjaORM::ListCache->get_info('object_cache_time'),
 			undef,
@@ -144,13 +144,13 @@ subtest(
 			3,
 			'The list cache time for the class is properly set.',
 		);
-		
+
 		is(
 			DBIx::NinjaORM::ListCache->retrieve_list(),
 			'retrieve_list_cache',
 			'Calling retrieve_list() with no arguments falls back to the cached version.',
 		);
-		
+
 		is(
 			DBIx::NinjaORM::ListCache->retrieve_list(
 				{},
@@ -159,7 +159,7 @@ subtest(
 			'retrieve_list_cache',
 			'Calling retrieve_list() with skip_cache=0 uses the cached version.',
 		);
-		
+
 		is(
 			DBIx::NinjaORM::ListCache->retrieve_list(
 				{},
@@ -184,10 +184,10 @@ sub static_class_info
 {
 	my ( $class ) = @_;
 	my $static_class_info = $class->SUPER::static_class_info();
-	
+
 	$static_class_info->{'object_cache_time'} = undef;
 	$static_class_info->{'list_cache_time'} = 3;
-	
+
 	return $static_class_info;
 }
 
@@ -220,10 +220,10 @@ sub static_class_info
 {
 	my ( $class ) = @_;
 	my $static_class_info = $class->SUPER::static_class_info();
-	
+
 	$static_class_info->{'object_cache_time'} = 3;
 	$static_class_info->{'list_cache_time'} = undef;
-	
+
 	return $static_class_info;
 }
 
@@ -256,16 +256,16 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			'list_cache_time'   => undef,
 			'object_cache_time' => undef,
 		}
 	);
-	
+
 	return $info;
 }
 

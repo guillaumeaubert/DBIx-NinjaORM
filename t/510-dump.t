@@ -39,14 +39,14 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		ok(
 			defined(
 				my $object = TestSubclass::TestTable->new()
 			),
 			'Create new object.',
 		);
-		
+
 		lives_ok(
 			sub
 			{
@@ -58,7 +58,7 @@ subtest(
 			},
 			'Insert succeeds.',
 		);
-		
+
 		$object_id = $object->id();
 	}
 );
@@ -79,7 +79,7 @@ subtest(
 	sub
 	{
 		plan( tests => 2 );
-		
+
 		my $output;
 		lives_ok(
 			sub
@@ -104,7 +104,7 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		ok(
 			local $DBIx::NinjaORM::Utils::DUMPER = sub
 			{
@@ -113,7 +113,7 @@ subtest(
 			},
 			'Set up custom dumper.',
 		);
-		
+
 		my $output;
 		lives_ok(
 			sub
@@ -122,7 +122,7 @@ subtest(
 			},
 			'Dump the object.',
 		);
-		
+
 		# Verify output.
 		is(
 			$output,

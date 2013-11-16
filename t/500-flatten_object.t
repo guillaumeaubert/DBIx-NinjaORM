@@ -39,14 +39,14 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		ok(
 			defined(
 				my $object = TestSubclass::TestTable->new()
 			),
 			'Create new object.',
 		);
-		
+
 		lives_ok(
 			sub
 			{
@@ -58,13 +58,13 @@ subtest(
 			},
 			'Insert succeeds.',
 		);
-		
+
 		isnt(
 			$object->id(),
 			undef,
 			'id() returns a defined value.',
 		);
-		
+
 		$object_id = $object->id();
 	}
 );
@@ -94,7 +94,7 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		my $flattened_object;
 		lives_ok(
 			sub
@@ -105,12 +105,12 @@ subtest(
 			},
 			'Flatten the object.',
 		);
-		
+
 		ok_hashref(
 			$flattened_object,
 			name => 'The flattened object.',
 		);
-		
+
 		cmp_deeply(
 			[ sort keys %$flattened_object ],
 			$flatten_keys,
@@ -146,7 +146,7 @@ subtest(
 	sub
 	{
 		plan( tests => 3 );
-		
+
 		my $flattened_object;
 		lives_ok(
 			sub
@@ -157,12 +157,12 @@ subtest(
 			},
 			'Flatten the object.',
 		);
-		
+
 		ok_hashref(
 			$flattened_object,
 			name => 'The flattened object.',
 		);
-		
+
 		cmp_deeply(
 			$flattened_object,
 			{

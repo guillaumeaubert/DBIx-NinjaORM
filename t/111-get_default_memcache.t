@@ -55,7 +55,7 @@ foreach my $test ( @$tests )
 		sub
 		{
 			plan( tests => 2 );
-			
+
 			my $memcache;
 			warning_like(
 				sub
@@ -65,7 +65,7 @@ foreach my $test ( @$tests )
 				{ carped => qr/has been deprecated/ },
 				'The method is deprecated.',
 			);
-			
+
 			is(
 				$memcache,
 				'TESTMEMCACHE',

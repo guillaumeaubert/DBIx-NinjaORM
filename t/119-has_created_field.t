@@ -70,7 +70,7 @@ foreach my $test ( @$tests )
 		sub
 		{
 			plan( tests => 2 );
-			
+
 			my $created_field;
 			warning_like(
 				sub
@@ -80,7 +80,7 @@ foreach my $test ( @$tests )
 				{ carped => qr/has been deprecated/ },
 				'The method is deprecated.',
 			);
-			
+
 			is(
 				$created_field,
 				$test->{'expected'},
@@ -103,15 +103,15 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			'has_created_field' => 1,
 		}
 	);
-	
+
 	return $info;
 }
 
@@ -130,15 +130,15 @@ use base 'DBIx::NinjaORM';
 sub static_class_info
 {
 	my ( $class ) = @_;
-	
+
 	my $info = $class->SUPER::static_class_info();
-	
+
 	$info->set(
 		{
 			'has_created_field' => 0,
 		}
 	);
-	
+
 	return $info;
 }
 
