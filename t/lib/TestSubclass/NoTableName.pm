@@ -13,11 +13,11 @@ TestSubclass::NoTableName - Test subclass without a table name.
 
 =head1 VERSION
 
-Version 3.0.1
+Version 3.0.2
 
 =cut
 
-our $VERSION = '3.0.1';
+our $VERSION = '3.0.2';
 
 
 =head1 SYNOPSIS

@@ -1,5 +1,11 @@
 Revision history for DBIx-NinjaORM
 
+v3.0.2  2014-04-20
+        - Fixed "package version matches dist version" for CPANTS.
+        - Fixed license declared in meta files.
+        - Added option to customize the dumper function used (GH-3).
+        - General cleanup.
+
 v3.0.1  2013-08-25
         - Fixed double-planning tests when memcache isn't running (GH-21).
         - Reordered new tests.

@@ -28,16 +28,16 @@ no_index:
 provides:
   DBIx::NinjaORM:
     file: lib/DBIx/NinjaORM.pm
-    version: v3.0.1
+    version: v3.0.2
   DBIx::NinjaORM::Schema::Table:
     file: lib/DBIx/NinjaORM/Schema/Table.pm
-    version: v3.0.1
+    version: v3.0.2
   DBIx::NinjaORM::StaticClassInfo:
     file: lib/DBIx/NinjaORM/StaticClassInfo.pm
-    version: v3.0.1
+    version: v3.0.2
   DBIx::NinjaORM::Utils:
     file: lib/DBIx/NinjaORM/Utils.pm
-    version: v3.0.1
+    version: v3.0.2
 requires:
   Carp: '0'
   Class::Load: '0'
@@ -55,4 +55,4 @@ resources:
   homepage: https://metacpan.org/release/DBIx-NinjaORM
   license: http://www.gnu.org/licenses/gpl-3.0.txt
   repository: https://github.com/guillaumeaubert/DBIx-NinjaORM
-version: v3.0.1
+version: v3.0.2

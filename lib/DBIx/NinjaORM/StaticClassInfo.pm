@@ -16,11 +16,11 @@ DBIx::NinjaORM::StaticClassInfo - Hold the configuration information for L<DBIX:
 
 =head1 VERSION
 
-Version 3.0.1
+Version 3.0.2
 
 =cut
 
-our $VERSION = '3.0.1';
+our $VERSION = '3.0.2';
 
 
 =head1 DESCRIPTION
