@@ -3331,7 +3331,7 @@ Special thanks to Kate Kirby for her help with the design of this module.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2009-2014 Guillaume Aubert.
+Copyright 2009-2015 Guillaume Aubert.
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License version 3 as published by the Free
