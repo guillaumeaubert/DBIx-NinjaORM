@@ -3,7 +3,7 @@ DBIx-NinjaORM
 
 [![Build Status](https://travis-ci.org/guillaumeaubert/DBIx-NinjaORM.svg?branch=master)](https://travis-ci.org/guillaumeaubert/DBIx-NinjaORM)
 [![Coverage Status](https://coveralls.io/repos/guillaumeaubert/DBIx-NinjaORM/badge.svg?branch=master)](https://coveralls.io/r/guillaumeaubert/DBIx-NinjaORM?branch=master)
-[![Latest Version](https://img.shields.io/github/tag/guillaumeaubert/DBIx-NinjaORM.svg?style=flat)](https://metacpan.org/release/DBIx-NinjaORM)
+[![CPAN](https://img.shields.io/cpan/v/DBIx-NinjaORM.svg)](https://metacpan.org/release/DBIx-NinjaORM)
 
 Flexible Perl ORM for easy transitions from inline SQL to objects.
 
