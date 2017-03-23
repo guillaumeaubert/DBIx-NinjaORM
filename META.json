@@ -58,19 +58,19 @@
    "provides" : {
       "DBIx::NinjaORM" : {
          "file" : "lib/DBIx/NinjaORM.pm",
-         "version" : "v3.0.2"
+         "version" : "v3.1.0"
       },
       "DBIx::NinjaORM::Schema::Table" : {
          "file" : "lib/DBIx/NinjaORM/Schema/Table.pm",
-         "version" : "v3.0.2"
+         "version" : "v3.1.0"
       },
       "DBIx::NinjaORM::StaticClassInfo" : {
          "file" : "lib/DBIx/NinjaORM/StaticClassInfo.pm",
-         "version" : "v3.0.2"
+         "version" : "v3.1.0"
       },
       "DBIx::NinjaORM::Utils" : {
          "file" : "lib/DBIx/NinjaORM/Utils.pm",
-         "version" : "v3.0.2"
+         "version" : "v3.1.0"
       }
    },
    "release_status" : "stable",
@@ -86,5 +86,5 @@
          "url" : "https://github.com/guillaumeaubert/DBIx-NinjaORM"
       }
    },
-   "version" : "v3.0.2"
+   "version" : "v3.1.0"
 }

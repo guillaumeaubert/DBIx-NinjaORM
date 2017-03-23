@@ -3,33 +3,33 @@ require 5.010;
 use ExtUtils::MakeMaker;
 WriteMakefile
 (
-  'NAME' => 'DBIx::NinjaORM',
-  'VERSION_FROM' => 'lib/DBIx/NinjaORM.pm',
   'PREREQ_PM' => {
-                   'Carp' => 0,
-                   'Class::Load' => 0,
-                   'DBD::SQLite' => 0,
-                   'DBI' => 0,
-                   'DBIx::Inspector' => 0,
-                   'Data::Dumper' => 0,
-                   'Data::Validate::Type' => 0,
-                   'Digest::SHA1' => 0,
-                   'Log::Any' => 0,
-                   'MIME::Base64' => 0,
-                   'Storable' => 0,
-                   'Test::Deep' => 0,
-                   'Test::Exception' => 0,
-                   'Test::FailWarnings' => 0,
-                   'Test::More' => '0.94',
-                   'Test::Type' => 0,
                    'Test::Warn' => 0,
-                   'Try::Tiny' => 0
+                   'Log::Any' => 0,
+                   'DBI' => 0,
+                   'Carp' => 0,
+                   'Test::Exception' => 0,
+                   'Try::Tiny' => 0,
+                   'Data::Validate::Type' => 0,
+                   'Test::Type' => 0,
+                   'Test::Deep' => 0,
+                   'DBD::SQLite' => 0,
+                   'Storable' => 0,
+                   'Data::Dumper' => 0,
+                   'Digest::SHA1' => 0,
+                   'DBIx::Inspector' => 0,
+                   'Class::Load' => 0,
+                   'Test::FailWarnings' => 0,
+                   'MIME::Base64' => 0,
+                   'Test::More' => '0.94'
                  },
   'INSTALLDIRS' => 'site',
-  'EXE_FILES' => [],
   'PL_FILES' => {},
+  'VERSION_FROM' => 'lib/DBIx/NinjaORM.pm',
   'test' => {
-              'TESTS' => 't/*.t t/050-StaticClassInfo/*.t t/lib/*.t t/lib/TestSubclass/*.t t/025-Utils/*.t t/SQL/*.t t/030-Schema-Table/*.t t/010-LocalTest/*.t'
-            }
+              'TESTS' => 't/*.t t/lib/*.t t/lib/TestSubclass/*.t t/030-Schema-Table/*.t t/010-LocalTest/*.t t/SQL/*.t t/050-StaticClassInfo/*.t t/025-Utils/*.t'
+            },
+  'NAME' => 'DBIx::NinjaORM',
+  'EXE_FILES' => []
 )
 ;
